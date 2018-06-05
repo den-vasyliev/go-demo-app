@@ -17,7 +17,7 @@ import (
 )
 
 // AppName app
-var AppName = os.Getenv("APP_NAME")
+var AppName = "name"
 
 // Version app
 var Version = "version"
