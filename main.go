@@ -1,13 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
 )
+
+// AppName app
+var AppName = os.Getenv("APP_NAME")
 
 // Version app
 var Version = "version"
@@ -16,24 +21,31 @@ var Version = "version"
 var BuildInfo = "commit"
 
 // Revision app
-var Revision = Version + "+" + BuildInfo
+var Revision = fmt.Sprintf("%s version: %s+%s", AppName, Version, BuildInfo)
 
 // AppPort app
-var AppPort = "8080"
+var AppPort = os.Getenv("APP_PORT")
 
 func main() {
-	log.Print("Version: ", Revision)
+	log.Print(Revision)
 	router := mux.NewRouter().StrictSlash(true)
+	router.HandleFunc("/", Handler)
+	router.HandleFunc("/service", serviceHandler)
 	router.HandleFunc("/version", versionHandler)
 	router.HandleFunc("/healthz", healthzHandler)
-	router.HandleFunc("/", demoHandler)
 	router.HandleFunc("/redis", redisHandler)
 	log.Fatal(http.ListenAndServe(":"+AppPort, router))
 }
 
+func Handler(w http.ResponseWriter, r *http.Request) {
+	var b []byte
+	b = append([]byte(""), Revision...)
+	w.Write(b)
+}
+
 func versionHandler(w http.ResponseWriter, r *http.Request) {
 	var b []byte
-	b = append([]byte("Version: "), Revision...)
+	b = append([]byte(""), Revision...)
 	w.Write(b)
 }
 
@@ -42,7 +54,7 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Healthz: alive!"))
 }
 
-func demoHandler(w http.ResponseWriter, r *http.Request) {
+func serviceHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := http.Get("http://localhost:8080/redis")
 	if err != nil {
 		log.Print(err)
