@@ -48,15 +48,15 @@ func main() {
 	router.HandleFunc("/version", versionHandler)
 	router.HandleFunc("/healthz", healthzHandler)
 
-	switch AppPort {
-	case "8080":
+	switch AppName {
+	case "Front":
 		router.HandleFunc("/", frontHandler)
 
-	case "8081":
+	case "Bar":
 		router.HandleFunc("/", versionHandler)
 		router.HandleFunc("/service", serviceHandler)
 
-	case "8082":
+	case "Foo":
 		router.HandleFunc("/", versionHandler)
 		router.HandleFunc("/db", dbHandler)
 
