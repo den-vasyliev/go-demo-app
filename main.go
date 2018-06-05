@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -21,10 +22,12 @@ var Revision = Version + "+" + BuildInfo
 var AppPort = "8080"
 
 func main() {
+	log.Print("Version: ", Revision)
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/version", versionHandler)
 	router.HandleFunc("/healthz", healthzHandler)
 	router.HandleFunc("/", demoHandler)
+	router.HandleFunc("/redis", redisHandler)
 	log.Fatal(http.ListenAndServe(":"+AppPort, router))
 }
 
@@ -40,11 +43,21 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func demoHandler(w http.ResponseWriter, r *http.Request) {
-
-	w.Write([]byte("Welcome to DevOps Career Day!"))
+	resp, err := http.Get("http://localhost:8080/redis")
+	if err != nil {
+		log.Print(err)
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	w.Write([]byte(body))
 }
 
-func greetings() (string, error) {
+func redisHandler(w http.ResponseWriter, r *http.Request) {
+
+	w.Write([]byte(greetings()))
+}
+
+func greetings() string {
 	client := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // no password set
@@ -55,5 +68,5 @@ func greetings() (string, error) {
 	if err != nil {
 		panic(err)
 	}
-	return val, err
+	return val
 }
