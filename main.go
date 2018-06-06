@@ -100,9 +100,9 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 				panic(err)
 			}
 		}
-		log.Print(m.Text)
+		log.Print("Text: ", m.Text)
 		hashStr := fmt.Sprintf(`{"hash":"%s"}`, greetingsID(m.Text))
-		log.Print(hashStr)
+		log.Print("Hash:", hashStr)
 		w.Write(rest("http://data", hashStr))
 
 	}
@@ -135,9 +135,9 @@ func greetingsID(decodedStr string) string {
 		DB:       0,  // use default DB
 	})
 
-	log.Print(decodedStr)
+	log.Print("DecodedStr: ", decodedStr)
 	encodedStr := hex.EncodeToString([]byte(banner.PrintS(decodedStr)))
-	log.Print(encodedStr)
+	log.Print("EncodedStr: ", encodedStr)
 	hashStr := fmt.Sprintf("%x", md5.Sum([]byte(encodedStr)))
 	err := client.Set(hashStr, encodedStr, 0).Err
 	if err != nil {
