@@ -32,7 +32,7 @@ var Revision = fmt.Sprintf("%s version: %s+%s", AppName, Version, BuildInfo)
 var AppPort = os.Getenv("APP_PORT")
 
 //AppDB name
-var AppDb = os.Getenv("APP_DB")
+var AppDb = "db/name"
 
 type greetingsToken struct {
 	Token string `json:"token"`
