@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+    env: prod
+    tier: frontend
+  annotations:
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  {{ .Release.Name }}-version
+      prefix: /version
+      rewrite: /version
+      service: {{ .Release.Name }}
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  {{ .Release.Name }}-healthz
+      prefix: /healthz
+      rewrite: /healthz
+      service: {{ .Release.Name }}
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  {{ .Release.Name }}-default
+      prefix: "/.*"
+      prefix_regex: true
+      service: {{ .Release.Name }}
+spec:
+  ports:
+  - name: http-{{ .Release.Name }}
+    port: {{ .Values.app.port }}
+    targetPort: {{ .Values.app.port }}
+  selector:
+    app: {{ .Release.Name }}
+    env: prod
+    tier: frontend
+
+
