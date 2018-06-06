@@ -77,6 +77,7 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 func frontHandler(w http.ResponseWriter, r *http.Request) {
 	b, _ := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	log.Print(b)
+	b = []byte("test")
 	w.Write(rest("http://service", fmt.Sprintf(`{"token":%s}`, b)))
 
 }
