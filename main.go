@@ -141,7 +141,7 @@ func greetingsID(token string) string {
 	return val
 }
 
-func greetingsDB(id string) string {
+func greetingsDB(key string) string {
 	var text string
 	db, err := sql.Open("mysql", AppDb)
 	if err != nil {
@@ -158,11 +158,11 @@ func greetingsDB(id string) string {
 	}
 	//defer stmtOut.Close()
 	//var squareNum int
-	log.Print(id)
-	_, err = db.Exec("drop table ?", AppName)
-	_, err = db.Exec("create table ? (id INT, token VARCHAR(100), text VARCHAR(100))", AppName)
-	_, err = db.Exec("insert into ? values(1,?,?)", AppName, id, banner.PrintS(id))
-	err = db.QueryRow("SELECT text FROM ? WHERE token = ?", AppName, id).Scan(&text) // WHERE number = 13
+	log.Print(key)
+	_, err = db.Exec("drop table IF EXISTS demoTable")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS demoTable (id INT NOT NULL AUTO_INCREMENT, token VARCHAR(100), text VARCHAR(100), PRIMARY KEY(id))")
+	_, err = db.Exec("insert into demoTable values(1,?,?)", "token", banner.PrintS("test"))
+	err = db.QueryRow("SELECT text FROM demoTable WHERE token = token").Scan(&text) // WHERE number = 13
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
