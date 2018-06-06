@@ -78,7 +78,7 @@ func frontHandler(w http.ResponseWriter, r *http.Request) {
 	b, _ := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	log.Print(b)
 	b = []byte("test")
-	w.Write(rest("http://service", fmt.Sprintf(`{"token":%s}`, b)))
+	w.Write(rest("http://service", `{"token":"test"}`))
 
 }
 
@@ -133,8 +133,8 @@ func greetingsID(token string) string {
 		DB:       0,  // use default DB
 	})
 
-	val, err := client.Set("token", token, 300).Result()
-	val, err = client.Get(token).Result()
+	err := client.Set("token", "token", 0).Err()
+	val, err := client.Get(token).Result()
 	if err != nil {
 		panic(err)
 	}
