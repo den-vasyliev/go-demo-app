@@ -49,14 +49,14 @@ func main() {
 	router.HandleFunc("/healthz", healthzHandler)
 
 	switch AppName {
-	case "Front":
+	case "front":
 		router.HandleFunc("/", frontHandler)
 
-	case "Bar":
+	case "service":
 		router.HandleFunc("/", versionHandler)
 		router.HandleFunc("/service", serviceHandler)
 
-	case "Foo":
+	case "db":
 		router.HandleFunc("/", versionHandler)
 		router.HandleFunc("/db", dbHandler)
 
