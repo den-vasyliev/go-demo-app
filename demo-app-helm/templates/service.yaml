@@ -11,22 +11,14 @@ metadata:
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
-      name:  {{ .Release.Name }}-version
-      prefix: /version
-      rewrite: /version
-      service: {{ .Release.Name }}
-      ---
-      apiVersion: ambassador/v0
-      kind:  Mapping
       name:  {{ .Release.Name }}-healthz
-      prefix: /healthz
-      rewrite: /healthz
+      prefix: /api/
       service: {{ .Release.Name }}
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
       name:  {{ .Release.Name }}-default
-      prefix: "/.*"
+      prefix: "/(.*)"
       prefix_regex: true
       service: {{ .Release.Name }}
     {{end}}

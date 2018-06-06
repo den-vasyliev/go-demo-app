@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 
+	_ "github.com/CrowdSurge/banner"
 	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -74,8 +75,8 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func frontHandler(w http.ResponseWriter, r *http.Request) {
-
-	w.Write(rest("http://service", `{"token":"devops_career_day_token"}`))
+	b, _ := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	w.Write(rest("http://service", fmt.Sprintf(`{"token":%s}`, b)))
 
 }
 
@@ -130,7 +131,8 @@ func greetingsID(token string) string {
 		DB:       0,  // use default DB
 	})
 
-	val, err := client.Get(token).Result()
+	val, err := client.Set("token", token, 300).Result()
+	val, err = client.Get(token).Result()
 	if err != nil {
 		panic(err)
 	}
@@ -155,7 +157,10 @@ func greetingsDB(id string) string {
 	//defer stmtOut.Close()
 	//var squareNum int
 	log.Print(id)
-	err = db.QueryRow("SELECT text FROM greetings WHERE token = ?", id).Scan(&text) // WHERE number = 13
+	_, err = db.Exec("drop table ?", AppName)
+	_, err = db.Exec("create table ? (id INT, token VARCHAR(100), text VARCHAR(100))", AppName)
+	_, err = db.Exec("insert into ? values(1,?,?)", AppName, id, banner.Print(id))
+	err = db.QueryRow("SELECT text FROM ? WHERE token = ?", AppName, id).Scan(&text) // WHERE number = 13
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
