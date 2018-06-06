@@ -1,4 +1,5 @@
 app:
+  replicas: 1
   image: image
   version: version
   port: 80

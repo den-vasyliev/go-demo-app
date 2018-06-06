@@ -5,9 +5,8 @@ metadata:
   name: {{ .Release.Name }}
   labels:
     app: {{ .Release.Name }}
-    env: prod
-    tier: frontend
   annotations:
+    {{if eq .Release.Name "front"}}
     getambassador.io/config: |
       ---
       apiVersion: ambassador/v0
@@ -30,6 +29,7 @@ metadata:
       prefix: "/.*"
       prefix_regex: true
       service: {{ .Release.Name }}
+    {{end}}
 spec:
   ports:
   - name: http-{{ .Release.Name }}
@@ -37,7 +37,6 @@ spec:
     targetPort: {{ .Values.app.port }}
   selector:
     app: {{ .Release.Name }}
-    env: prod
-    tier: frontend
+
 
 

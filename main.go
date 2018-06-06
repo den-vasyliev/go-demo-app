@@ -31,6 +31,9 @@ var Revision = fmt.Sprintf("%s version: %s+%s", AppName, Version, BuildInfo)
 // AppPort app
 var AppPort = os.Getenv("APP_PORT")
 
+//AppDB name
+var AppDb = os.Getenv("APP_DB")
+
 type greetingsToken struct {
 	Token string `json:"token"`
 }
@@ -136,7 +139,7 @@ func greetingsID(token string) string {
 
 func greetingsDB(id string) string {
 	var text string
-	db, err := sql.Open("mysql", "db")
+	db, err := sql.Open("mysql", AppDb)
 	if err != nil {
 		panic(err)
 	}

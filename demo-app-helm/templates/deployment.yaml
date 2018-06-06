@@ -8,15 +8,11 @@ spec:
   selector:
     matchLabels:
       app: {{ .Release.Name }}
-      env: prod
-      tier: frontend
-  replicas: 1
+  replicas: {{ .Values.app.replicas }}
   template:
     metadata:
       labels:
         app: {{ .Release.Name }}
-        env: prod
-        tier: frontend
     spec:
       containers:
       - name: {{ .Release.Name }}
@@ -35,11 +31,11 @@ spec:
           httpGet:
             path: /healthz
             port: 80
-          initialDelaySeconds: 300
+          initialDelaySeconds: 10
           periodSeconds: 3
         readinessProbe:
           httpGet:
             path: /healthz
             port: 80
-          initialDelaySeconds: 30
+          initialDelaySeconds: 15
           periodSeconds: 3
