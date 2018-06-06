@@ -77,7 +77,7 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func frontHandler(w http.ResponseWriter, r *http.Request) {
-	log.Print(r.Body)
+	log.Print(ioutil.ReadAll(r.Body))
 	// b = []byte("test")
 	w.Write([]byte(fmt.Sprintf("%s", rest("http://service", `{"text":"DevOps Career Day"}`))))
 
@@ -169,7 +169,7 @@ func greetingsDB(hash string) string {
 	}
 
 	_, err = db.Exec("drop table IF EXISTS demoTable")
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS demoTable (id INT NOT NULL AUTO_INCREMENT, token VARCHAR(100), text VARCHAR(1000), PRIMARY KEY(id))")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS demoTable (id INT NOT NULL AUTO_INCREMENT, token VARCHAR(100), text TEXT, PRIMARY KEY(id))")
 	_, err = db.Exec("insert into demoTable values(1,?,?)", hash, hexStr)
 
 	err = db.QueryRow("SELECT text FROM demoTable WHERE token = ?", hash).Scan(&Payload) // WHERE number = 13
