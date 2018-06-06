@@ -31,9 +31,6 @@ var Revision = fmt.Sprintf("%s version: %s+%s", AppName, Version, BuildInfo)
 // AppPort app
 var AppPort = os.Getenv("APP_PORT")
 
-// DBHost app
-var DBHost = os.Getenv("DB_HOST")
-
 type greetingsToken struct {
 	Token string `json:"token"`
 }
@@ -53,12 +50,10 @@ func main() {
 		router.HandleFunc("/", frontHandler)
 
 	case "service":
-		router.HandleFunc("/", versionHandler)
-		router.HandleFunc("/service", serviceHandler)
+		router.HandleFunc("/", serviceHandler)
 
-	case "db":
-		router.HandleFunc("/", versionHandler)
-		router.HandleFunc("/db", dbHandler)
+	case "data":
+		router.HandleFunc("/", dataHandler)
 
 	}
 	log.Fatal(http.ListenAndServe(":"+AppPort, router))
@@ -77,7 +72,7 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 
 func frontHandler(w http.ResponseWriter, r *http.Request) {
 
-	w.Write(rest("http://localhost:8081/service", `{"token":"devops_career_day_token"}`))
+	w.Write(rest("http://service", `{"token":"devops_career_day_token"}`))
 
 }
 
@@ -100,12 +95,12 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 		log.Print(m.Token)
 		key := fmt.Sprintf(`{"key":"%s"}`, greetingsID(m.Token))
 		log.Print(key)
-		w.Write(rest("http://localhost:8082/db", key))
+		w.Write(rest("http://data", key))
 
 	}
 }
 
-func dbHandler(w http.ResponseWriter, r *http.Request) {
+func dataHandler(w http.ResponseWriter, r *http.Request) {
 	var m greetingsText
 	switch r.Method {
 	case "GET":
@@ -127,7 +122,7 @@ func dbHandler(w http.ResponseWriter, r *http.Request) {
 
 func greetingsID(token string) string {
 	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     "redis:6379",
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
@@ -141,7 +136,7 @@ func greetingsID(token string) string {
 
 func greetingsDB(id string) string {
 	var text string
-	db, err := sql.Open("mysql", DBHost)
+	db, err := sql.Open("mysql", "db")
 	if err != nil {
 		panic(err)
 	}

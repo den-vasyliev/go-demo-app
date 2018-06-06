@@ -1,4 +1,4 @@
 app:
-  image: denvasyliev/demo-front
-  version: v0.1.1-5e443a3
+  image: image
+  version: version
   port: 80
