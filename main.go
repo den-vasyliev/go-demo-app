@@ -77,9 +77,7 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func frontHandler(w http.ResponseWriter, r *http.Request) {
-	log.Print(ioutil.ReadAll(r.Body))
-	// b = []byte("test")
-	w.Write([]byte(fmt.Sprintf("%s", rest("http://service", `{"text":"DevOps Career Day"}`))))
+	w.Write([]byte(fmt.Sprintf("%s", rest("http://service", `{"text":"devops career day"}`))))
 
 }
 
