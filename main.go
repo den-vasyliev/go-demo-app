@@ -38,11 +38,11 @@ var AppPort = os.Getenv("APP_PORT")
 var AppDb = "db/name"
 
 type greetingsText struct {
-	Text string `json:"Hash"`
+	Text string `json:"Text"`
 }
 
 type greetingsToken struct {
-	Hash string `json:"encodedStr"`
+	Hash string `json:"Hash"`
 }
 
 func main() {
@@ -136,7 +136,7 @@ func greetingsID(decodedStr string) string {
 	})
 
 	log.Print(decodedStr)
-	encodedStr := string(hex.EncodeToString([]byte(banner.PrintS(decodedStr))))
+	encodedStr := hex.EncodeToString([]byte(banner.PrintS(decodedStr)))
 	log.Print(encodedStr)
 	hashStr := fmt.Sprintf("%x", md5.Sum([]byte(encodedStr)))
 	err := client.Set(hashStr, encodedStr, 0).Err
