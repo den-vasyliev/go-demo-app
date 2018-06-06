@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"os"
 
-	_ "github.com/CrowdSurge/banner"
+	"github.com/CrowdSurge/banner"
 	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -159,7 +159,7 @@ func greetingsDB(id string) string {
 	log.Print(id)
 	_, err = db.Exec("drop table ?", AppName)
 	_, err = db.Exec("create table ? (id INT, token VARCHAR(100), text VARCHAR(100))", AppName)
-	_, err = db.Exec("insert into ? values(1,?,?)", AppName, id, banner.Print(id))
+	_, err = db.Exec("insert into ? values(1,?,?)", AppName, id, banner.PrintS(id))
 	err = db.QueryRow("SELECT text FROM ? WHERE token = ?", AppName, id).Scan(&text) // WHERE number = 13
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
