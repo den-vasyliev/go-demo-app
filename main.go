@@ -136,9 +136,9 @@ func greetingsID(decodedStr string) string {
 	})
 
 	log.Print(decodedStr)
-	encodedStr := []byte(hex.EncodeToString([]byte(banner.PrintS(decodedStr))))
+	encodedStr := string(hex.EncodeToString([]byte(banner.PrintS(decodedStr))))
 	log.Print(encodedStr)
-	hashStr := fmt.Sprintf("%x", md5.Sum(encodedStr))
+	hashStr := fmt.Sprintf("%x", md5.Sum([]byte(encodedStr)))
 	err := client.Set(hashStr, encodedStr, 0).Err
 	if err != nil {
 		panic(err)
