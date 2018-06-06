@@ -160,11 +160,11 @@ func greetingsDB(key string) string {
 	//defer stmtOut.Close()
 	//var squareNum int
 	log.Print(key)
-	log.Print(banner.PrintS("test"))
+	log.Print(banner.PrintS(key))
 	_, err = db.Exec("drop table IF EXISTS demoTable")
 	_, err = db.Exec("CREATE TABLE IF NOT EXISTS demoTable (id INT NOT NULL AUTO_INCREMENT, token VARCHAR(100), text VARCHAR(100), PRIMARY KEY(id))")
-	_, err = db.Exec("insert into demoTable values(1,?,?)", "token", "test")
-	err = db.QueryRow("SELECT text FROM demoTable WHERE token = token").Scan(&text) // WHERE number = 13
+	_, err = db.Exec("insert into demoTable values(1,?,?)", key, banner.PrintS(key))
+	err = db.QueryRow("SELECT text FROM demoTable WHERE token = ?", key).Scan(&text) // WHERE number = 13
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
