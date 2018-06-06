@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/CrowdSurge/banner"
+
 	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -158,6 +160,7 @@ func greetingsDB(key string) string {
 	//defer stmtOut.Close()
 	//var squareNum int
 	log.Print(key)
+	log.Print(banner.PrintS("test"))
 	_, err = db.Exec("drop table IF EXISTS demoTable")
 	_, err = db.Exec("CREATE TABLE IF NOT EXISTS demoTable (id INT NOT NULL AUTO_INCREMENT, token VARCHAR(100), text VARCHAR(100), PRIMARY KEY(id))")
 	_, err = db.Exec("insert into demoTable values(1,?,?)", "token", "test")
