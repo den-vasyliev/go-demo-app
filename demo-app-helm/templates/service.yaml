@@ -3,35 +3,35 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}{{ .Values.app.canary_name }}
   labels:
-    app: {{ .Release.Name }}
+    app: {{ .Release.Name }}{{ .Values.app.canary_name }}
   annotations:
     {{if contains "front" .Release.Name}}
     getambassador.io/config: |
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
-      name:  {{ .Release.Name }}-healthz
+      name:  {{ .Release.Name }}-healthz{{ .Values.app.canary_name }}
       prefix: /api/
-      service: {{ .Release.Name }}
+      service: {{ .Release.Name }}{{ .Values.app.canary_name }}
       {{include "canary" .}}
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
-      name:  {{ .Release.Name }}-default
+      name:  {{ .Release.Name }}-default{{ .Values.app.canary_name }}
       prefix: "/(.*)"
       prefix_regex: true
-      service: {{ .Release.Name }}
+      service: {{ .Release.Name }}{{ .Values.app.canary_name }}
       {{include "canary" .}}
     {{end}}
 spec:
   ports:
-  - name: http-{{ .Release.Name }}
+  - name: http-{{ .Release.Name }}{{ .Values.app.canary_name }}
     port: {{ .Values.app.port }}
     targetPort: {{ .Values.app.port }}
   selector:
-    app: {{ .Release.Name }}
+    app: {{ .Release.Name }}{{ .Values.app.canary_name }}
 
 
 
