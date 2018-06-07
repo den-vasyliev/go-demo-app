@@ -5,7 +5,7 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}{{ .Values.app.canary_name }}
   labels:
-    app: {{ .Release.Name }}{{ .Values.app.canary_name }}
+    app: {{ .Release.Name }}
   annotations:
     {{if contains "front" .Release.Name}}
     getambassador.io/config: |
@@ -31,7 +31,7 @@ spec:
     port: {{ .Values.app.port }}
     targetPort: {{ .Values.app.port }}
   selector:
-    app: {{ .Release.Name }}{{ .Values.app.canary_name }}
+    app: {{ .Release.Name }}-{{ .Values.app.version }}
 
 
 

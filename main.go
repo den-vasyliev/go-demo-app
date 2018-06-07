@@ -144,17 +144,16 @@ func greetingsDB(hash string) string {
 	var Payload string
 	db, err := sql.Open("mysql", AppDb)
 	if err != nil {
+		log.Print("Open db err: ")
 		panic(err)
 	}
 	defer db.Close()
 	err = db.Ping()
 	if err != nil {
+		log.Print("Ping db err: ")
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
-	//stmtOut, err := db.Prepare("SELECT text FROM greetings WHERE token = ?")
-	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
-	}
+
 	client := redis.NewClient(&redis.Options{
 		Addr:     "redis:6379",
 		Password: "", // no password set

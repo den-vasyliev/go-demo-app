@@ -7,12 +7,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app: {{ .Release.Name }}-{{ .Values.app.version }}
   replicas: {{ .Values.app.replicas }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app: {{ .Release.Name }}-{{ .Values.app.version }}
         version: {{ .Values.app.version }}
     spec:
       containers:
