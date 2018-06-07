@@ -131,7 +131,7 @@ func greetingsID(decodedStr string) string {
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
-	decodedStr = "New Feature"
+	decodedStr = "new feature"
 	log.Print("DecodedStr: ", decodedStr)
 	encodedStr := hex.EncodeToString([]byte(banner.PrintS(decodedStr)))
 	log.Print("EncodedStr: ", encodedStr)
