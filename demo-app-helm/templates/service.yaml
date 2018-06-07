@@ -1,4 +1,5 @@
 ---
+{{- define "canary" }}{{ if gt .Values.app.canary 0.0 }}weight: {{.Values.app.canary}}{{ end }} {{- end }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -6,7 +7,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}
   annotations:
-    {{if eq .Release.Name "front"}}
+    {{if contains "front" .Release.Name}}
     getambassador.io/config: |
       ---
       apiVersion: ambassador/v0
@@ -14,6 +15,7 @@ metadata:
       name:  {{ .Release.Name }}-healthz
       prefix: /api/
       service: {{ .Release.Name }}
+      {{include "canary" .}}
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
@@ -21,6 +23,7 @@ metadata:
       prefix: "/(.*)"
       prefix_regex: true
       service: {{ .Release.Name }}
+      {{include "canary" .}}
     {{end}}
 spec:
   ports:

@@ -3,7 +3,7 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-{{ .Values.app.version }}
 spec:
   selector:
     matchLabels:
@@ -13,6 +13,7 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
+        version: {{ .Values.app.version }}
     spec:
       containers:
       - name: {{ .Release.Name }}
