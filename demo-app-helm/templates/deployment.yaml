@@ -3,16 +3,16 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.app.version }}
+  name: {{ .Release.Name }}-{{ .Values.app.env }}
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-{{ .Values.app.version }}
+      app: {{ .Release.Name }}-{{ .Values.app.env }}
   replicas: {{ .Values.app.replicas }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-{{ .Values.app.version }}
+        app: {{ .Release.Name }}-{{ .Values.app.env }}
         version: {{ .Values.app.version }}
     spec:
       containers:

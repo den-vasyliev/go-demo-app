@@ -1,9 +1,11 @@
 ---
 {{- define "canary" }}{{ if gt .Values.app.canary 0.0 }}weight: {{.Values.app.canary}}{{ end }} {{- end }}
+{{- define "canary_postfix" }}{{ if gt .Values.app.canary 0.0 }}-canary{{ end }} {{- end }}
+
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}{{ .Values.app.canary_name }}
+  name: {{ .Release.Name }}{{include "canary_postfix" .}}
   labels:
     app: {{ .Release.Name }}
   annotations:
@@ -12,26 +14,26 @@ metadata:
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
-      name:  {{ .Release.Name }}-healthz{{ .Values.app.canary_name }}
+      name:  {{ .Release.Name }}-healthz{{include "canary_postfix" .}}
       prefix: /api/
-      service: {{ .Release.Name }}{{ .Values.app.canary_name }}
+      service: {{ .Release.Name }}{{include "canary_postfix" .}}
       {{include "canary" .}}
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
-      name:  {{ .Release.Name }}-default{{ .Values.app.canary_name }}
+      name:  {{ .Release.Name }}-default{{include "canary_postfix" .}}
       prefix: "/(.*)"
       prefix_regex: true
-      service: {{ .Release.Name }}{{ .Values.app.canary_name }}
+      service: {{ .Release.Name }}{{include "canary_postfix" .}}
       {{include "canary" .}}
     {{end}}
 spec:
   ports:
-  - name: http-{{ .Release.Name }}{{ .Values.app.canary_name }}
+  - name: http-{{ .Release.Name }}{{include "canary_postfix" .}}
     port: {{ .Values.app.port }}
     targetPort: {{ .Values.app.port }}
   selector:
-    app: {{ .Release.Name }}-{{ .Values.app.version }}
+    app: {{ .Release.Name }}-{{ .Values.app.env }}
 
 
 
