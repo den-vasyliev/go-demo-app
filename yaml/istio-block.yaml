@@ -1,0 +1,9 @@
+  http:
+  - fault:
+      abort:
+        percent: 90
+        httpStatus: 503
+    route:
+      - destination:
+          host: service
+          subset: v1 

@@ -1,32 +1,34 @@
+---
+# Source: demo-app/templates/deployment.yaml
 # for versions before 1.9.0 use apps/v1beta2
 ---
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}{{ .Values.app.env }}
+  name: service-prod
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
-  replicas: {{ .Values.app.replicas }}
+      app: service-prod
+  replicas: 1
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
-        version: {{ .Values.app.version }}
+        app: service-prod
+        version: v0.1.4-776e7c0
     spec:
       containers:
-      - name: {{ .Release.Name }}
-        image: {{ .Values.app.image }}:{{ .Values.app.version }}
+      - name: service
+        image: denvasyliev/service:v0.1.4-776e7c0
         env:
           - name: APP_PORT
-            value: {{ .Values.app.port | quote }}
+            value: "80"
         resources:
           requests:
             cpu: 100m
             memory: 100Mi
         ports:
-        - containerPort: {{ .Values.app.port }}
+        - containerPort: 80
         securityContext:
         livenessProbe:
           httpGet:
@@ -40,3 +42,26 @@ spec:
             port: 80
           initialDelaySeconds: 15
           periodSeconds: 3
+
+---
+# Source: demo-app/templates/service.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service
+  labels:
+    app: service
+  annotations:
+    
+spec:
+  ports:
+  - name: http-service
+    port: 80
+    targetPort: 80
+  selector:
+    app: service-prod
+
+
+
+

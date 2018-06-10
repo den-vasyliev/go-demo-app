@@ -3,5 +3,5 @@ app:
   image: image
   version: version
   canary: -1
-  env: env
+  env:
   port: 80

@@ -1,0 +1,81 @@
+---
+# Source: demo-app/templates/deployment.yaml
+# for versions before 1.9.0 use apps/v1beta2
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: front-v2
+spec:
+  selector:
+    matchLabels:
+      app: front-v2
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: front-v2
+        version: v0.1.5-4eeeb47
+    spec:
+      containers:
+      - name: front
+        image: denvasyliev/front:v0.1.5-4eeeb47
+        env:
+          - name: APP_PORT
+            value: "80"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 80
+        securityContext:
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 3
+
+---
+# Source: demo-app/templates/service.yaml
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: front-v2
+  labels:
+    app: front-v2
+  annotations:
+    
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  front-api-v2
+      prefix: /api/
+      service: front-v2
+      weight: 50
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  front-default-v2
+      prefix: "/(.*)"
+      prefix_regex: true
+      service: front-v2
+      weight: 50
+      
+spec:
+  ports:
+  - name: http-front-v2
+    port: 80
+    targetPort: 80
+  selector:
+    app: front-v2

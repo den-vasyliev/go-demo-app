@@ -105,6 +105,21 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func greetingsID(decodedStr string) string {
+	client := redis.NewClient(&redis.Options{
+		Addr:     "redis:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+	decodedStr = "new feature"
+	log.Print("DecodedStr: ", decodedStr)
+	encodedStr := hex.EncodeToString([]byte(banner.PrintS(decodedStr)))
+	log.Print("EncodedStr: ", encodedStr)
+	hashStr := fmt.Sprintf("%x", md5.Sum([]byte(encodedStr)))
+	client.Set(hashStr, encodedStr, 0)
+	return hashStr
+}
+
 func dataHandler(w http.ResponseWriter, r *http.Request) {
 	var m greetingsToken
 	switch r.Method {
@@ -123,21 +138,6 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Write([]byte(greetingsDB(m.Hash)))
 	}
-}
-
-func greetingsID(decodedStr string) string {
-	client := redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
-	decodedStr = "new feature"
-	log.Print("DecodedStr: ", decodedStr)
-	encodedStr := hex.EncodeToString([]byte(banner.PrintS(decodedStr)))
-	log.Print("EncodedStr: ", encodedStr)
-	hashStr := fmt.Sprintf("%x", md5.Sum([]byte(encodedStr)))
-	client.Set(hashStr, encodedStr, 0)
-	return hashStr
 }
 
 func greetingsDB(hash string) string {

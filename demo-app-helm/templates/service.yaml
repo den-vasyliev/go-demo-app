@@ -33,7 +33,7 @@ spec:
     port: {{ .Values.app.port }}
     targetPort: {{ .Values.app.port }}
   selector:
-    app: {{ .Release.Name }}-{{ .Values.app.env }}
+    app: {{ .Release.Name }}
 
 
 
