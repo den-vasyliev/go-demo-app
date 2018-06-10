@@ -77,7 +77,7 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func frontHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(fmt.Sprintf("%s", rest("http://service", `{"text":"devops career day"}`))))
+	w.Write([]byte(fmt.Sprintf("%s", rest("http://service", `{"text":"k8s bootcamp"}`))))
 
 }
 
