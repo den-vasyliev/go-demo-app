@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: service
-        image: denvasyliev/service:v0.1.4-776e7c0 
+        image: denvasyliev/service:v0.1.5-bootcamp-e6fbf49 
         env:
           - name: APP_PORT
             value: "80"
