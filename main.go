@@ -34,7 +34,7 @@ var Revision = fmt.Sprintf("%s version: %s+%s", AppName, Version, BuildInfo)
 // AppPort app
 var AppPort = os.Getenv("APP_PORT")
 
-//AppDB name
+// AppDb name
 var AppDb = "db/name"
 
 type greetingsText struct {
