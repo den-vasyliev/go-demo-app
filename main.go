@@ -38,6 +38,9 @@ var AppPort = os.Getenv("APP_PORT")
 // AppDb name
 var AppDb = "db/name"
 
+// New feature
+var NewFeature = "new feature"
+
 type greetingsText struct {
 	Text string `json:"Text"`
 }
@@ -164,7 +167,9 @@ func greetingsID(decodedStr string) string {
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
-	//decodedStr = "new feature"
+	if NewFeature != "" {
+		decodedStr = NewFeature
+	}
 	log.Print("DecodedStr: ", decodedStr)
 	encodedStr := hex.EncodeToString([]byte(banner.PrintS(decodedStr)))
 	log.Print("EncodedStr: ", encodedStr)
