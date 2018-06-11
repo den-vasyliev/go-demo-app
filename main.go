@@ -50,6 +50,7 @@ func main() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/version", versionHandler)
 	router.HandleFunc("/healthz", healthzHandler)
+	router.HandleFunc("/readiness", readinessHandler)
 
 	switch AppName {
 	case "front":
@@ -74,6 +75,56 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 func healthzHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte("Healthz: alive!"))
+}
+
+func readinessHandler(w http.ResponseWriter, r *http.Request) {
+
+	switch AppName {
+
+	case "front":
+		w.Write([]byte(rediness("http://service")))
+
+	case "service":
+		client := redis.NewClient(&redis.Options{
+			Addr:     "redis:6379",
+			Password: "", // no password set
+			DB:       0,  // use default DB
+		})
+		probe, err := client.Set("readiness_probe", 0, 0).Result()
+		log.Print(probe)
+		if err != nil {
+			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
+		}
+
+		w.Write([]byte(rediness("http://data")))
+
+	case "data":
+		client := redis.NewClient(&redis.Options{
+			Addr:     "redis:6379",
+			Password: "", // no password set
+			DB:       0,  // use default DB
+		})
+		probe, err := client.Set("readiness_probe", 0, 0).Result()
+		log.Print(probe)
+		if err != nil {
+			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
+		}
+
+		db, err := sql.Open("mysql", AppDb)
+		if err != nil {
+			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
+		}
+		defer db.Close()
+		err = db.Ping()
+
+		if err != nil {
+			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
+		}
+
+		w.Write([]byte("200"))
+
+	}
+
 }
 
 func frontHandler(w http.ResponseWriter, r *http.Request) {
@@ -142,6 +193,7 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 
 func greetingsDB(hash string) string {
 	var Payload string
+
 	db, err := sql.Open("mysql", AppDb)
 	if err != nil {
 		log.Print("Open db err: ")
@@ -177,7 +229,6 @@ func greetingsDB(hash string) string {
 }
 
 func rest(url string, jsonStr string) []byte {
-	//	var jsonStr = []byte(`{"token":"devopscareerday"}`)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(jsonStr)))
 	req.Header.Set("Content-Type", "application/json")
 
@@ -192,4 +243,18 @@ func rest(url string, jsonStr string) []byte {
 	log.Print("response Headers:", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
 	return body
+}
+
+func rediness(url string) string {
+	req, err := http.NewRequest("GET", url, bytes.NewBuffer([]byte("Readiness Probe")))
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Print(err)
+		return resp.Status
+	}
+	defer resp.Body.Close()
+
+	log.Print("response Status:", resp.Status)
+	return resp.Status
 }
