@@ -50,7 +50,7 @@ func main() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/version", versionHandler)
 	router.HandleFunc("/healthz", healthzHandler)
-	router.HandleFunc("/readiness", readinessHandler)
+	router.HandleFunc("/readinez", readinessHandler)
 
 	switch AppName {
 	case "front":
@@ -78,7 +78,6 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func readinessHandler(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 
 	switch AppName {
 
@@ -93,7 +92,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 			DB:       0,  // use default DB
 		})
 		probe, err := client.Set("readiness_probe", 0, 0).Result()
-		log.Print(probe)
+		log.Print(probe, err)
 		if err != nil {
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
@@ -124,6 +123,9 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Write([]byte("200"))
+
+	default:
+		http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 
 	}
 
