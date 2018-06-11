@@ -12,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/CrowdSurge/banner"
 	"github.com/go-redis/redis"
@@ -237,7 +238,7 @@ func rest(url string, jsonStr string) []byte {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(jsonStr)))
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: time.Second * 5}
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
@@ -251,9 +252,10 @@ func rest(url string, jsonStr string) []byte {
 }
 
 func rediness(url string) string {
-	req, err := http.NewRequest("GET", url, bytes.NewBuffer([]byte("Readiness Probe")))
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	c := &http.Client{
+		Timeout: 2 * time.Second,
+	}
+	resp, err := c.Get(url)
 	if err != nil {
 		log.Print(err)
 		return resp.Status

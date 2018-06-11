@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: service
-        image: denvasyliev/service:v0.1.5-bootcamp-e6fbf49 
+        image: denvasyliev/service:v0.1.5-bootcamp-6bfb8ef 
         env:
           - name: APP_PORT
             value: "80"
@@ -39,7 +39,7 @@ spec:
           periodSeconds: 3
         readinessProbe:
           httpGet:
-            path: /healthz
+            path: /readinez
             port: 80
           initialDelaySeconds: 15
           periodSeconds: 3
