@@ -91,13 +91,14 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})
-		probe, err := client.Set("readiness_probe", 0, 0).Result()
+		probe, err := client.Ping().Result()
 		log.Print(probe, err)
 		if err != nil {
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
-		}
+		} else {
+			w.Write([]byte(rediness("http://data")))
 
-		w.Write([]byte(rediness("http://data")))
+		}
 
 	case "data":
 		client := redis.NewClient(&redis.Options{
