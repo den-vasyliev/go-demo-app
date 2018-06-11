@@ -78,6 +78,7 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func readinessHandler(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 
 	switch AppName {
 
