@@ -15,11 +15,11 @@ spec:
     metadata:
       labels:
         app: front-v1
-        version: v0.1.5-bootcamp-56e6f4e
+        version: v0.1.5-bootcamp-6b67ee2
     spec:
       containers:
       - name: front
-        image: denvasyliev/front:v0.1.5-bootcamp-56e6f4e
+        image: denvasyliev/front:v0.1.5-bootcamp-6b67ee2
         env:
           - name: APP_PORT
             value: "80"
