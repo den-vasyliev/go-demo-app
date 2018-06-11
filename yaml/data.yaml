@@ -15,11 +15,11 @@ spec:
     metadata:
       labels:
         app: data
-        version: v0.1.5-4eeeb47
+        version: v0.1.5-56e6f4e
     spec:
       containers:
       - name: data
-        image: denvasyliev/data:v0.1.5-4eeeb47
+        image: denvasyliev/data:v0.1.5-56e6f4e
         env:
           - name: APP_PORT
             value: "80"

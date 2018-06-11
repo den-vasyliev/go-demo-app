@@ -83,7 +83,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 	switch AppName {
 
 	case "front":
-		w.Write([]byte(rediness("http://service/readinez")))
+		w.Write([]byte("OK"))
 
 	case "service":
 		client := redis.NewClient(&redis.Options{
@@ -95,9 +95,6 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 		log.Print(probe, err)
 		if err != nil {
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
-		} else {
-			w.Write([]byte(rediness("http://data/readinez")))
-
 		}
 
 	case "data":
@@ -250,7 +247,7 @@ func rest(url string, jsonStr string) []byte {
 	return body
 }
 
-func rediness(url string) string {
+func readiness(url string) string {
 	c := &http.Client{
 		Timeout: 2 * time.Second,
 	}
