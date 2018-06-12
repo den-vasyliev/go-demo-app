@@ -15,11 +15,11 @@ spec:
     metadata:
       labels:
         app: front-v2
-        version: v0.1.5-4eeeb47
+        version: v0.1.5-bootcamp-v2-b815c50
     spec:
       containers:
       - name: front
-        image: denvasyliev/front:v0.1.5-4eeeb47
+        image: denvasyliev/front:v0.1.5-bootcamp-v2-b815c50
         env:
           - name: APP_PORT
             value: "80"
@@ -62,7 +62,7 @@ metadata:
       name:  front-api-v2
       prefix: /api/
       service: front-v2
-      weight: 50
+      weight: 80
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
