@@ -38,8 +38,8 @@ var AppPort = os.Getenv("APP_PORT")
 // AppDb name
 var AppDb = "db/name"
 
-// New feature
-var NewFeature = "new feature"
+// NewFeature changes mock
+var NewFeature = ""
 
 type greetingsText struct {
 	Text string `json:"Text"`
