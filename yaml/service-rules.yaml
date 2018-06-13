@@ -10,12 +10,12 @@ spec:
   - route:
     - destination:
         host: service
-        subset: v1
-      weight: 50
+        subset: prod
+      weight: 20
     - destination:
         host: service
-        subset: v2
-      weight: 50      
+        subset: canary
+      weight: 80      
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
@@ -24,9 +24,9 @@ metadata:
 spec:
   host: service
   subsets:
-  - name: v1
+  - name: prod
     labels:
       version: v1
-  - name: v2
+  - name: canary
     labels:
       version: v2
