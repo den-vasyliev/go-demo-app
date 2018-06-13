@@ -153,6 +153,9 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 				panic(err)
 			}
 		}
+		if NewFeature != "" {
+			m.Text = NewFeature
+		}
 		log.Print("Text: ", m.Text)
 		hashStr := fmt.Sprintf(`{"hash":"%s"}`, greetingsID(m.Text))
 		log.Print("Hash:", hashStr)
@@ -167,9 +170,6 @@ func greetingsID(decodedStr string) string {
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
-	if NewFeature != "" {
-		decodedStr = NewFeature
-	}
 	log.Print("DecodedStr: ", decodedStr)
 	encodedStr := hex.EncodeToString([]byte(banner.PrintS(decodedStr)))
 	log.Print("EncodedStr: ", encodedStr)
