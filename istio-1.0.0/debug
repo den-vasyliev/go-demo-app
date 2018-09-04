@@ -1,0 +1,195 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "30"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"extensions/v1beta1","kind":"Deployment","metadata":{"annotations":{"deployment.kubernetes.io/revision":"29","kubernetes.io/change-cause":"kubectl apply --kubeconfig=/Users/den/.kube/config --filename=-"},"creationTimestamp":null,"generation":1,"labels":{"app":"msrn-iot","version":"iot-v3.5.1-63ef0ae"},"name":"msrn-iot","namespace":"dev","selfLink":"/apis/extensions/v1beta1/namespaces/dev/deployments/msrn-iot"},"spec":{"progressDeadlineSeconds":600,"replicas":1,"revisionHistoryLimit":10,"selector":{"matchLabels":{"app":"msrn-iot"}},"strategy":{"rollingUpdate":{"maxSurge":"50%","maxUnavailable":"50%"},"type":"RollingUpdate"},"template":{"metadata":{"annotations":{"sidecar.istio.io/status":"{\"version\":\"5a357b5fa6005e3d7642e92accb42383c4782e9865d5c5df193217a69bebcf46\",\"initContainers\":[\"istio-init\"],\"containers\":[\"istio-proxy\"],\"volumes\":[\"istio-envoy\",\"istio-certs\"],\"imagePullSecrets\":null}"},"creationTimestamp":null,"labels":{"app":"msrn-iot","version":"iot-v3.5.1-3589cfc"}},"spec":{"containers":[{"env":[{"name":"APP_PN_PUBKEY","valueFrom":{"secretKeyRef":{"key":"key","name":"iot-pnpub-key"}}},{"name":"APP_PN_SUBKEY","valueFrom":{"secretKeyRef":{"key":"key","name":"iot-pnsub-key"}}}],"envFrom":[{"configMapRef":{"name":"iot-configmap"}}],"image":"msrn/services:iot-v3.5.1-3589cfc","imagePullPolicy":"IfNotPresent","livenessProbe":{"failureThreshold":3,"httpGet":{"path":"/healthz","port":80,"scheme":"HTTP"},"initialDelaySeconds":10,"periodSeconds":3,"successThreshold":1,"timeoutSeconds":1},"name":"iot","ports":[{"containerPort":80,"name":"http","protocol":"TCP"}],"readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/readinez","port":80,"scheme":"HTTP"},"initialDelaySeconds":15,"periodSeconds":3,"successThreshold":1,"timeoutSeconds":1},"resources":{"requests":{"cpu":"100m","memory":"100Mi"}},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File"},{"args":["proxy","sidecar","--configPath","/etc/istio/proxy","--binaryPath","/usr/local/bin/envoy","--serviceCluster","msrn-iot","--drainDuration","45s","--parentShutdownDuration","1m0s","--discoveryAddress","istio-pilot.istio-system:15007","--discoveryRefreshDelay","1s","--zipkinAddress","zipkin.istio-system:9411","--connectTimeout","10s","--statsdUdpAddress","istio-statsd-prom-bridge.istio-system:9125","--proxyAdminPort","15000","--controlPlaneAuthPolicy","NONE"],"env":[{"name":"POD_NAME","valueFrom":{"fieldRef":{"fieldPath":"metadata.name"}}},{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}},{"name":"INSTANCE_IP","valueFrom":{"fieldRef":{"fieldPath":"status.podIP"}}},{"name":"ISTIO_META_POD_NAME","valueFrom":{"fieldRef":{"fieldPath":"metadata.name"}}},{"name":"ISTIO_META_INTERCEPTION_MODE","value":"REDIRECT"}],"image":"gcr.io/istio-release/proxyv2:1.0.0","imagePullPolicy":"IfNotPresent","name":"istio-proxy","resources":{"requests":{"cpu":"10m"}},"securityContext":{"privileged":false,"readOnlyRootFilesystem":true,"runAsUser":1337},"volumeMounts":[{"mountPath":"/etc/istio/proxy","name":"istio-envoy"},{"mountPath":"/etc/certs/","name":"istio-certs","readOnly":true}]}],"dnsPolicy":"ClusterFirst","initContainers":[{"args":["-p","15001","-u","1337","-m","REDIRECT","-i","*","-x","","-b","80,","-d",""],"image":"gcr.io/istio-release/proxy_init:1.0.0","imagePullPolicy":"IfNotPresent","name":"istio-init","resources":{},"securityContext":{"capabilities":{"add":["NET_ADMIN"]},"privileged":true}}],"restartPolicy":"Always","schedulerName":"default-scheduler","securityContext":{},"terminationGracePeriodSeconds":30,"volumes":[{"emptyDir":{"medium":"Memory"},"name":"istio-envoy"},{"name":"istio-certs","secret":{"optional":true,"secretName":"istio.default"}}]}}},"status":{}}
+    kubernetes.io/change-cause: kubectl apply --kubeconfig=/Users/den/.kube/config
+      --filename=-
+  creationTimestamp: null
+  generation: 1
+  labels:
+    app: msrn-iot
+    version: iot-v3.5.1-63ef0ae
+  name: msrn-iot
+  selfLink: /apis/extensions/v1beta1/namespaces/dev/deployments/msrn-iot
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: msrn-iot
+  strategy:
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 50%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/status: '{"version":"5a357b5fa6005e3d7642e92accb42383c4782e9865d5c5df193217a69bebcf46","initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"],"imagePullSecrets":null}'
+      creationTimestamp: null
+      labels:
+        app: msrn-iot
+        version: iot-v3.5.1-3589cfc
+    spec:
+      containers:
+      - env:
+        - name: APP_PN_PUBKEY
+          valueFrom:
+            secretKeyRef:
+              key: key
+              name: iot-pnpub-key
+        - name: APP_PN_SUBKEY
+          valueFrom:
+            secretKeyRef:
+              key: key
+              name: iot-pnsub-key
+        envFrom:
+        - configMapRef:
+            name: iot-configmap
+        image: msrn/services:iot-v3.5.1-3589cfc
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: iot
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /readinez
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      - args:
+        - proxy
+        - sidecar
+        - --configPath
+        - /etc/istio/proxy
+        - --binaryPath
+        - /usr/local/bin/envoy
+        - --serviceCluster
+        - msrn-iot
+        - --drainDuration
+        - 45s
+        - --parentShutdownDuration
+        - 1m0s
+        - --discoveryAddress
+        - istio-pilot.istio-system:15007
+        - --discoveryRefreshDelay
+        - 1s
+        - --zipkinAddress
+        - zipkin.istio-system:9411
+        - --connectTimeout
+        - 10s
+        - --statsdUdpAddress
+        - istio-statsd-prom-bridge.istio-system:9125
+        - --proxyAdminPort
+        - "15000"
+        - --controlPlaneAuthPolicy
+        - NONE
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: INSTANCE_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: ISTIO_META_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: ISTIO_META_INTERCEPTION_MODE
+          value: REDIRECT
+        image: gcr.io/istio-release/proxyv2:1.0.0
+        imagePullPolicy: IfNotPresent
+        name: istio-proxy
+        resources:
+          requests:
+            cpu: 10m
+        securityContext:
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsUser: 1337
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/istio/proxy
+          name: istio-envoy
+        - mountPath: /etc/certs/
+          name: istio-certs
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      initContainers:
+      - args:
+        - -p
+        - "15001"
+        - -u
+        - "1337"
+        - -m
+        - REDIRECT
+        - -i
+        - '*'
+        - -x
+        - ""
+        - -b
+        - 80,
+        - -d
+        - ""
+        image: gcr.io/istio-release/proxy_init:1.0.0
+        imagePullPolicy: IfNotPresent
+        name: istio-init
+        resources: {}
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+          privileged: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - emptyDir:
+          medium: Memory
+        name: istio-envoy
+      - name: istio-certs
+        secret:
+          defaultMode: 420
+          optional: true
+          secretName: istio.default
+status: {}

@@ -6,4 +6,4 @@
     route:
       - destination:
           host: service
-          subset: v1 
+          subset: v1 V C D VC  CV

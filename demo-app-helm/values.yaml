@@ -1,7 +1,0 @@
-app:
-  replicas: 1
-  image: image
-  version: version
-  canary: -1
-  env:
-  port: 80
