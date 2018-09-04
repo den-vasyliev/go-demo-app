@@ -62,7 +62,7 @@ metadata:
       name:  front-api-v2
       prefix: /api/
       service: front-v2
-      weight: 80
+      weight: 50
       ---
       apiVersion: ambassador/v0
       kind:  Mapping

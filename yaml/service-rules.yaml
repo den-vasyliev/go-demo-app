@@ -11,11 +11,11 @@ spec:
     - destination:
         host: service
         subset: prod
-      weight: 95
+      weight: 100
     - destination:
         host: service
         subset: canary
-      weight: 5      
+      weight: 0   
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
