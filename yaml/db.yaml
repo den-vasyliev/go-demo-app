@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: db
-        image: mariadb:10.3.7  # or just image: redis
+        image: percona  # or just image: percona
         env:
         - name: MYSQL_ALLOW_EMPTY_PASSWORD
           value: "true"

@@ -62,7 +62,7 @@ metadata:
       name:  front-api-v2
       prefix: /api/
       service: front-v2
-      weight: 50
+      weight: 5
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
@@ -70,7 +70,7 @@ metadata:
       prefix: "/(.*)"
       prefix_regex: true
       service: front-v2
-      weight: 50
+      weight: 5
       
 spec:
   ports:

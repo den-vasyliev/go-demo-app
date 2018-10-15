@@ -5,30 +5,19 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: front-v1
+  name: front
   labels:
-    app: front-v1
+    app: front
   annotations:
     
-    getambassador.io/config: |
-      ---
-      apiVersion: ambassador/v0
-      kind:  Mapping
-      name:  front-healthz
-      prefix: /api/
-      service: front-v1
-      ---
-      apiVersion: ambassador/v0
-      kind:  Mapping
-      name:  front-default
-      prefix: "/(.*)"
-      prefix_regex: true
-      service: front-v1
-      
 spec:
   ports:
-  - name: http-front-v1
+  - name: http-service
     port: 80
     targetPort: 80
   selector:
-    app: front-v1
+    service: front
+
+
+
+
