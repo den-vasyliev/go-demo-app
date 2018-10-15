@@ -5,24 +5,33 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: front-v1
+  name: backend-v1
 spec:
   selector:
     matchLabels:
-      app: front-v1
+      app: backend
+      version: v1
   replicas: 1
   template:
     metadata:
       labels:
-        app: front-v1
-        version: v0.1.5-bootcamp-b815c50
+        app: backend
+        version: v1
+        revision: 4ffe4fe
     spec:
       containers:
-      - name: front
-        image: denvasyliev/front:v0.1.5-bootcamp-b815c50
+      - name: backend
+        image: denvasyliev/k8s-diy:backend-v1-4ffe4fe
+        imagePullPolicy: Always
         env:
           - name: APP_PORT
             value: "80"
+          - name: APP_ROLE
+            value: "backend"
+          - name: APP_DATASTORE
+            value: "datastore"
+          - name: APP_DB
+            value: "db"
         resources:
           requests:
             cpu: 100m
@@ -42,41 +51,6 @@ spec:
             port: 80
           initialDelaySeconds: 15
           periodSeconds: 3
-
----
-# Source: demo-app/templates/service.yaml
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: front-v1
-  labels:
-    app: front-v1
-  annotations:
-    
-    getambassador.io/config: |
-      ---
-      apiVersion: ambassador/v0
-      kind:  Mapping
-      name:  front-api-v1
-      prefix: /api/
-      service: front-v1
-      ---
-      apiVersion: ambassador/v0
-      kind:  Mapping
-      name:  front-default-v1
-      prefix: "/(.*)"
-      prefix_regex: true
-      service: front-v1
-      
-spec:
-  ports:
-  - name: http-front-v1
-    port: 80
-    targetPort: 80
-  selector:
-    app: front-v1
 
 
 

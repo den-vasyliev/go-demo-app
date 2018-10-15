@@ -19,11 +19,23 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
+	// "github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-// AppName app
-//var AppName = "name"
-var AppName = os.Getenv("APP_NAME")
+// AppRole app
+var AppRole = os.Getenv("APP_ROLE")
+
+// AppPort app
+var AppPort = os.Getenv("APP_PORT")
+
+// AppBackend app
+var AppBackend = os.Getenv("APP_BACKEND")
+
+// AppDatastore app
+var AppDatastore = os.Getenv("APP_DATASTORE")
+
+// AppDb name
+var AppDb = os.Getenv("APP_DB")
 
 // Version app
 var Version = "version"
@@ -32,27 +44,17 @@ var Version = "version"
 var BuildInfo = "commit"
 
 // Revision app
-var Revision = fmt.Sprintf("%s version: %s+%s", AppName, Version, BuildInfo)
-
-// AppPort app
-var AppPort = os.Getenv("APP_PORT")
-
-// AppDb name
-var AppDb = "db/name"
+var Revision = fmt.Sprintf("%s version: %s+%s", AppRole, Version, BuildInfo)
 
 // NewFeature changes mock
 var NewFeature = ""
 
-type greetingsText struct {
+type messageText struct {
 	Text string `json:"Text"`
 }
 
-type greetingsToken struct {
+type messageToken struct {
 	Hash string `json:"Hash"`
-}
-
-type msisdn struct {
-	Msisdn string `json:"msisdn"`
 }
 
 func main() {
@@ -61,19 +63,17 @@ func main() {
 	router.HandleFunc("/version", versionHandler)
 	router.HandleFunc("/healthz", healthzHandler)
 	router.HandleFunc("/readinez", readinessHandler)
+	// router.Handle("/metrics", promhttp.Handler())
 
-	switch AppName {
-	case "front":
-		router.HandleFunc("/", frontHandler)
+	switch AppRole {
+	case "frontend":
+		router.HandleFunc("/", frontendHandler)
 
-	case "service":
-		router.HandleFunc("/", serviceHandler)
+	case "backend":
+		router.HandleFunc("/", backendHandler)
 
-	case "data":
-		router.HandleFunc("/", dataHandler)
-
-	case "rate":
-		router.HandleFunc("/", rateHandler)
+	case "datastore":
+		router.HandleFunc("/", datastoreHandler)
 
 	}
 	log.Fatal(http.ListenAndServe(":"+AppPort, router))
@@ -92,12 +92,12 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 
 func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
-	switch AppName {
+	switch AppRole {
 
-	case "front":
+	case "frontend":
 		w.Write([]byte("OK"))
 
-	case "service":
+	case "backend":
 		client := redis.NewClient(&redis.Options{
 			Addr:     "redis:6379",
 			Password: "", // no password set
@@ -109,7 +109,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
 
-	case "data":
+	case "datastore":
 		client := redis.NewClient(&redis.Options{
 			Addr:     "redis:6379",
 			Password: "", // no password set
@@ -121,7 +121,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
 
-		db, err := sql.Open("mysql", AppDb)
+		db, err := sql.Open("mysql", "")
 		if err != nil {
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
@@ -141,13 +141,16 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func frontHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(fmt.Sprintf("%s", rest("http://service", `{"text":"kubernetes bootcamp"}`))))
+func frontendHandler(w http.ResponseWriter, r *http.Request) {
+	// defer metrics.MeasureSince([]string{"API"}, time.Now())
+	message := fmt.Sprintf(`{"text":"%s"}`, r.URL.Query()["message"])
+	w.Write([]byte(fmt.Sprintf("%s", rest("http://"+AppBackend, message))))
 
 }
 
-func serviceHandler(w http.ResponseWriter, r *http.Request) {
-	var m greetingsText
+func backendHandler(w http.ResponseWriter, r *http.Request) {
+	// defer metrics.MeasureSince([]string{"API"}, time.Now())
+	var m messageText
 	switch r.Method {
 	case "GET":
 		log.Printf("Get GET Request!")
@@ -166,14 +169,15 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 			m.Text = NewFeature
 		}
 		log.Print("Text: ", m.Text)
-		hashStr := fmt.Sprintf(`{"hash":"%s"}`, greetingsID(m.Text))
+		hashStr := fmt.Sprintf(`{"hash":"%s"}`, messageID(m.Text))
 		log.Print("Hash:", hashStr)
-		w.Write(rest("http://data", hashStr))
+		w.Write(rest("http://"+AppDatastore, hashStr))
 
 	}
 }
 
-func greetingsID(decodedStr string) string {
+func messageID(decodedStr string) string {
+	// defer metrics.MeasureSince([]string{"API"}, time.Now())
 	client := redis.NewClient(&redis.Options{
 		Addr:     "redis:6379",
 		Password: "", // no password set
@@ -187,8 +191,8 @@ func greetingsID(decodedStr string) string {
 	return hashStr
 }
 
-func dataHandler(w http.ResponseWriter, r *http.Request) {
-	var m greetingsToken
+func datastoreHandler(w http.ResponseWriter, r *http.Request) {
+	var m messageToken
 	switch r.Method {
 	case "GET":
 		log.Printf("Get GET Request!")
@@ -203,11 +207,11 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 				panic(err)
 			}
 		}
-		w.Write([]byte(greetingsDB(m.Hash)))
+		w.Write([]byte(dataStore(m.Hash)))
 	}
 }
 
-func greetingsDB(hash string) string {
+func dataStore(hash string) string {
 	var Payload string
 
 	db, err := sql.Open("mysql", AppDb)
@@ -218,7 +222,7 @@ func greetingsDB(hash string) string {
 	defer db.Close()
 	err = db.Ping()
 	if err != nil {
-		log.Print("Ping db err: ")
+		log.Print("Ping db err")
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
 
@@ -274,87 +278,4 @@ func readiness(url string) string {
 
 	log.Print("response Status:", resp.Status)
 	return resp.Status
-}
-
-func rateHandler(w http.ResponseWriter, r *http.Request) {
-	var m msisdn
-	switch r.Method {
-	case "GET":
-		log.Printf("Get GET Request!")
-		w.Write([]byte("Please use POST"))
-
-	case "POST":
-		b, _ := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
-		if err := json.Unmarshal(b, &m); err != nil {
-			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-			w.WriteHeader(422) // unprocessable entity
-			if err := json.NewEncoder(w).Encode(err); err != nil {
-				panic(err)
-			}
-		}
-		w.Write([]byte(getRate(m.Msisdn)))
-	}
-}
-
-/**
-func getRate(msisdn string) string {
-	client := redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
-
-	log.Print("MSISDN: ", msisdn)
-	client.HGetAll('RATE_CACHE:'+substr(msisdn,0,$CONF{'rate_cache_len'}))
-	%{ SQL(TEMPLATE('sql:get_rate'),'hash')
-	if (!scalar keys %{$Q{CACHE}}){
-		$R->HSET('RATE_CACHE:'.substr($Q{MSISDN},0,$CONF{'rate_cache_len'}),$_,$HASH{$_}, sub{}) for keys %HASH;
-		$R->wait_one_response;
-		$R->EXPIRE('RATE_CACHE:'.substr($Q{MSISDN},0,$CONF{'rate_cache_len'}),defined $CONF{'rate_cache_ttl'} ? $CONF{'rate_cache_ttl'} :86400 );
-		}#if cache
-
-		map {$Q{$_}=$HASH{$_}} keys %HASH; #map for DID call
-		$Q{'CALL_RATE'}=($HASH{'RATE'}*$CONF{'markup_rate'}+$Q{MTC})/100; #notation 1.2
-		$Q{'CALL_LIMIT'}=($Q{'CALL_LIMIT'}=floor(($Q{'CARD_BALANCE_AVAIL'})/$Q{'CALL_RATE'})*60)>$CONF{'max-call-time'} ? $CONF{'max-call-time'} : $Q{'CALL_LIMIT'}; #notation seconds
-
-		logger('LOG','CALL_RATE-[rate|limit|mtc]:',"$Q{'CALL_RATE'}:$Q{'CALL_LIMIT'}:$Q{MTC}") if $CONF{debug}>2;
-
-
-	return hashStr
-}
-**/
-
-func getRate(msisdn string) string {
-	var Rate, Trunk, Prefix, RateId string
-	db, err := sql.Open("sqlite3", "./msrn.db")
-	if err != nil {
-		log.Print("Open db err: ")
-		panic(err)
-	}
-	defer db.Close()
-	err = db.Ping()
-	if err != nil {
-		log.Print("Ping db err: ")
-		panic(err.Error()) // proper error handling instead of panic in your app
-	}
-
-	client := redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379", //Addr:     "redis:6379",
-		Password: "",               // no password set
-		DB:       0,                // use default DB
-	})
-
-	Rate, err = client.HGet("RATE_CACHE:"+msisdn[0:5], "RATE").Result()
-	if err != nil {
-		log.Print(err)
-		err = db.QueryRow("select rate*100 RATE, trunk TRUNK, dial PREFIX, id RATEID FROM RATES WHERE (instr(?,prefix)=1) ORDER BY len DESC,rate LIMIT 1", msisdn).Scan(&Rate, &Trunk, &Prefix, &RateId)
-
-		if err != nil {
-			log.Print(err.Error()) // proper error handling instead of panic in your app
-		}
-		client.HSet("RATE_CACHE:"+msisdn[0:5], "RATE", Rate)
-		client.Expire("RATE_CACHE:"+msisdn[0:5], 10*time.Second)
-	}
-
-	return Rate
 }

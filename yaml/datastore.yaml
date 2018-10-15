@@ -5,24 +5,30 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: data
+  name: datastore
 spec:
   selector:
     matchLabels:
-      app: data
+      app: datastore
   replicas: 1
   template:
     metadata:
       labels:
-        app: data
+        app: datastore
         version: v0.1.5-bootcamp-6b67ee2
     spec:
       containers:
-      - name: data
-        image: denvasyliev/data:v0.1.5-bootcamp-6b67ee2
+      - name: datastore
+        image: denvasyliev/k8s-diy:datastore-v1-4ffe4fe
         env:
           - name: APP_PORT
             value: "80"
+          - name: APP_ROLE
+            value: "datastore"
+          - name: APP_DATASTORE
+            value: "datastore"
+          - name: APP_DB
+            value: "root@tcp(db:3306)/demo"
         resources:
           requests:
             cpu: 100m
@@ -50,18 +56,18 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: data
+  name: datastore
   labels:
-    app: data
-  annotations:
+    app: datastore
+  annotations: 
     
 spec:
   ports:
-  - name: http-data
+  - name: http-datastore
     port: 80
     targetPort: 80
   selector:
-    app: data
+    app: datastore
 
 
 

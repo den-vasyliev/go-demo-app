@@ -1,12 +1,15 @@
-FROM golang:1.10
+FROM golang:1.10 as builder
 ARG APP_BUILD_INFO
 ARG APP_VERSION
-ARG APP_NAME
-ARG APP_DB
-ARG NEW_FEATURE
+ARG APP_ROLE
 WORKDIR /go/src/app
-COPY main.go app.go
+COPY src/main.go app.go
 RUN go get -d -v ./...
-RUN go build -ldflags "-X main.AppName=$APP_NAME  -X main.BuildInfo=$APP_BUILD_INFO -X main.Version=$APP_VERSION -X main.NewFeature=${NEW_FEATURE} -X main.AppDb=$APP_DB" -v ./...
+RUN go build -ldflags "-X main.AppRole=$APP_ROLE  -X main.BuildInfo=$APP_BUILD_INFO -X main.Version=$APP_VERSION" -v ./...
+CMD ["pwd"]
+CMD ["ls", "-l"]
 
-CMD ["/go/src/app/app"]
+FROM scratch
+WORKDIR /
+COPY --from=builder /go/src/app/app .
+ENTRYPOINT ["/app"]

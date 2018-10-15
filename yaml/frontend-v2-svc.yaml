@@ -1,0 +1,36 @@
+---
+# Source: demo-app/templates/service.yaml
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-v2
+  labels:
+    app: frontend
+    version: v2
+  annotations:
+    
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  frontend-api-v2
+      prefix: /api/
+      service: frontend-v2
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  frontend-default-v2
+      prefix: "/(.*)"
+      prefix_regex: true
+      service: frontend-v2
+      
+spec:
+  ports:
+  - name: http-frontend-v2
+    port: 80
+    targetPort: 80
+  selector:
+    app: frontend
+    version: v2

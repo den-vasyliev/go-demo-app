@@ -5,25 +5,35 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: service-v2
+  name: frontend-v1
 spec:
   selector:
     matchLabels:
-      app: service
-      version: v2
+      app: frontend
+      version: v1
   replicas: 1
   template:
     metadata:
       labels:
-        app: service
-        version: v2
+        app: frontend
+        version: v1
+        revision: 4ffe4fe
     spec:
       containers:
-      - name: service
-        image: denvasyliev/service:v0.1.5-bootcamp-v2-2090357
+      - name: frontend
+        image: denvasyliev/k8s-diy:frontend-v1-4ffe4fe
+        imagePullPolicy: Always
         env:
           - name: APP_PORT
             value: "80"
+          - name: APP_ROLE
+            value: "frontend"
+          - name: APP_BACKEND
+            value: "backend"
+          - name: APP_DATASTORE
+            value: "datastore"
+          - name: APP_DB
+            value: "db"
         resources:
           requests:
             cpu: 100m
@@ -39,8 +49,11 @@ spec:
           periodSeconds: 3
         readinessProbe:
           httpGet:
-            path: /healthz
+            path: /readinez
             port: 80
           initialDelaySeconds: 15
           periodSeconds: 3
+
+
+
 
