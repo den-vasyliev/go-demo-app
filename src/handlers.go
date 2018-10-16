@@ -8,7 +8,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
+	metrics "github.com/armon/go-metrics"
 	"github.com/go-redis/redis"
 )
 
@@ -75,14 +77,14 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func frontendHandler(w http.ResponseWriter, r *http.Request) {
-	// defer metrics.MeasureSince([]string{"API"}, time.Now())
+	defer metrics.MeasureSince([]string{"API"}, time.Now())
 	message := fmt.Sprintf(`{"text":"%s"}`, r.URL.Query()["message"])
 	w.Write([]byte(fmt.Sprintf("%s", rest("http://"+AppBackend, message))))
 
 }
 
 func backendHandler(w http.ResponseWriter, r *http.Request) {
-	// defer metrics.MeasureSince([]string{"API"}, time.Now())
+	defer metrics.MeasureSince([]string{"API"}, time.Now())
 	var m messageText
 	switch r.Method {
 	case "GET":
