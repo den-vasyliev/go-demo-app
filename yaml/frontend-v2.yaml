@@ -16,12 +16,12 @@ spec:
     metadata:
       labels:
         app: frontend
-        version: v2
-        revision: 4ffe4fe
+        version: v2-optimal
+        revision: b635cab
     spec:
       containers:
       - name: frontend
-        image: denvasyliev/k8s-diy:frontend-v2-0d83836
+        image: denvasyliev/k8s-diy:frontend-v2-optimal-b635cab
         imagePullPolicy: Always
         env:
           - name: APP_PORT
