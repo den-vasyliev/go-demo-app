@@ -15,11 +15,12 @@ spec:
     metadata:
       labels:
         app: datastore
-        version: v0.1.5-bootcamp-6b67ee2
+        version: v1
+        revision: 0d83836
     spec:
       containers:
       - name: datastore
-        image: denvasyliev/k8s-diy:datastore-v1-4ffe4fe
+        image: denvasyliev/k8s-diy:datastore-v5-0d83836
         env:
           - name: APP_PORT
             value: "80"

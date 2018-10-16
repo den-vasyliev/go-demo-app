@@ -17,11 +17,11 @@ spec:
       labels:
         app: backend
         version: v1
-        revision: 4ffe4fe
+        revision: 0d83836
     spec:
       containers:
       - name: backend
-        image: denvasyliev/k8s-diy:backend-v1-4ffe4fe
+        image: denvasyliev/k8s-diy:backend-v1-0d83836
         imagePullPolicy: Always
         env:
           - name: APP_PORT

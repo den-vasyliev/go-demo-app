@@ -3,13 +3,11 @@ ARG APP_BUILD_INFO
 ARG APP_VERSION
 ARG APP_ROLE
 WORKDIR /go/src/app
-COPY src/main.go app.go
+COPY src/ .
 RUN go get -d -v ./...
-RUN go build -ldflags "-X main.AppRole=$APP_ROLE  -X main.BuildInfo=$APP_BUILD_INFO -X main.Version=$APP_VERSION" -v ./...
-CMD ["pwd"]
-CMD ["ls", "-l"]
+RUN CGO_ENABLED=0 GOOS=linux go build -o app -a -installsuffix cgo -ldflags "-X main.AppRole=$APP_ROLE  -X main.BuildInfo=$APP_BUILD_INFO -X main.Version=$APP_VERSION" -v ./...
 
-FROM scratch
+FROM ubuntu
 WORKDIR /
 COPY --from=builder /go/src/app/app .
 ENTRYPOINT ["/app"]
