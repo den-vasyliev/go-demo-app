@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+    name: demo-pod
+spec:
+    containers:
+      - image: denvasyliev/k8s-diy:frontend-v1-0d83836
+        name: demo-pod
+        ports:
+          - containerPort: 80
+            name: http
+            protocol: TCP
+        env:
+          - name: APP_PORT
+            value: "80"
+          - name: APP_ROLE
+            value: "frontend"
+          - name: APP_BACKEND
+            value: "backend"
+        livenessProbe:
+            httpGet:
+                path: /healthz
+                port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3

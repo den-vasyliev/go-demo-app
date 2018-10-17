@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/md5"
 	"database/sql"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -96,14 +98,27 @@ func backendHandler(w http.ResponseWriter, r *http.Request) {
 				panic(err)
 			}
 		}
-		if NewFeature != "" {
-			m.Text = NewFeature
-		}
-		log.Print("Text: ", m.Text)
-		hashStr := fmt.Sprintf(`{"hash":"%s"}`, hash(m.Text))
-		log.Print("Hash:", hashStr)
-		w.Write(rest("http://"+AppDatastore, hashStr))
 
+		log.Print("Text: ", m.Text)
+
+		client := redis.NewClient(&redis.Options{
+			Addr:     "redis:6379",
+			Password: "", // no password set
+			DB:       0,  // use default DB
+		})
+
+		cacheItem, err := client.Get(fmt.Sprintf("%x", md5.Sum([]byte(m.Text)))).Result()
+		if err != nil {
+
+			hashStr := fmt.Sprintf(`{"hash":"%s"}`, hash(m.Text))
+			log.Print("Hash:", hashStr)
+			w.Write(rest("http://"+AppDatastore, hashStr))
+
+		} else {
+			hexStr, _ := client.Get(cacheItem).Result()
+			decoded, _ := hex.DecodeString(hexStr)
+			w.Write([]byte(decoded))
+		}
 	}
 }
 

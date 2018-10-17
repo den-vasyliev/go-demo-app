@@ -22,5 +22,6 @@ func hash(decodedStr string) string {
 	log.Print("EncodedStr: ", encodedStr)
 	hashStr := fmt.Sprintf("%x", md5.Sum([]byte(encodedStr)))
 	client.Set(hashStr, encodedStr, 0)
+	client.Set(fmt.Sprintf("%x", md5.Sum([]byte(decodedStr))), hashStr, 0)
 	return hashStr
 }

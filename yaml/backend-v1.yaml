@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: denvasyliev/k8s-diy:backend-v1-0d83836
+        image: denvasyliev/k8s-diy:backend-v1-f827500
         imagePullPolicy: Always
         env:
           - name: APP_PORT
