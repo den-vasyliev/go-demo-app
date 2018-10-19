@@ -1,0 +1,70 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 2 (0x2)
+        Signature Algorithm: md5WithRSAEncryption
+        Issuer: C=US, ST=Perak, L=Sitiawan, O=qsc, OU=qrem, CN=qsc.com/emailAddress=denys.vasyliev@qsc.com
+        Validity
+            Not Before: Oct 19 07:28:48 2018 GMT
+            Not After : Oct 19 07:28:48 2019 GMT
+        Subject: C=MY, ST=Perak, L=Sitiawan, O=My Directory Sdn Bhd, OU=Secure Web Server, CN=k8s-diy.cluster.local/emailAddress=den@k8s-diy.cluster.local
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public Key: (1024 bit)
+                Modulus (1024 bit):
+                    00:f5:c9:d0:d4:6c:92:5d:c5:05:7e:ba:1c:88:5a:
+                    6b:65:94:65:00:f5:2a:c2:6b:fd:00:23:81:e8:53:
+                    54:5a:c4:85:6b:3c:a5:ce:27:1a:b6:c4:c1:37:92:
+                    a2:9b:78:5c:69:c5:aa:9a:71:86:0a:05:47:d1:c5:
+                    67:79:79:39:ac:52:f3:47:61:5e:69:51:9e:56:d7:
+                    9a:e8:a6:48:b0:8d:99:97:86:af:55:66:3c:15:49:
+                    e4:b6:f0:11:c4:11:00:77:37:75:83:4f:38:49:54:
+                    c0:4d:ba:57:54:6f:5b:b4:cd:9b:07:fd:27:8f:48:
+                    a3:1d:60:00:0c:b7:37:d0:79
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Authority Key Identifier: 
+                keyid:89:23:D8:D2:4A:10:4B:02:C6:F9:D0:76:51:9D:3C:47:AC:37:B4:39
+
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication, TLS Web Client Authentication, Microsoft Server Gated Crypto, Netscape Server Gated Crypto
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+    Signature Algorithm: md5WithRSAEncryption
+        b5:88:6b:86:7e:31:84:4b:5c:37:d6:71:4e:27:a2:f2:d7:10:
+        68:39:97:9e:27:3b:0c:3d:3b:48:14:f7:f8:ff:e3:86:d9:d9:
+        f7:0d:68:95:c5:b8:32:bb:f4:e8:5a:02:d4:78:d5:72:95:f5:
+        6e:02:60:56:35:12:64:44:a8:a2:c7:e4:f2:38:f2:6c:84:31:
+        3a:0e:54:9c:a4:8b:18:39:fe:02:28:13:1c:24:94:df:19:db:
+        4c:42:7e:89:33:dc:d2:0d:c1:8f:fc:6c:c3:a3:c0:6f:af:a6:
+        2f:9e:69:6b:a5:f9:f1:cb:6a:68:90:16:b7:9a:cd:8c:65:a9:
+        e9:0a:05:47:0f:c0:e1:50:68:b9:dd:d4:b2:56:d0:ce:dd:b4:
+        76:e6:e7:d4:83:a4:66:64:1d:9c:12:f3:11:a5:93:09:ea:6a:
+        f8:1b:e3:5c:e2:fb:0c:bf:a3:9f:b2:f6:91:17:b5:34:49:a7:
+        c5:4f:9f:39:0d:45:10:52:ce:52:e4:d3:78:8d:5d:2b:c3:fb:
+        04:52:14:4d:47:88:ff:8e:53:24:33:46:54:91:1e:a8:3c:9d:
+        14:c1:18:5e:47:20:94:f5:11:d5:68:b4:22:70:66:e2:e9:c0:
+        eb:29:c4:77:2f:1c:2d:e4:2e:78:9b:03:19:b0:8a:00:dc:de:
+        79:26:9b:f1
+-----BEGIN CERTIFICATE-----
+MIIDmzCCAoOgAwIBAgIBAjANBgkqhkiG9w0BAQQFADCBhjELMAkGA1UEBhMCVVMx
+DjAMBgNVBAgTBVBlcmFrMREwDwYDVQQHEwhTaXRpYXdhbjEMMAoGA1UEChMDcXNj
+MQ0wCwYDVQQLEwRxcmVtMRAwDgYDVQQDEwdxc2MuY29tMSUwIwYJKoZIhvcNAQkB
+FhZkZW55cy52YXN5bGlldkBxc2MuY29tMB4XDTE4MTAxOTA3Mjg0OFoXDTE5MTAx
+OTA3Mjg0OFowgbUxCzAJBgNVBAYTAk1ZMQ4wDAYDVQQIEwVQZXJhazERMA8GA1UE
+BxMIU2l0aWF3YW4xHTAbBgNVBAoTFE15IERpcmVjdG9yeSBTZG4gQmhkMRowGAYD
+VQQLExFTZWN1cmUgV2ViIFNlcnZlcjEeMBwGA1UEAxMVazhzLWRpeS5jbHVzdGVy
+LmxvY2FsMSgwJgYJKoZIhvcNAQkBFhlkZW5AazhzLWRpeS5jbHVzdGVyLmxvY2Fs
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQD1ydDUbJJdxQV+uhyIWmtllGUA
+9SrCa/0AI4HoU1RaxIVrPKXOJxq2xME3kqKbeFxpxaqacYYKBUfRxWd5eTmsUvNH
+YV5pUZ5W15ropkiwjZmXhq9VZjwVSeS28BHEEQB3N3WDTzhJVMBNuldUb1u0zZsH
+/SePSKMdYAAMtzfQeQIDAQABo2cwZTAfBgNVHSMEGDAWgBSJI9jSShBLAsb50HZR
+nTxHrDe0OTA0BgNVHSUELTArBggrBgEFBQcDAQYIKwYBBQUHAwIGCisGAQQBgjcK
+AwMGCWCGSAGG+EIEATAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBBAUAA4IBAQC1
+iGuGfjGES1w31nFOJ6Ly1xBoOZeeJzsMPTtIFPf4/+OG2dn3DWiVxbgyu/ToWgLU
+eNVylfVuAmBWNRJkRKiix+TyOPJshDE6DlScpIsYOf4CKBMcJJTfGdtMQn6JM9zS
+DcGP/GzDo8Bvr6Yvnmlrpfnxy2pokBa3ms2MZanpCgVHD8DhUGi53dSyVtDO3bR2
+5ufUg6RmZB2cEvMRpZMJ6mr4G+Nc4vsMv6OfsvaRF7U0SafFT585DUUQUs5S5NN4
+jV0rw/sEUhRNR4j/jlMkM0ZUkR6oPJ0UwRheRyCU9RHVaLQicGbi6cDrKcR3Lxwt
+5C54mwMZsIoA3N55Jpvx
+-----END CERTIFICATE-----

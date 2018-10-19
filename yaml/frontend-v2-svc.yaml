@@ -18,6 +18,8 @@ metadata:
       name:  frontend-api-v2
       prefix: /api/
       service: frontend-v2
+      headers:
+        x-mode: canary
       ---
       apiVersion: ambassador/v0
       kind:  Mapping

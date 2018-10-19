@@ -28,7 +28,7 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
 metadata:
   name: ambassador
-  namespace: demo
+  namespace: k8s-diy
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -36,7 +36,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: ambassador
-  namespace: demo
+  namespace: k8s-diy
 
 
 ---
