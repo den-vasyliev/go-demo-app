@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
     - image: gcr.io/kuar-demo/kuard-amd64:1
-      name: app
+      name: app-2
       
       livenessProbe:
         httpGet:
