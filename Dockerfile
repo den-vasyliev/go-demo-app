@@ -7,7 +7,7 @@ COPY src/ .
 RUN go get -d -v ./...
 RUN CGO_ENABLED=0 GOOS=linux go build -o app -a -installsuffix cgo -ldflags "-X main.AppRole=$APP_ROLE  -X main.BuildInfo=$APP_BUILD_INFO -X main.Version=$APP_VERSION" -v ./...
 
-FROM ubuntu
+FROM scratch
 WORKDIR /
 COPY --from=builder /go/src/app/app .
 ENTRYPOINT ["/app"]

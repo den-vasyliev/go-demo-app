@@ -5,35 +5,31 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: frontend-v2
+  name: datastore
 spec:
   selector:
     matchLabels:
-      app: frontend
-      version: v2
+      app: datastore
   replicas: 1
   template:
     metadata:
       labels:
-        app: frontend
-        version: v2-optimal
-        revision: b635cab
+        app: datastore
+        version: v1
+        revision: 0d83836
     spec:
       containers:
-      - name: frontend
-        image: denvasyliev/k8s-diy:frontend-v2-optimal-b635cab
-        imagePullPolicy: Always
+      - name: datastore
+        image: denvasyliev/k8s-diy:datastore-v5-0d83836
         env:
           - name: APP_PORT
             value: "80"
           - name: APP_ROLE
-            value: "frontend"
-          - name: APP_BACKEND
-            value: "backend"
+            value: "datastore"
           - name: APP_DATASTORE
             value: "datastore"
           - name: APP_DB
-            value: "db"
+            value: "root@tcp(db:3306)/demo"
         resources:
           requests:
             cpu: 100m
@@ -49,10 +45,30 @@ spec:
           periodSeconds: 3
         readinessProbe:
           httpGet:
-            path: /readinez
+            path: /healthz
             port: 80
           initialDelaySeconds: 15
           periodSeconds: 3
+
+---
+# Source: demo-app/templates/service.yaml
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: datastore
+  labels:
+    app: datastore
+  annotations: 
+    
+spec:
+  ports:
+  - name: http-datastore
+    port: 80
+    targetPort: 80
+  selector:
+    app: datastore
 
 
 
