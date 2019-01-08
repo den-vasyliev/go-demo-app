@@ -9,11 +9,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
-<<<<<<< HEAD
-=======
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	// "github.com/prometheus/client_golang/prometheus/promhttp"
->>>>>>> optimal
 )
 
 // AppRole app

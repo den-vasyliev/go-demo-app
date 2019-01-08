@@ -18,7 +18,7 @@ metadata:
       name:  frontend-api-v2
       prefix: /api/
       service: frontend-v2
-      weight: 100
+      weight: 5
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
