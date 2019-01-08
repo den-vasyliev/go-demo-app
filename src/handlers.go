@@ -78,7 +78,25 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
 func frontendHandler(w http.ResponseWriter, r *http.Request) {
 	message := fmt.Sprintf(`{"text":"%s"}`, r.URL.Query()["message"])
-	w.Write([]byte(fmt.Sprintf("%s", rest("http://"+AppBackend, message))))
+	client := redis.NewClient(&redis.Options{
+		Addr:     "redis:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	cacheItem, err := client.Get(fmt.Sprintf("%x", md5.Sum([]byte(message)))).Result()
+	if err != nil {
+		w.Write([]byte(fmt.Sprintf("%s", rest("http://"+AppBackend, message))))
+		//hashStr := fmt.Sprintf(`{"hash":"%s"}`, hash(message))
+		//log.Print("Hash:", hashStr)
+		//w.Write(rest("http://"+AppBackend, hashStr))
+
+	} else {
+		hexStr, _ := client.Get(cacheItem).Result()
+		decoded, _ := hex.DecodeString(hexStr)
+		w.Write([]byte(decoded))
+	}
+	//w.Write([]byte(fmt.Sprintf("%s", rest("http://"+AppBackend, message))))
 
 }
 
