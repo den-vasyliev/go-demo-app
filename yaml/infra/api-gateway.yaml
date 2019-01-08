@@ -1,0 +1,121 @@
+---
+# Source: ambassador/templates/rbac.yaml
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ambassador
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: ambassador
+rules:
+- apiGroups: [""]
+  resources:
+  - services
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - configmaps
+  verbs: ["create", "update", "patch", "get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - secrets
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: ambassador
+  namespace: demo
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ambassador
+subjects:
+- kind: ServiceAccount
+  name: ambassador
+  namespace: demo
+
+
+---
+# Source: ambassador/templates/service.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: ambassador
+  name: ambassador
+spec:
+  type: NodePort
+  ports:
+  - name: ambassador
+    port: 80
+    targetPort: 80
+    nodePort: 30011
+  selector:
+    service: ambassador
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: ambassador-admin
+  name: ambassador-admin
+spec:
+  type: NodePort
+  ports:
+  - name: ambassador-admin
+    port: 8877
+    targetPort: 8877
+    nodePort: 30012
+  selector:
+    service: ambassador
+---
+# Source: ambassador/templates/deployment.yaml
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ambassador
+spec:
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+      labels:
+        service: ambassador
+    spec:
+      serviceAccountName: ambassador
+      containers:
+      - name: ambassador
+        image: quay.io/datawire/ambassador:0.40.0
+        resources:
+          limits:
+            cpu: 1
+            memory: 400Mi
+          requests:
+            cpu: 200m
+            memory: 100Mi
+        env:
+        - name: AMBASSADOR_SINGLE_NAMESPACE
+          value: "demo"
+        - name: AMBASSADOR_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace          
+        livenessProbe:
+          httpGet:
+            path: /ambassador/v0/check_alive
+            port: 8877
+          initialDelaySeconds: 30
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /ambassador/v0/check_ready
+            port: 8877
+          initialDelaySeconds: 30
+          periodSeconds: 3
