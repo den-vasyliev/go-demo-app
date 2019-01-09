@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: demo
+spec:
+  finalizers:
+  - kubernetes
+status:
+  phase: Active

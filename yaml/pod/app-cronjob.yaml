@@ -1,7 +1,7 @@
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: test
+  name: app-cronjob
 spec:
   schedule: "*/5 * * * *"
   jobTemplate:
