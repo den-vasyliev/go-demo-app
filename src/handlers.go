@@ -10,11 +10,24 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	metrics "github.com/armon/go-metrics"
 	"github.com/go-redis/redis"
 )
+
+// AppDbSql app
+var AppDbSql = os.Getenv("APP_DB_SQL")
+
+// AppDbSqlPort app
+var AppDbSqlPort = os.Getenv("APP_DB_SQL_PORT")
+
+// AppDbNoSql app
+var AppDbNoSql = os.Getenv("APP_DB_NO_SQL")
+
+// AppDbNoSql app
+var AppDbNoSqlPort = os.Getenv("APP_DB_NO_SQL_PORT")
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
 	var b []byte
@@ -36,7 +49,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "backend":
 		client := redis.NewClient(&redis.Options{
-			Addr:     "redis:6379",
+			Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})
@@ -48,7 +61,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "datastore":
 		client := redis.NewClient(&redis.Options{
-			Addr:     "redis:6379",
+			Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})
@@ -58,7 +71,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
 
-		db, err := sql.Open("mysql", "")
+		db, err := sql.Open("AppDbSql", "")
 		if err != nil {
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
@@ -82,7 +95,7 @@ func frontendHandler(w http.ResponseWriter, r *http.Request) {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
 	message := fmt.Sprintf(`{"text":"%s"}`, r.URL.Query()["message"])
 	client := redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
+		Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
@@ -124,7 +137,7 @@ func backendHandler(w http.ResponseWriter, r *http.Request) {
 		log.Print("Text: ", m.Text)
 
 		client := redis.NewClient(&redis.Options{
-			Addr:     "redis:6379",
+			Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})

@@ -1,0 +1,156 @@
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-frontend
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+      version: {{ .Values.frontend.version }}
+  replicas: {{ .Values.app.replicas}}
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: {{ .Values.frontend.version }}
+    spec:
+      containers:
+      - name: frontend
+        image: {{ .Values.app.image }}:frontend-{{ .Values.frontend.version }}
+        imagePullPolicy: Always
+        env:
+          - name: APP_PORT
+            value: "80"
+          - name: APP_ROLE
+            value: "frontend"
+          - name: APP_BACKEND
+            value: "{{ .Release.Name }}-backend"
+          - name: APP_DATASTORE
+            value: "{{ .Release.Name }}-datastore"
+          - name: APP_DB
+            value: "{{ .Release.Name }}-db-sql"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 80
+        securityContext:
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /readinez
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 3
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-backend
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: backend
+      version: {{ .Values.backend.version }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: backend
+        version: {{ .Values.backend.version }}
+    spec:
+      containers:
+      - name: backend
+        image: {{ .Values.app.image }}:backend-{{ .Values.backend.version }}
+        imagePullPolicy: Always
+        env:
+          - name: APP_PORT
+            value: "80"
+          - name: APP_ROLE
+            value: "backend"
+          - name: APP_DATASTORE
+            value: "{{ .Release.Name }}-datastore"
+          - name: APP_DB_NO_SQL
+            value: "{{ .Release.Name }}-db-nosql"
+          - name: APP_DB_NO_SQL_PORT
+            value: "{{ .Values.db_nosql.port }}"
+          - name: APP_DB_SQL
+            value: "{{ .Release.Name }}-db-sql"
+          - name: APP_DB_SQL_PORT
+            value: "{{ .Values.db_sql.port }}"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 80
+        securityContext:
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /readinez
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 3
+
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-datastore
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: datastore
+      version: {{ .Values.datastore.version }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: datastore
+        version: {{ .Values.datastore.version }}
+    spec:
+      containers:
+      - name: datastore
+        image: {{ .Values.app.image }}:datastore-{{ .Values.datastore.version }}
+        env:
+          - name: APP_PORT
+            value: "80"
+          - name: APP_ROLE
+            value: "datastore"
+          - name: APP_DB
+            value: "root@tcp({{ .Release.Name }}-db-sql:3306)/demo"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 80
+        securityContext:
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 3

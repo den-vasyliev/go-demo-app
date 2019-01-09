@@ -1,0 +1,19 @@
+app:
+  name: ascii-art
+  replicas: 1
+  image: denvasyliev/k8s-diy
+
+frontend:
+  version: v1-0d83836
+
+backend:
+  version: v2-c75e167
+
+datastore:
+  version: v5-0d83836
+
+db_sql:
+  port: 3306
+
+db_nosql:
+  port: 6379
