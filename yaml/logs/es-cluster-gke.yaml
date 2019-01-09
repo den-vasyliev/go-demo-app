@@ -13,7 +13,7 @@ spec:
   data-node-replicas: 2
   network-host: 0.0.0.0
   zones:
-  - us-central1-a
+  - europe-west4-a
   data-volume-size: 10Gi
   java-options: "-Xms512m -Xmx512m"
   snapshot:
