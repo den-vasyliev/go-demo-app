@@ -1,0 +1,47 @@
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-datastore-{{ .Values.datastore.version }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: datastore
+      version: {{ .Values.datastore.version }}
+  replicas: {{ .Values.datastore.replicas }}
+  template:
+    metadata:
+      labels:
+        app: datastore
+        version: {{ .Values.datastore.version }}
+    spec:
+      containers:
+      - name: datastore
+        image: {{ .Values.app.image }}:datastore-{{ .Values.datastore.version }}-{{ .Values.datastore.build }}
+        env:
+          - name: APP_PORT
+            value: "80"
+          - name: APP_ROLE
+            value: "datastore"
+          - name: APP_DB
+            value: "root@tcp({{ .Release.Name }}-db-sql:3306)/demo"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 80
+        securityContext:
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 3

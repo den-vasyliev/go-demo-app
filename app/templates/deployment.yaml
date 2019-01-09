@@ -2,7 +2,7 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-frontend
+  name: {{ .Release.Name }}-frontend-{{ .Values.frontend.version }}
   namespace: {{ .Release.Namespace }}
 spec:
   selector:
@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: {{ .Values.app.image }}:frontend-{{ .Values.frontend.version }}
+        image: {{ .Values.app.image }}:frontend-{{ .Values.frontend.version }}-{{ .Values.frontend.build }}
         imagePullPolicy: Always
         env:
           - name: APP_PORT
@@ -54,7 +54,7 @@ spec:
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-backend
+  name: {{ .Release.Name }}-backend-{{ .Values.backend.version }}
   namespace: {{ .Release.Namespace }}
 spec:
   selector:
@@ -70,7 +70,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: {{ .Values.app.image }}:backend-{{ .Values.backend.version }}
+        image: {{ .Values.app.image }}:backend-{{ .Values.backend.version }}-{{ .Values.backend.build }}
         imagePullPolicy: Always
         env:
           - name: APP_PORT
@@ -111,7 +111,7 @@ spec:
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-datastore
+  name: {{ .Release.Name }}-datastore-{{ .Values.datastore.version }}
   namespace: {{ .Release.Namespace }}
 spec:
   selector:
@@ -127,7 +127,7 @@ spec:
     spec:
       containers:
       - name: datastore
-        image: {{ .Values.app.image }}:datastore-{{ .Values.datastore.version }}
+        image: {{ .Values.app.image }}:datastore-{{ .Values.datastore.version }}-{{ .Values.datastore.build }}
         env:
           - name: APP_PORT
             value: "80"

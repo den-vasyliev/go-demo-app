@@ -1,3 +1,6 @@
+{{- define "canary-weight" }}{{ if gt .Values.frontend.canary 0.0 }}weight: {{.Values.frontend.canary}}{{ end }} {{- end }}
+{{- define "canary-header" }}{{ if .Values.frontend.header  }}headers:{{ end }} {{- end }}
+{{- define "canary-header-mode" }}{{ if .Values.frontend.header  }}x-mode: {{ .Values.frontend.header }}{{ end }} {{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -6,7 +9,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: frontend
-    version: v1
+    version: {{ .Values.frontend.version }}
+    build: {{ .Values.frontend.build }}
   annotations:
     
     getambassador.io/config: |
@@ -16,6 +20,9 @@ metadata:
       name:  {{ .Release.Name }}-frontend-api-{{ .Values.frontend.version }}
       prefix: /api/
       service: {{ .Release.Name }}-frontend-{{ .Values.frontend.version }}
+      {{include "canary-header" .}}
+        {{include "canary-header-mode" .}}
+      {{include "canary-weight" .}}
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
@@ -23,6 +30,9 @@ metadata:
       prefix: "/(.*)"
       prefix_regex: true
       service: {{ .Release.Name }}-frontend-{{ .Values.frontend.version }}
+      {{include "canary-header" .}}
+        {{include "canary-header-mode" .}}
+      {{include "canary-weight" .}}
       
 spec:
   ports:
@@ -33,39 +43,3 @@ spec:
     app: frontend
     version: {{ .Values.frontend.version }}
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ .Release.Name }}-backend-{{ .Values.backend.version }}
-  namespace: {{ .Release.Namespace }}
-  labels:
-    app: backend
-  annotations:
-    
-spec:
-  ports:
-  - name: http-{{ .Release.Name }}-backend-{{ .Values.backend.version }}
-    port: 80
-    targetPort: 80
-  selector:
-    app: backend
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ .Release.Name }}-datastore-{{ .Values.datastore.version }}
-  namespace: {{ .Release.Namespace }}
-  labels:
-    app: datastore
-  annotations: 
-    
-spec:
-  ports:
-  - name: http-{{ .Release.Name }}-datastore-{{ .Values.backend.version }}
-    port: 80
-    targetPort: 80
-  selector:
-    app: datastore

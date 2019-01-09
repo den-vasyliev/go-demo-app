@@ -1,16 +1,23 @@
 app:
   name: ascii-art
-  replicas: 1
   image: denvasyliev/k8s-diy
 
 frontend:
-  version: v1-0d83836
+  replicas: 1
+  canary: 0.0
+  header: 
+  version: v1
+  build: 0d83836
 
 backend:
-  version: v2-c75e167
+  replicas: 1 
+  version: v2
+  build: c75e167
 
 datastore:
-  version: v5-0d83836
+  replicas: 1
+  version: v5
+  build: 0d83836
 
 db_sql:
   port: 3306
