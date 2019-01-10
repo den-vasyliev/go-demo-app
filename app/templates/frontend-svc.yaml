@@ -26,6 +26,16 @@ metadata:
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
+      name:  {{ .Release.Name }}-frontend-metrics-{{ .Values.frontend.version }}
+      prefix: /metrics
+      rewrite: ""
+      service: {{ .Release.Name }}-frontend-{{ .Values.frontend.version }}
+      {{include "canary-header" .}}
+        {{include "canary-header-mode" .}}
+      {{include "canary-weight" .}}
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
       name:  {{ .Release.Name }}-frontend-default-{{ .Values.frontend.version }}
       prefix: "/(.*)"
       prefix_regex: true
