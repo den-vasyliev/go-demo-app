@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"log"
+	"os"
 
 	"github.com/go-redis/redis"
 )
