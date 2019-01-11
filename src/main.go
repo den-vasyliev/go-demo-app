@@ -12,6 +12,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+// AppNmae app
+var AppName = os.Getenv("APP_Name")
+
 // AppRole app
 var AppRole = os.Getenv("APP_ROLE")
 
@@ -34,7 +37,7 @@ var Version = "version"
 var BuildInfo = "commit"
 
 // Revision app
-var Revision = fmt.Sprintf("%s version: %s+%s", AppRole, Version, BuildInfo)
+var Revision = fmt.Sprintf("%s %s version: %s+%s", AppName, AppRole, Version, BuildInfo)
 
 // NewFeature changes mock
 var NewFeature = ""

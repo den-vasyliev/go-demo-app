@@ -2,23 +2,24 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-backend-{{ .Values.backend.version }}
+  name: {{ .Release.Name }}-backend-{{ .Values.app.version }}
   namespace: {{ .Release.Namespace }}
 spec:
   selector:
     matchLabels:
       app: backend
-      version: {{ .Values.backend.version }}
+      version: {{ .Values.app.version }}
   replicas: {{ .Values.backend.replicas }}
   template:
     metadata:
       labels:
         app: backend
-        version: {{ .Values.backend.version }}
+        version: {{ .Values.app.version }}
+        build: {{ .Values.app.build }}
     spec:
       containers:
       - name: backend
-        image: {{ .Values.app.image }}:backend-{{ .Values.backend.version }}-{{ .Values.backend.build }}
+        image: {{ .Values.app.image }}:{{ .Values.app.version }}-{{ .Values.app.build }}
         imagePullPolicy: Always
         env:
           - name: APP_PORT

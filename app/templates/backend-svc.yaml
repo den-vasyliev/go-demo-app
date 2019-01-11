@@ -10,7 +10,7 @@ metadata:
     
 spec:
   ports:
-  - name: http-{{ .Release.Name }}-backend-{{ .Values.backend.version }}
+  - name: http
     port: 80
     targetPort: 80
   selector:

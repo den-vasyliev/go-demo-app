@@ -80,7 +80,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
 func frontendHandler(w http.ResponseWriter, r *http.Request) {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
-	message := fmt.Sprintf(`{"text":"%s"}`, r.URL.Query()["banner"])
+	message := fmt.Sprintf(`{"text":"%s"}`, r.URL.Query().Get("banner"))
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
 		Password: "", // no password set
@@ -102,7 +102,9 @@ func frontendHandler(w http.ResponseWriter, r *http.Request) {
 
 func backendHandler(w http.ResponseWriter, r *http.Request) {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
+
 	var m messageText
+
 	switch r.Method {
 	case "GET":
 		log.Printf("Get GET Request!")

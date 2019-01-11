@@ -2,23 +2,24 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-datastore-{{ .Values.datastore.version }}
+  name: {{ .Release.Name }}-datastore-{{ .Values.app.version }}
   namespace: {{ .Release.Namespace }}
 spec:
   selector:
     matchLabels:
       app: datastore
-      version: {{ .Values.datastore.version }}
+      version: {{ .Values.app.version }}
   replicas: {{ .Values.datastore.replicas }}
   template:
     metadata:
       labels:
         app: datastore
-        version: {{ .Values.datastore.version }}
+        version: {{ .Values.app.version }}
+        build: {{ .Values.app.build }}
     spec:
       containers:
       - name: datastore
-        image: {{ .Values.app.image }}:datastore-{{ .Values.datastore.version }}-{{ .Values.datastore.build }}
+        image: {{ .Values.app.image }}:{{ .Values.app.version }}-{{ .Values.app.build }}
         env:
           - name: APP_PORT
             value: "80"

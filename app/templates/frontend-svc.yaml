@@ -5,51 +5,50 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-frontend-{{ .Values.frontend.version }}
+  name: {{ .Release.Name }}-frontend-{{ .Values.app.version }}
   namespace: {{ .Release.Namespace }}
   labels:
     app: frontend
-    version: {{ .Values.frontend.version }}
-    build: {{ .Values.frontend.build }}
+    version: {{ .Values.app.version }}
   annotations:
     
     getambassador.io/config: |
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
-      name:  {{ .Release.Name }}-frontend-api-{{ .Values.frontend.version }}
+      name:  {{ .Release.Name }}-frontend-api-{{ .Values.app.version }}
       prefix: /api/
-      service: {{ .Release.Name }}-frontend-{{ .Values.frontend.version }}
+      service: {{ .Release.Name }}-frontend-{{ .Values.app.version }}
       {{include "canary-header" .}}
         {{include "canary-header-mode" .}}
       {{include "canary-weight" .}}
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
-      name:  {{ .Release.Name }}-frontend-metrics-{{ .Values.frontend.version }}
+      name:  {{ .Release.Name }}-frontend-metrics-{{ .Values.app.version }}
       prefix: /metrics
       rewrite: ""
-      service: {{ .Release.Name }}-frontend-{{ .Values.frontend.version }}
+      service: {{ .Release.Name }}-frontend-{{ .Values.app.version }}
       {{include "canary-header" .}}
         {{include "canary-header-mode" .}}
       {{include "canary-weight" .}}
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
-      name:  {{ .Release.Name }}-frontend-default-{{ .Values.frontend.version }}
+      name:  {{ .Release.Name }}-frontend-default-{{ .Values.app.version }}
       prefix: "/(.*)"
       prefix_regex: true
-      service: {{ .Release.Name }}-frontend-{{ .Values.frontend.version }}
+      service: {{ .Release.Name }}-frontend-{{ .Values.app.version }}
       {{include "canary-header" .}}
         {{include "canary-header-mode" .}}
       {{include "canary-weight" .}}
       
 spec:
   ports:
-  - name: http-{{ .Release.Name }}-frontend-{{ .Values.frontend.version }}
+  - name: http
     port: 80
     targetPort: 80
   selector:
     app: frontend
-    version: {{ .Values.frontend.version }}
+    version: {{ .Values.app.version }}
 
