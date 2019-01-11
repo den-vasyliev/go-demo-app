@@ -11,8 +11,8 @@ frontend:
 
 backend:
   replicas: 1 
-  version: v3
-  build: 2451a8b
+  version: v4
+  build: 64f8893
 
 datastore:
   replicas: 1

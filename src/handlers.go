@@ -118,12 +118,22 @@ func backendHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
+		client := redis.NewClient(&redis.Options{
+			Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
+			Password: "", // no password set
+			DB:       0,  // use default DB
+		})
+
 		log.Print("Text: ", m.Text)
 
-		hashStr := fmt.Sprintf(`{"hash": %s}`, hash(m.Text))
+		hashStr, encodedStr := hash(m.Text)
+
+		client.Set(hashStr, encodedStr, 0)
+		client.Set(fmt.Sprintf("%x", md5.Sum([]byte(m.Text))), hashStr, 0)
+
 		log.Print("Hash:", hashStr)
 		// message brocker placeholder
-		w.Write(rest("http://"+AppDatastore, hashStr))
+		w.Write(rest("http://"+AppDatastore, fmt.Sprintf(`{"hash":"%s"}`, hashStr)))
 
 	}
 }
