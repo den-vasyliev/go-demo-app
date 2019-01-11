@@ -80,7 +80,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
 func frontendHandler(w http.ResponseWriter, r *http.Request) {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
-	message := fmt.Sprintf(`{"text":"%s"}`, r.URL.Query()["message"])
+	message := fmt.Sprintf(`{"text":"%s"}`, r.URL.Query()["banner"])
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
 		Password: "", // no password set
