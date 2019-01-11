@@ -16,8 +16,8 @@ backend:
 
 datastore:
   replicas: 1
-  version: v5
-  build: 0d83836
+  version: v6.0.2
+  build: c7a225f
 
 db_sql:
   port: 3306

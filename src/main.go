@@ -10,7 +10,6 @@ import (
 	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	// "github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // AppRole app
@@ -39,6 +38,12 @@ var Revision = fmt.Sprintf("%s version: %s+%s", AppRole, Version, BuildInfo)
 
 // NewFeature changes mock
 var NewFeature = ""
+
+// AppDbNoSql app
+var AppDbNoSql = os.Getenv("APP_DB_NO_SQL")
+
+// AppDbNoSql app
+var AppDbNoSqlPort = os.Getenv("APP_DB_NO_SQL_PORT")
 
 type messageText struct {
 	Text string `json:"Text"`

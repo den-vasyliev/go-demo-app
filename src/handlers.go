@@ -10,24 +10,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	metrics "github.com/armon/go-metrics"
 	"github.com/go-redis/redis"
 )
-
-// AppDbSql app
-var AppDbSql = os.Getenv("APP_DB_SQL")
-
-// AppDbSqlPort app
-var AppDbSqlPort = os.Getenv("APP_DB_SQL_PORT")
-
-// AppDbNoSql app
-var AppDbNoSql = os.Getenv("APP_DB_NO_SQL")
-
-// AppDbNoSql app
-var AppDbNoSqlPort = os.Getenv("APP_DB_NO_SQL_PORT")
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
 	var b []byte
@@ -71,7 +58,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
 
-		db, err := sql.Open("AppDbSql", "")
+		db, err := sql.Open("mysql", AppDb)
 		if err != nil {
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
@@ -103,9 +90,6 @@ func frontendHandler(w http.ResponseWriter, r *http.Request) {
 	cacheItem, err := client.Get(fmt.Sprintf("%x", md5.Sum([]byte(message)))).Result()
 	if err != nil {
 		w.Write([]byte(fmt.Sprintf("%s", rest("http://"+AppBackend, message))))
-		//hashStr := fmt.Sprintf(`{"hash":"%s"}`, hash(message))
-		//log.Print("Hash:", hashStr)
-		//w.Write(rest("http://"+AppBackend, hashStr))
 
 	} else {
 		hexStr, _ := client.Get(cacheItem).Result()
@@ -136,24 +120,26 @@ func backendHandler(w http.ResponseWriter, r *http.Request) {
 
 		log.Print("Text: ", m.Text)
 
-		client := redis.NewClient(&redis.Options{
+		/*client := redis.NewClient(&redis.Options{
 			Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})
+		*/
+		//cacheItem, err := client.Get(fmt.Sprintf("%x", md5.Sum([]byte(m.Text)))).Result()
+		//if err != nil {
 
-		cacheItem, err := client.Get(fmt.Sprintf("%x", md5.Sum([]byte(m.Text)))).Result()
-		if err != nil {
+		hashStr := fmt.Sprintf(`{"hash":"%s"}`, hash(m.Text))
+		log.Print("Hash:", hashStr)
+		// message brocker placeholder
+		w.Write(rest("http://"+AppDatastore, hashStr))
 
-			hashStr := fmt.Sprintf(`{"hash":"%s"}`, hash(m.Text))
-			log.Print("Hash:", hashStr)
-			w.Write(rest("http://"+AppDatastore, hashStr))
-
-		} else {
+		/*} else {
 			hexStr, _ := client.Get(cacheItem).Result()
 			decoded, _ := hex.DecodeString(hexStr)
 			w.Write([]byte(decoded))
 		}
+		*/
 	}
 }
 

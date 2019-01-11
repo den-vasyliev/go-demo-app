@@ -13,7 +13,7 @@ import (
 func hash(decodedStr string) string {
 	// defer metrics.MeasureSince([]string{"API"}, time.Now())
 	client := redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
+		Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})

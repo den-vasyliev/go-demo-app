@@ -3,14 +3,10 @@ package main
 import (
 	"database/sql"
 	"encoding/hex"
-	"log"
-	"os"
-
+	"fmt"
 	"github.com/go-redis/redis"
+	"log"
 )
-
-// AppDbNoSql app
-var AppDbNoSql = os.Getenv("APP_DB_NO_SQL")
 
 func dataStore(hash string) string {
 	var Payload string
