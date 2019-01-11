@@ -11,13 +11,13 @@ frontend:
 
 backend:
   replicas: 1 
-  version: v2
-  build: c75e167
+  version: v3
+  build: 2451a8b
 
 datastore:
   replicas: 1
-  version: v6.0.2
-  build: c7a225f
+  version: v7
+  build: 2451a8b
 
 db_sql:
   port: 3306
