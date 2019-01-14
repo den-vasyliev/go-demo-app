@@ -87,6 +87,7 @@ func frontendHandler(w http.ResponseWriter, r *http.Request) {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
 
 	message := fmt.Sprintf(`{"text":"%s"}`, r.URL.Query().Get("banner"))
+	log.Printf("Get Request: %s", message)
 
 	if message == "" {
 		log.Printf("No Banner Request - write index.html")
