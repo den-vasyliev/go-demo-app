@@ -33,7 +33,13 @@ spec:
           - name: APP_DB
             value: "{{ .Release.Name }}-db-sql"
           - name: APP_LICENSE
-            value: "1234567890"
+            valueFrom:
+              secretKeyRef:
+                name: license
+                key: license
+        volumeMounts:
+        - name: data
+          mountPath: /data
         resources:
           requests:
             cpu: 100m
@@ -53,4 +59,8 @@ spec:
             port: 80
           initialDelaySeconds: 15
           periodSeconds: 3
+      volumes:
+        - name: data
+          configMap:
+            name: app-configmap
 
