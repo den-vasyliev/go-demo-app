@@ -32,6 +32,8 @@ spec:
             value: "{{ .Release.Name }}-datastore"
           - name: APP_DB
             value: "{{ .Release.Name }}-db-sql"
+          - name: APP_LICENSE
+            value: "1234567890"
         resources:
           requests:
             cpu: 100m

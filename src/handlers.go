@@ -89,8 +89,10 @@ func frontendHandler(w http.ResponseWriter, r *http.Request) {
 	message := fmt.Sprintf(`{"text":"%s"}`, r.URL.Query().Get("banner"))
 
 	if message == "" {
+		log.Printf("No Banner Request - write index.html")
 		dat, err := ioutil.ReadFile("/data/index.html")
 		if err != nil {
+			log.Printf("No found: index.html")
 			w.Write([]byte(fmt.Sprintf("%s", "Not found")))
 		}
 		w.Write(dat)
