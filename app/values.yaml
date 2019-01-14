@@ -2,7 +2,7 @@ app:
   name: ascii-art
   image: denvasyliev/k8s-diy
   version: v1
-  build: 7196f61 
+  build: 0d95dba 
 
 frontend:
   replicas: 1

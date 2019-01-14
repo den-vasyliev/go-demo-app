@@ -32,7 +32,12 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 	switch AppRole {
 
 	case "frontend":
-		w.Write([]byte("OK"))
+		if AppLicense != "" {
+			w.Write([]byte("OK"))
+		} else {
+			http.Error(w, "No License", http.StatusServiceUnavailable)
+
+		}
 
 	case "backend":
 		client := redis.NewClient(&redis.Options{
@@ -80,7 +85,17 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
 func frontendHandler(w http.ResponseWriter, r *http.Request) {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
+
 	message := fmt.Sprintf(`{"text":"%s"}`, r.URL.Query().Get("banner"))
+
+	if message == "" {
+		dat, err := ioutil.ReadFile("/data/index.html")
+		if err != nil {
+			w.Write([]byte(fmt.Sprintf("%s", "Not found")))
+		}
+		w.Write(dat)
+	}
+
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
 		Password: "", // no password set

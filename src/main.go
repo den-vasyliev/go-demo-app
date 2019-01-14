@@ -21,6 +21,9 @@ var AppRole = os.Getenv("APP_ROLE")
 // AppPort app
 var AppPort = os.Getenv("APP_PORT")
 
+// AppLicense app
+var AppLicense = os.Getenv("APP_LICENSE")
+
 // AppBackend app
 var AppBackend = os.Getenv("APP_BACKEND")
 
