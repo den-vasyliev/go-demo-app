@@ -20,3 +20,6 @@ db_sql:
 
 db_nosql:
   port: 6379
+
+mq_nats:
+  enable: false
