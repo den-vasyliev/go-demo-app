@@ -16,7 +16,7 @@ spec:
     metadata:
       labels:
         app: frontend
-        version: v2-optimal
+        version: v2
         revision: b635cab
     spec:
       containers:
