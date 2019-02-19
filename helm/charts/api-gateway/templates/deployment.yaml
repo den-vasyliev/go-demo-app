@@ -2,31 +2,31 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: ambassador
+  name: {{ .Values.app.name }}
   namespace: {{ .Release.Namespace }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.app.replicas }}
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
       labels:
-        service: ambassador
+        service: {{ .Values.app.name }}
     spec:
-      serviceAccountName: ambassador
+      serviceAccountName: {{ .Values.app.name }}
       containers:
-      - name: ambassador
-        image: quay.io/datawire/ambassador:0.40.0
+      - name: {{ .Values.app.name }}
+        image: {{ .Values.image.repository }}/{{ .Values.app.name }}:{{ .Values.image.tag }}
         resources:
           limits:
-            cpu: 1
-            memory: 400Mi
+            cpu: {{ .Values.resources.limits.cpu }}
+            memory: {{ .Values.resources.limits.memory }}
           requests:
-            cpu: 200m
-            memory: 100Mi
+            cpu: {{ .Values.resources.requests.cpu }}
+            memory: {{ .Values.resources.requests.memory }}
         env:
         - name: AMBASSADOR_SINGLE_NAMESPACE
-          value: "demo"
+          value: {{ .Release.Namespace }}
         - name: AMBASSADOR_NAMESPACE
           valueFrom:
             fieldRef:
