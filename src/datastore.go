@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"fmt"
-	"github.com/go-redis/redis"
 	"log"
+
+	"github.com/go-redis/redis"
 )
 
 func dataStore(hash string) string {
@@ -24,7 +25,7 @@ func dataStore(hash string) string {
 	}
 
 	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
+		Addr:     fmt.Sprintf("%s:%s", AppDbNoSQL, AppDbNoSQLPort),
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})

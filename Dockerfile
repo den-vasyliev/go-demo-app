@@ -10,4 +10,5 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o app -a -installsuffix cgo -ldflags "-X 
 FROM scratch
 WORKDIR /
 COPY --from=builder /go/src/app/app .
+COPY ml5/ .
 ENTRYPOINT ["/app"]

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-// AppNmae app
+// AppName app
 var AppName = os.Getenv("APP_Name")
 
 // AppRole app
@@ -45,11 +46,11 @@ var Revision = fmt.Sprintf("%s %s version: %s+%s", AppName, AppRole, Version, Bu
 // NewFeature changes mock
 var NewFeature = ""
 
-// AppDbNoSql app
-var AppDbNoSql = os.Getenv("APP_DB_NO_SQL")
+// AppDbNoSQL app
+var AppDbNoSQL = os.Getenv("APP_DB_NO_SQL")
 
-// AppDbNoSql app
-var AppDbNoSqlPort = os.Getenv("APP_DB_NO_SQL_PORT")
+// AppDbNoSQLPort app
+var AppDbNoSQLPort = os.Getenv("APP_DB_NO_SQL_PORT")
 
 type messageText struct {
 	Text string `json:"Text"`
@@ -69,6 +70,7 @@ func main() {
 
 	switch AppRole {
 	case "frontend":
+		initOptions()
 		router.HandleFunc("/", frontendHandler)
 
 	case "backend":
@@ -76,6 +78,15 @@ func main() {
 
 	case "datastore":
 		router.HandleFunc("/", datastoreHandler)
+
+	case "fileserver":
+		path := flag.String("p", "/s/", "path to serve static files")
+		directory := flag.String("d", "./art", "the directory of static file to host")
+		flag.Parse()
+
+		router.PathPrefix(*path).Handler(http.StripPrefix(*path, http.FileServer(http.Dir(*directory))))
+
+		router.HandleFunc("/", uploadHandler)
 
 	}
 	log.Fatal(http.ListenAndServe(":"+AppPort, router))

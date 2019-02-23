@@ -3,9 +3,10 @@ package main
 import (
 	"crypto/md5"
 	"database/sql"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"io/ioutil"
 	"log"
@@ -41,7 +42,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "backend":
 		client := redis.NewClient(&redis.Options{
-			Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
+			Addr:     fmt.Sprintf("%s:%s", AppDbNoSQL, AppDbNoSQLPort),
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})
@@ -53,7 +54,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "datastore":
 		client := redis.NewClient(&redis.Options{
-			Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
+			Addr:     fmt.Sprintf("%s:%s", AppDbNoSQL, AppDbNoSQLPort),
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})
@@ -83,42 +84,6 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func frontendHandler(w http.ResponseWriter, r *http.Request) {
-	defer metrics.MeasureSince([]string{"API"}, time.Now())
-
-	log.Printf("Get Request: %s", r.URL.Query().Get("banner"))
-
-	if r.URL.Query().Get("banner") == "" {
-		log.Printf("No Banner Request - read index.html")
-		dat, err := ioutil.ReadFile("/data/index.html")
-		if err != nil {
-			log.Printf("No found: index.html")
-			w.Write([]byte(fmt.Sprintf("%s", "Not found")))
-		}
-		w.Write(dat)
-	} else {
-
-		message := fmt.Sprintf(`{"text":"%s"}`, r.URL.Query().Get("banner"))
-
-		client := redis.NewClient(&redis.Options{
-			Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
-			Password: "", // no password set
-			DB:       0,  // use default DB
-		})
-
-		cacheItem, err := client.Get(fmt.Sprintf("%x", md5.Sum([]byte(message)))).Result()
-		if err != nil {
-			w.Write([]byte(fmt.Sprintf("%s", rest("http://"+AppBackend, message))))
-
-		} else {
-			hexStr, _ := client.Get(cacheItem).Result()
-			decoded, _ := hex.DecodeString(hexStr)
-			w.Write([]byte(decoded))
-		}
-		//w.Write([]byte(fmt.Sprintf("%s", rest("http://"+AppBackend, message))))
-	}
-}
-
 func backendHandler(w http.ResponseWriter, r *http.Request) {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
 
@@ -140,7 +105,7 @@ func backendHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		client := redis.NewClient(&redis.Options{
-			Addr:     fmt.Sprintf("%s:%s", AppDbNoSql, AppDbNoSqlPort),
+			Addr:     fmt.Sprintf("%s:%s", AppDbNoSQL, AppDbNoSQLPort),
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})

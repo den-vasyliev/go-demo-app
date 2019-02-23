@@ -1,0 +1,25 @@
+{{define "title"}}NeoArt{{end}}
+{{define "body"}}
+<div id="drag-drop-area"></div>
+    <!-- Progress bar #1 -->
+    <div class="UppyDragDrop-One-Progress"></div>
+  <script src="https://transloadit.edgly.net/releases/uppy/v0.30.2/uppy.min.js"></script>
+ <script>
+      var uppy = Uppy.Core({debug: true, autoProceed: true, restrictions: {allowedFileTypes: ['.jpeg', '.png', '.jpg'], maxFileSize: 2097134}})
+      .use(Uppy.DragDrop, {target: '#drag-drop-area', note: 'TensorFlow.js + ml5.js - friendly machine learning for the web!', locale: {strings: { dropHereOr: 'Drop files here or %{browse}', browse: 'browse'}}})
+      .use(Uppy.XHRUpload, {
+  endpoint: '/',
+  formData: true,
+  fieldName: 'image',
+  limit: 1,
+  responseType: 'text',
+
+})
+      .use(Uppy.ProgressBar, {target: '.UppyDragDrop-One-Progress', hideAfterFinish: false})
+
+  uppy.on('upload-success', (file, response) => {
+  console.log(file.name)
+  location.replace('/s/')
+})
+</script>
+{{end}}
