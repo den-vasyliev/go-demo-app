@@ -63,8 +63,8 @@ type messageToken struct {
 }
 
 func main() {
-	AppRole := flag.String("r", "neuart", "application role")
-	AppPort := flag.String("p", "80", "application port")
+	AppRole := flag.String("role", "neuart", "application role")
+	AppPort := flag.String("port", "8080", "application port")
 
 	flag.Parse()
 

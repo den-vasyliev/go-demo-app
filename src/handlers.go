@@ -30,8 +30,8 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func readinessHandler(w http.ResponseWriter, r *http.Request) {
-	AppRole := flag.String("r", "neuart", "application role")
-	AppLicense := flag.String("l", "122345", "application license")
+	AppRole := flag.String("role", "neuart", "application role")
+	AppLicense := flag.String("lic", "122345", "application license")
 
 	flag.Parse()
 	switch *AppRole {
