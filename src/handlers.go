@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"database/sql"
 	"encoding/json"
+	"flag"
 	"fmt"
 	_ "image/jpeg"
 	_ "image/png"
@@ -29,11 +30,14 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func readinessHandler(w http.ResponseWriter, r *http.Request) {
+	AppRole := flag.String("r", "neuart", "application role")
+	AppLicense := flag.String("l", "122345", "application license")
 
-	switch AppRole {
+	flag.Parse()
+	switch *AppRole {
 
 	case "frontend":
-		if AppLicense != "" {
+		if *AppLicense != "" {
 			w.Write([]byte("OK"))
 		} else {
 			http.Error(w, "No License", http.StatusServiceUnavailable)
@@ -143,3 +147,4 @@ func datastoreHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(dataStore(m.Hash)))
 	}
 }
+

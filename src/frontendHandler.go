@@ -11,11 +11,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
-
-	"./image2ascii/convert"
-
+	"github.com/qeesung/image2ascii/convert"
+	_ "image/jpeg"
 	metrics "github.com/armon/go-metrics"
 	"github.com/go-redis/redis"
 )
@@ -75,21 +73,16 @@ func frontendHandler(w http.ResponseWriter, r *http.Request) {
 		defer f.Close()
 		io.Copy(&Buf, f)
 		b := Buf.Bytes()
-		//io.Copy(file, f)
 
 		Buf.Reset()
-		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Content-Type", "text/plain")
 
-		//img, _, err := image.Decode(bytes.NewReader(b))
 		if convertOptions, err := parseOptions(); err == nil {
 			converter := convert.NewImageConverter()
-			img := converter.ImageFile2ASCIIString(b, convertOptions)
-			//log.Print("Image: ", img)
-			//w.Write(rest("http://"+AppDatastore, fmt.Sprintf(`{"hash":"%s"}`, img)))
-			w.Header().Set("Content-Length", strconv.Itoa(len(img)))
+			//img := converter.ImageFile2ASCIIString(b, convertOptions)
+			//w.Header().Set("Content-Length", strconv.Itoa(len(img)))
 
 			w.Write([]byte(converter.ImageFile2ASCIIString(b, convertOptions)))
-			//w.Write([]byte("ok"))
 		} else {
 			log.Print("No opt")
 		}
@@ -146,3 +139,4 @@ func initOptions() {
 		convertDefaultOptions.StretchedScreen,
 		"Stretch the picture to overspread the screen")
 }
+

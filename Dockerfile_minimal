@@ -1,0 +1,5 @@
+FROM ubuntu
+
+COPY src/app .
+EXPOSE 80
+ENTRYPOINT ["./app"]

@@ -16,6 +16,7 @@ import (
 // AppName app
 var AppName = os.Getenv("APP_Name")
 
+/**
 // AppRole app
 var AppRole = os.Getenv("APP_ROLE")
 
@@ -24,6 +25,7 @@ var AppPort = os.Getenv("APP_PORT")
 
 // AppLicense app
 var AppLicense = os.Getenv("APP_LICENSE")
+**/
 
 // AppBackend app
 var AppBackend = os.Getenv("APP_BACKEND")
@@ -41,7 +43,7 @@ var Version = "version"
 var BuildInfo = "commit"
 
 // Revision app
-var Revision = fmt.Sprintf("%s %s version: %s+%s", AppName, AppRole, Version, BuildInfo)
+var Revision = fmt.Sprintf("%s %s version: %s+%s", AppName, Version, BuildInfo)
 
 // NewFeature changes mock
 var NewFeature = ""
@@ -61,6 +63,11 @@ type messageToken struct {
 }
 
 func main() {
+	AppRole := flag.String("r", "neuart", "application role")
+	AppPort := flag.String("p", "80", "application port")
+
+	flag.Parse()
+
 	log.Print(Revision)
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/version", versionHandler)
@@ -68,7 +75,7 @@ func main() {
 	router.HandleFunc("/readinez", readinessHandler)
 	router.Handle("/metrics", promhttp.Handler())
 
-	switch AppRole {
+	switch *AppRole {
 	case "frontend":
 		initOptions()
 		router.HandleFunc("/", frontendHandler)
@@ -79,9 +86,9 @@ func main() {
 	case "datastore":
 		router.HandleFunc("/", datastoreHandler)
 
-	case "fileserver":
-		path := flag.String("p", "/s/", "path to serve static files")
-		directory := flag.String("d", "./art", "the directory of static file to host")
+	case "neuart":
+		path := flag.String("path", "/s/", "path to serve static files")
+		directory := flag.String("dir", "./art", "the directory of static file to host")
 		flag.Parse()
 
 		router.PathPrefix(*path).Handler(http.StripPrefix(*path, http.FileServer(http.Dir(*directory))))
@@ -89,5 +96,6 @@ func main() {
 		router.HandleFunc("/", uploadHandler)
 
 	}
-	log.Fatal(http.ListenAndServe(":"+AppPort, router))
+	log.Fatal(http.ListenAndServe(":"+*AppPort, router))
 }
+
