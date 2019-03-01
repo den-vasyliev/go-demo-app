@@ -15,13 +15,13 @@ import (
 func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
 	flag.Parse()
-	switch Name {
+	switch Role {
 
 	case "api":
-		w.Write([]byte("OK"))
+		w.Write([]byte("READY"))
 
 	case "img", "ml5":
-		w.Write([]byte("OK"))
+		w.Write([]byte("READY"))
 
 	case "ascii":
 		client := redis.NewClient(&redis.Options{
