@@ -6,7 +6,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-ascii
+  name: {{ .Release.Name }}-ascii-{{ .Values.app.version }}
   namespace: {{ .Release.Namespace }}
   labels:
     app: ascii

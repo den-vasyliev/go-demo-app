@@ -2,7 +2,7 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-api-{{ .Values.app.version }}
+  name: {{ .Release.Name }}-api
   namespace: {{ .Release.Namespace }}
 spec:
   selector:
