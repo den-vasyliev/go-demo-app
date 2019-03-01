@@ -19,7 +19,7 @@ spec:
       containers:
       - name: api
         image: {{ .Values.app.image }}:{{ .Values.app.version }}
-        commnad:
+        command:
           - app
           - -r role=api
         imagePullPolicy: Always
