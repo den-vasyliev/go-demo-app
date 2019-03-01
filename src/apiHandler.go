@@ -21,6 +21,6 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 
 func apiHandler(w http.ResponseWriter, r *http.Request) {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
-	w.Write("Welcome to k8s-art!\nHave a fun with /ascii/?banner=<TEXT> /img/ POST <IMG> /ml5/")
+	w.Write([]byte("Welcome to k8s-art!\n\nHave a fun with:\n1. /ascii/ POST --data '{\"text\":\"<TEXT>\"}'\n2. /img/ POST <IMG>\n3. /ml5/"))
 
 }
