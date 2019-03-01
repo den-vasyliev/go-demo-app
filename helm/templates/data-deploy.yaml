@@ -15,7 +15,6 @@ spec:
       labels:
         app: data
         version: {{ .Values.app.version }}
-        build: {{ .Values.app.build }}
     spec:
       containers:
       - name: data
