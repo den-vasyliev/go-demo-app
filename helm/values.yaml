@@ -1,18 +1,29 @@
 app:
-  name: ascii-art
+  name: k8s-art
   image: denvasyliev/k8s-diy
-  version: v1
-  build: 0d95dba 
+  version: v5
 
-frontend:
+api:
   replicas: 1
   canary: 0.0
   header: ""
   
-backend:
+ascii:
   replicas: 1 
-  
-datastore:
+  canary: 0.0
+  header: ""
+
+img:
+  replicas: 1 
+  canary: 0.0
+  header: ""
+
+ml5:
+  replicas: 1 
+  canary: 0.0
+  header: ""
+
+data:
   replicas: 1
   
 db_sql:

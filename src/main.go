@@ -49,7 +49,7 @@ func main() {
 
 	initOptions()
 	AppName := flag.String("name", "k8s:art", "application name")
-	AppRole := flag.String("role", "api", "app role: api data ascii img art")
+	AppRole := flag.String("role", "api", "app role: api data ascii img ml5")
 	AppPort := flag.String("port", "8080", "application port")
 	AppPath := flag.String("path", "/s/", "path to serve static files")
 	AppDir := flag.String("dir", "./art", "the directory of static file to host")
@@ -78,11 +78,11 @@ func main() {
 	case "img":
 		router.HandleFunc("/", imgHandler)
 
-	case "art":
+	case "ml5":
 
 		router.PathPrefix(*AppPath).Handler(http.StripPrefix(*AppPath, http.FileServer(http.Dir(*AppDir))))
 
-		router.HandleFunc("/", artHandler)
+		router.HandleFunc("/", ml5Handler)
 
 	}
 	log.Fatal(http.ListenAndServe(":"+*AppPort, router))
