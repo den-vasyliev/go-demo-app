@@ -30,7 +30,7 @@ metadata:
       {{include "canary-header" .}}
         {{include "canary-header-mode" .}}
       {{include "canary-weight" .}}
-      
+spec:      
   ports:
   - name: http
     port: 80
