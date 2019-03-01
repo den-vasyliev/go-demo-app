@@ -20,8 +20,9 @@ spec:
       - name: img
         image: {{ .Values.app.image }}:{{ .Values.app.version }}
         command:
-          - app
-          - -role img
+          - ./app
+          - "-role"
+          - "img"
         imagePullPolicy: Always
         env:
           - name: APP_DATASTORE

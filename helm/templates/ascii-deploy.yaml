@@ -20,8 +20,9 @@ spec:
       - name: ascii
         image: {{ .Values.app.image }}:{{ .Values.app.version }}
         command:
-          - app
-          - -role ascii
+          - ./app
+          - "-role"
+          - "ascii"
         imagePullPolicy: Always
         env:
           - name: APP_DATASTORE

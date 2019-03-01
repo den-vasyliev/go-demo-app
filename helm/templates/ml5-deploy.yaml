@@ -20,8 +20,9 @@ spec:
       - name: ml5
         image: {{ .Values.app.image }}:{{ .Values.app.version }}
         command:
-          - app
-          - -role ml5
+          - ./app
+          - "-role" 
+          - "ml5"
         imagePullPolicy: Always
         resources:
           requests:

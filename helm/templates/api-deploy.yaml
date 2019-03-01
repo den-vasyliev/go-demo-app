@@ -20,8 +20,9 @@ spec:
       - name: api
         image: {{ .Values.app.image }}:{{ .Values.app.version }}
         command:
-          - app
-          - -r role=api
+          - ./app
+          - "-role"
+          - "api"
         imagePullPolicy: Always
         env:
           - name: APP_BACKEND

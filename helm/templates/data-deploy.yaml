@@ -20,8 +20,9 @@ spec:
       - name: data
         image: {{ .Values.app.image }}:{{ .Values.app.version }}
         command:
-          - app
-          - -role data
+          - ./app
+          - "-role"
+          - "data"
         env:
           - name: APP_DB
             value: "root@tcp({{ .Release.Name }}-db-sql:{{ .Values.db_sql.port }})/{{ .Release.Name }}"
