@@ -13,19 +13,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-// AppName app
-var AppName = os.Getenv("APP_Name")
-
-/**
-// AppRole app
-var AppRole = os.Getenv("APP_ROLE")
-
-// AppPort app
-var AppPort = os.Getenv("APP_PORT")
-
 // AppLicense app
 var AppLicense = os.Getenv("APP_LICENSE")
-**/
 
 // AppBackend app
 var AppBackend = os.Getenv("APP_BACKEND")
@@ -36,23 +25,17 @@ var AppDatastore = os.Getenv("APP_DATASTORE")
 // AppDb name
 var AppDb = os.Getenv("APP_DB")
 
-// Version app
-var Version = "version"
-
-// BuildInfo app
-var BuildInfo = "commit"
-
-// Revision app
-var Revision = fmt.Sprintf("%s %s version: %s+%s", AppName, Version, BuildInfo)
-
-// NewFeature changes mock
-var NewFeature = ""
-
 // AppDbNoSQL app
 var AppDbNoSQL = os.Getenv("APP_DB_NO_SQL")
 
 // AppDbNoSQLPort app
 var AppDbNoSQLPort = os.Getenv("APP_DB_NO_SQL_PORT")
+
+// Version app
+var Version = "version"
+
+// Environment app
+var Environment = ""
 
 type messageText struct {
 	Text string `json:"Text"`
@@ -63,12 +46,18 @@ type messageToken struct {
 }
 
 func main() {
-	AppRole := flag.String("role", "neuart", "application role")
+
+	initOptions()
+	AppName := flag.String("name", "k8s:art", "application name")
+	AppRole := flag.String("role", "api", "app role: api data ascii img art")
 	AppPort := flag.String("port", "8080", "application port")
-
+	AppPath := flag.String("path", "/s/", "path to serve static files")
+	AppDir := flag.String("dir", "./art", "the directory of static file to host")
 	flag.Parse()
+	// Environment app
+	Environment = fmt.Sprintf("%s version:%s role:%s port:%s", *AppName, Version, *AppRole, *AppPort)
 
-	log.Print(Revision)
+	log.Print(Environment)
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/version", versionHandler)
 	router.HandleFunc("/healthz", healthzHandler)
@@ -76,26 +65,61 @@ func main() {
 	router.Handle("/metrics", promhttp.Handler())
 
 	switch *AppRole {
-	case "frontend":
-		initOptions()
-		router.HandleFunc("/", frontendHandler)
 
-	case "backend":
-		router.HandleFunc("/", backendHandler)
+	case "api":
+		router.HandleFunc("/", apiHandler)
 
-	case "datastore":
-		router.HandleFunc("/", datastoreHandler)
+	case "data":
+		router.HandleFunc("/", dataHandler)
 
-	case "neuart":
-		path := flag.String("path", "/s/", "path to serve static files")
-		directory := flag.String("dir", "./art", "the directory of static file to host")
-		flag.Parse()
+	case "ascii":
+		router.HandleFunc("/", asciiHandler)
 
-		router.PathPrefix(*path).Handler(http.StripPrefix(*path, http.FileServer(http.Dir(*directory))))
+	case "img":
+		router.HandleFunc("/", imgHandler)
 
-		router.HandleFunc("/", uploadHandler)
+	case "art":
+
+		router.PathPrefix(*AppPath).Handler(http.StripPrefix(*AppPath, http.FileServer(http.Dir(*AppDir))))
+
+		router.HandleFunc("/", artHandler)
 
 	}
 	log.Fatal(http.ListenAndServe(":"+*AppPort, router))
 }
 
+func initOptions() {
+
+	flag.StringVar(&imageFilename,
+		"f",
+		"",
+		"Image filename to be convert")
+	flag.Float64Var(&ratio,
+		"r",
+		convertDefaultOptions.Ratio,
+		"Ratio to scale the image, ignored when use -w or -g")
+	flag.IntVar(&fixedWidth,
+		"w",
+		convertDefaultOptions.FixedWidth,
+		"Expected image width, -1 for image default width")
+	flag.IntVar(&fixedHeight,
+		"g",
+		convertDefaultOptions.FixedHeight,
+		"Expected image height, -1 for image default height")
+	flag.BoolVar(&fitScreen,
+		"s",
+		convertDefaultOptions.FitScreen,
+		"Fit the terminal screen, ignored when use -w, -g, -r")
+	flag.BoolVar(&colored,
+		"c",
+		convertDefaultOptions.Colored,
+		"Colored the ascii when output to the terminal")
+	flag.BoolVar(&reversed,
+		"i",
+		convertDefaultOptions.Reversed,
+		"Reversed the ascii when output to the terminal")
+	flag.BoolVar(&stretchedScreen,
+		"t",
+		convertDefaultOptions.StretchedScreen,
+		"Stretch the picture to overspread the screen")
+}
