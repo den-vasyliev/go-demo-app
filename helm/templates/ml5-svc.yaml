@@ -36,6 +36,6 @@ spec:
   ports:
   - name: http
     port: 80
-    targetPort: 80
+    targetPort: {{ .Values.ml5.port }}
   selector:
     app: ml5

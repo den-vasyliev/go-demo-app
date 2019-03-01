@@ -7,24 +7,29 @@ api:
   replicas: 1
   canary: 0.0
   header: ""
+  port: 8080
   
 ascii:
   replicas: 1 
   canary: 0.0
   header: ""
+  port: 8080
 
 img:
   replicas: 1 
   canary: 0.0
   header: ""
+  port: 8080
 
 ml5:
   replicas: 1 
   canary: 0.0
   header: ""
+  port: 8080
 
 data:
   replicas: 1
+  port: 8080
   
 db_sql:
   port: 3306
