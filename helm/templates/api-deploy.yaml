@@ -1,0 +1,61 @@
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-api-{{ .Values.app.version }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: api
+      version: {{ .Values.app.version }}
+  replicas: {{ .Values.api.replicas}}
+  template:
+    metadata:
+      labels:
+        app: api
+        version: {{ .Values.app.version }}
+    spec:
+      containers:
+      - name: api
+        image: {{ .Values.app.image }}:{{ .Values.app.version }}
+        imagePullPolicy: Always
+        env:
+          - name: APP_BACKEND
+            value: "{{ .Release.Name }}-iscii"
+          - name: APP_DATASTORE
+            value: "{{ .Release.Name }}-data"
+          - name: APP_DB
+            value: "{{ .Release.Name }}-db-sql"
+          - name: APP_LICENSE
+            valueFrom:
+              secretKeyRef:
+                name: license
+                key: license
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 80
+        securityContext:
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /readinez
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 3
+      volumes:
+        - name: data
+          configMap:
+            name: app-configmap
+

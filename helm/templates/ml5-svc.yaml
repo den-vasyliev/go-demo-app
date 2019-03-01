@@ -1,0 +1,41 @@
+{{- define "canary-weight" }}{{ if gt .Values.ml5.canary 0.0 }}weight: {{.Values.ml5.canary}}{{ end }} {{- end }}
+{{- define "canary-header" }}{{ if .Values.ml5.header  }}headers:{{ end }} {{- end }}
+{{- define "canary-header-mode" }}{{ if .Values.ml5.header  }}x-mode: {{ .Values.ml5.header }}{{ end }} {{- end }}
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-ml5
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: ml5
+  annotations:
+   getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  {{ .Release.Name }}-ml5-{{ .Values.app.version }}
+      prefix: /ml5/
+      service: {{ .Release.Name }}-ml5-{{ .Values.app.version }}
+      {{include "canary-header" .}}
+        {{include "canary-header-mode" .}}
+      {{include "canary-weight" .}}
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  {{ .Release.Name }}-ml5-metrics-{{ .Values.app.version }}
+      prefix: /ml5/metrics
+      rewrite: ""
+      service: {{ .Release.Name }}-ml5-{{ .Values.app.version }}
+      {{include "canary-header" .}}
+        {{include "canary-header-mode" .}}
+      {{include "canary-weight" .}}     
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  selector:
+    app: ml5

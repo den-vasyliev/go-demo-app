@@ -1,0 +1,54 @@
+{{- define "canary-weight" }}{{ if gt .Values.api.canary 0.0 }}weight: {{.Values.api.canary}}{{ end }} {{- end }}
+{{- define "canary-header" }}{{ if .Values.api.header  }}headers:{{ end }} {{- end }}
+{{- define "canary-header-mode" }}{{ if .Values.api.header  }}x-mode: {{ .Values.api.header }}{{ end }} {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-api-{{ .Values.app.version }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: frontend
+    version: {{ .Values.app.version }}
+  annotations:
+    
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  {{ .Release.Name }}-api-{{ .Values.app.version }}
+      prefix: /api/
+      service: {{ .Release.Name }}-api-{{ .Values.app.version }}
+      {{include "canary-header" .}}
+        {{include "canary-header-mode" .}}
+      {{include "canary-weight" .}}
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  {{ .Release.Name }}-api-metrics-{{ .Values.app.version }}
+      prefix: /metrics
+      rewrite: ""
+      service: {{ .Release.Name }}-api-{{ .Values.app.version }}
+      {{include "canary-header" .}}
+        {{include "canary-header-mode" .}}
+      {{include "canary-weight" .}}
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  {{ .Release.Name }}-api-default-{{ .Values.app.version }}
+      prefix: "/(.*)"
+      prefix_regex: true
+      service: {{ .Release.Name }}-api-{{ .Values.app.version }}
+      {{include "canary-header" .}}
+        {{include "canary-header-mode" .}}
+      {{include "canary-weight" .}}
+      
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  selector:
+    app: api
+    version: {{ .Values.app.version }}
+

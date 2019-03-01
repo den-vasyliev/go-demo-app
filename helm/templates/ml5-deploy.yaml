@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-ml5-{{ .Values.app.version }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: ml5
+      version: {{ .Values.app.version }}
+  replicas: {{ .Values.ml5.replicas }}
+  template:
+    metadata:
+      labels:
+        app: ml5
+        version: {{ .Values.app.version }}
+    spec:
+      containers:
+      - name: ml5
+        image: {{ .Values.app.image }}:{{ .Values.app.version }}
+        commnad:
+          - app
+          - -role ml5
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 80
+        securityContext:
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /readinez
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 3
+

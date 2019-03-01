@@ -1,0 +1,40 @@
+{{- define "canary-weight" }}{{ if gt .Values.ascii.canary 0.0 }}weight: {{.Values.ascii.canary}}{{ end }} {{- end }}
+{{- define "canary-header" }}{{ if .Values.ascii.header  }}headers:{{ end }} {{- end }}
+{{- define "canary-header-mode" }}{{ if .Values.ascii.header  }}x-mode: {{ .Values.ascii.header }}{{ end }} {{- end }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-ascii
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: ascii
+  annotations:
+   getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  {{ .Release.Name }}-ascii-{{ .Values.app.version }}
+      prefix: /ascii/
+      service: {{ .Release.Name }}-ascii-{{ .Values.app.version }}
+      {{include "canary-header" .}}
+        {{include "canary-header-mode" .}}
+      {{include "canary-weight" .}}
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  {{ .Release.Name }}-ascii-metrics-{{ .Values.app.version }}
+      prefix: /ascii/metrics
+      rewrite: ""
+      service: {{ .Release.Name }}-ascii-{{ .Values.app.version }}
+      {{include "canary-header" .}}
+        {{include "canary-header-mode" .}}
+      {{include "canary-weight" .}} 
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  selector:
+    app: ascii
