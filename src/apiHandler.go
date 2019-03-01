@@ -1,10 +1,7 @@
 package main
 
 import (
-	"fmt"
 	_ "image/jpeg"
-	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 
@@ -24,12 +21,6 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 
 func apiHandler(w http.ResponseWriter, r *http.Request) {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
-	log.Printf("Read index.html")
-	dat, err := ioutil.ReadFile("index.html")
-	if err != nil {
-		log.Printf("No found: index.html")
-		w.Write([]byte(fmt.Sprintf("%s", "Not found")))
-	}
-	w.Write(dat)
+	w.Write("Welcome to k8s-art!\nHave a fun with /ascii/?banner=<TEXT> /img/ POST <IMG> /ml5/")
 
 }
