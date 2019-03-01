@@ -45,6 +45,9 @@ type messageToken struct {
 	Hash string `json:"Hash"`
 }
 
+// Name application name
+var Name = ""
+
 func main() {
 
 	initOptions()
@@ -56,7 +59,7 @@ func main() {
 	flag.Parse()
 	// Environment app
 	Environment = fmt.Sprintf("%s version:%s role:%s port:%s", *AppName, Version, *AppRole, *AppPort)
-
+	Name = *AppName
 	log.Print(Environment)
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/version", versionHandler)

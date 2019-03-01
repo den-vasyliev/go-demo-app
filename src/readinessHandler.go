@@ -13,21 +13,17 @@ import (
 )
 
 func readinessHandler(w http.ResponseWriter, r *http.Request) {
-	AppRole := flag.String("role", "neuart", "application role")
-	AppLicense := flag.String("lic", "122345", "application license")
 
 	flag.Parse()
-	switch *AppRole {
+	switch Name {
 
-	case "frontend":
-		if *AppLicense != "" {
-			w.Write([]byte("OK"))
-		} else {
-			http.Error(w, "No License", http.StatusServiceUnavailable)
+	case "api":
+		w.Write([]byte("OK"))
 
-		}
+	case "img", "ml5":
+		w.Write([]byte("OK"))
 
-	case "backend":
+	case "ascii":
 		client := redis.NewClient(&redis.Options{
 			Addr:     fmt.Sprintf("%s:%s", AppDbNoSQL, AppDbNoSQLPort),
 			Password: "", // no password set
@@ -39,7 +35,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
 
-	case "datastore":
+	case "data":
 		client := redis.NewClient(&redis.Options{
 			Addr:     fmt.Sprintf("%s:%s", AppDbNoSQL, AppDbNoSQLPort),
 			Password: "", // no password set
