@@ -19,7 +19,7 @@ spec:
       containers:
       - name: ml5
         image: {{ .Values.app.image }}:{{ .Values.app.version }}
-        commnad:
+        command:
           - app
           - -role ml5
         imagePullPolicy: Always
