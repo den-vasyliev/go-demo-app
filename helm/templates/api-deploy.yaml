@@ -53,9 +53,9 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 3
         readinessProbe:
-          httpGet: {{ .Values.api.port }}
+          httpGet:
             path: /readinez
-            port: http
+            port: {{ .Values.api.port }}
           initialDelaySeconds: 15
           periodSeconds: 3
       volumes:
