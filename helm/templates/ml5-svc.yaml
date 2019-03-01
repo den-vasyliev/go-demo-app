@@ -27,6 +27,7 @@ metadata:
       kind:  Mapping
       name:  {{ .Release.Name }}-ml5-s-{{ .Values.app.version }}
       prefix: /s/
+      rewrite: /s/
       service: {{ .Release.Name }}-ml5-{{ .Values.app.version }}
       {{include "canary-header" .}}
         {{include "canary-header-mode" .}}
@@ -35,8 +36,7 @@ metadata:
       apiVersion: ambassador/v0
       kind:  Mapping
       name:  {{ .Release.Name }}-ml5-metrics-{{ .Values.app.version }}
-      prefix: /ml5/metrics
-      rewrite: ""
+      prefix: /
       service: {{ .Release.Name }}-ml5-{{ .Values.app.version }}
       {{include "canary-header" .}}
         {{include "canary-header-mode" .}}

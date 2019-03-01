@@ -32,16 +32,6 @@ metadata:
       {{include "canary-header" .}}
         {{include "canary-header-mode" .}}
       {{include "canary-weight" .}}
-      ---
-      apiVersion: ambassador/v0
-      kind:  Mapping
-      name:  {{ .Release.Name }}-api-default-{{ .Values.app.version }}
-      prefix: "/(.*)"
-      prefix_regex: true
-      service: {{ .Release.Name }}-api-{{ .Values.app.version }}
-      {{include "canary-header" .}}
-        {{include "canary-header-mode" .}}
-      {{include "canary-weight" .}}
       
 spec:
   ports:
