@@ -23,6 +23,8 @@ spec:
           - ./app
           - "-role"
           - "img"
+          - "-r"
+          - "0.2"
         imagePullPolicy: Always
         env:
           - name: APP_DATASTORE
