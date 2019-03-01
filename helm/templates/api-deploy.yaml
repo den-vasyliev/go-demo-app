@@ -49,13 +49,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /healthz
-            port: 80
+            port: {{ .Values.api.port }}
           initialDelaySeconds: 10
           periodSeconds: 3
         readinessProbe:
-          httpGet:
+          httpGet: {{ .Values.api.port }}
             path: /readinez
-            port: 80
+            port: http
           initialDelaySeconds: 15
           periodSeconds: 3
       volumes:

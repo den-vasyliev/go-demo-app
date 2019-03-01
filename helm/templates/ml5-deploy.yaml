@@ -34,13 +34,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /healthz
-            port: 80
+            port: {{ .Values.ml5.port }}
           initialDelaySeconds: 10
           periodSeconds: 3
         readinessProbe:
           httpGet:
             path: /readinez
-            port: 80
+            port: {{ .Values.ml5.port }}
           initialDelaySeconds: 15
           periodSeconds: 3
 

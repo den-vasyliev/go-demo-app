@@ -45,13 +45,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /healthz
-            port: 80
+            port: {{ .Values.img.port }}
           initialDelaySeconds: 10
           periodSeconds: 3
         readinessProbe:
           httpGet:
             path: /readinez
-            port: 80
+            port: {{ .Values.img.port }}
           initialDelaySeconds: 15
           periodSeconds: 3
 
