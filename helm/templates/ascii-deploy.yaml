@@ -19,7 +19,7 @@ spec:
       containers:
       - name: ascii
         image: {{ .Values.app.image }}:{{ .Values.app.version }}
-        commnad:
+        command:
           - app
           - -role ascii
         imagePullPolicy: Always

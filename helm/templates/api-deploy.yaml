@@ -19,6 +19,9 @@ spec:
       containers:
       - name: api
         image: {{ .Values.app.image }}:{{ .Values.app.version }}
+        commnad:
+          - app
+          - -r role=api
         imagePullPolicy: Always
         env:
           - name: APP_BACKEND
