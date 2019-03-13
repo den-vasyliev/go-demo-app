@@ -47,4 +47,4 @@ spec:
     port: 80
     targetPort: {{ .Values.ml5.port }}
   selector:
-    app: ml5
+    app: {{ .Release.Name }}-ml5

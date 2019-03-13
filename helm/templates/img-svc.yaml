@@ -36,4 +36,4 @@ spec:
     port: 80
     targetPort: {{ .Values.img.port }}
   selector:
-    app: img
+    app: {{ .Release.Name }}-img

@@ -37,4 +37,4 @@ spec:
     port: 80
     targetPort: {{ .Values.ascii.port }}
   selector:
-    app: ascii
+    app: {{ .Release.Name }}-ascii

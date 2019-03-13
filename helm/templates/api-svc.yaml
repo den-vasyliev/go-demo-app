@@ -39,5 +39,5 @@ spec:
     port: 80
     targetPort: {{ .Values.api.port }}
   selector:
-    app: api
+    app: {{ .Release.Name }}-api
 
