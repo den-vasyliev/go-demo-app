@@ -1,7 +1,7 @@
 app:
   name: k8s-art
   image: denvasyliev/k8s-diy
-  version: v5
+  version: v10
 
 api:
   replicas: 1
