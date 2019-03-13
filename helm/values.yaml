@@ -1,6 +1,6 @@
 app:
   name: k8s-art
-  image: denvasyliev/k8s-diy
+  image: denvasyliev/k8s-art
   version: v10
 
 api:

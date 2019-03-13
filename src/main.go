@@ -32,7 +32,7 @@ var AppDbNoSQL = os.Getenv("APP_DB_NO_SQL")
 var AppDbNoSQLPort = os.Getenv("APP_DB_NO_SQL_PORT")
 
 // Version app
-var Version = "version"
+var Version = "version_not_set"
 
 // Environment app
 var Environment = ""
