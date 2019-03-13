@@ -7,13 +7,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: ml5
-      version: {{ .Values.app.version }}
+      app: {{ .Release.Name }}-ml5
   replicas: {{ .Values.ml5.replicas }}
   template:
     metadata:
       labels:
-        app: ml5
+        app: {{ .Release.Name }}-ml5
         version: {{ .Values.app.version }}
     spec:
       containers:
