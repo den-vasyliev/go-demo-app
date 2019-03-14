@@ -4,3 +4,4 @@ data:
 kind: ConfigMap
 metadata:
   name: app-configmap
+  namespace: {{ .Release.Namespace }}
