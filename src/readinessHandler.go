@@ -8,6 +8,7 @@ import (
 	_ "image/png"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-redis/redis"
 )
@@ -51,8 +52,10 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
-		defer db.Close()
 		db.SetMaxIdleConns(0)
+		db.SetConnMaxLifetime(time.Second * 10)
+
+		defer db.Close()
 		err = db.Ping()
 
 		if err != nil {
