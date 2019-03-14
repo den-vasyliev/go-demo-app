@@ -23,7 +23,7 @@ metadata:
   name: {{ .Values.app.name }}-admin
   namespace: {{ .Release.Namespace }}
 spec:
-  type: {{ .Values.service.type }}
+  type: ClusterIP
   ports:
   - name: {{ .Values.app.name }}-admin
     port: 8877

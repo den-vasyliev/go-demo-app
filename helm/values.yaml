@@ -39,3 +39,9 @@ db_nosql:
 
 mq_nats:
   enable: false
+
+api-gateway:
+  image:
+    tag: 0.51.0
+  service:
+    type: LoadBalancer

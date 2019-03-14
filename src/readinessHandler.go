@@ -52,6 +52,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
 		defer db.Close()
+		db.SetMaxIdleConns(0)
 		err = db.Ping()
 
 		if err != nil {
