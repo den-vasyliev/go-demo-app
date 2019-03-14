@@ -1,3 +1,4 @@
+{{ if .Values.enable }}
 ---
 apiVersion: v1
 kind: Service
@@ -30,3 +31,4 @@ spec:
     targetPort: 8877
   selector:
     service: {{ .Values.app.name }}
+{{- end}}

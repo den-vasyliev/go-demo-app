@@ -1,3 +1,4 @@
+{{ if .Values.enable }}
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -43,3 +44,4 @@ spec:
             port: 8877
           initialDelaySeconds: 30
           periodSeconds: 3
+{{- end}}

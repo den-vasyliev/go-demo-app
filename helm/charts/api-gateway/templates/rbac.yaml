@@ -1,3 +1,4 @@
+{{ if .Values.enable }}
 ---
 # Source: ambassador/templates/rbac.yaml
 ---
@@ -39,3 +40,4 @@ subjects:
 - kind: ServiceAccount
   name: {{ .Values.app.name }}
   namespace: {{ .Release.Namespace }}
+{{- end}}
