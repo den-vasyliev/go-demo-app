@@ -29,7 +29,6 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			if os.IsNotExist(err) {
 				http.NotFound(w, r)
-				log.Print(err)
 				return
 			}
 		}
@@ -58,15 +57,14 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		log.Print(fmt.Sprintf("POST: %s", r.URL.Path))
 
-		file, err := ioutil.TempFile("/tmp", "img.")
+		file, err := ioutil.TempFile("ml5/img", "img.")
 		if err != nil {
 			log.Print(err)
 		}
-		log.Print(file.Name())
 		f, _, _ := r.FormFile("image")
 		defer f.Close()
 		io.Copy(file, f)
-		log.Print(file.Name())
+		log.Print("Done")
 		w.Write([]byte(fmt.Sprintf(`{"uploadUrl":"/ml5?%s"}`, file.Name())))
 	}
 }
