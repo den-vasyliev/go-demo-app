@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -13,9 +14,12 @@ import (
 func ml5Handler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		log.Print(fmt.Sprintf("GET found: %s", r.URL.Path))
+		log.Print(fmt.Sprintf("GET: %s", r.URL.Path))
 		if r.URL.Path == "/" {
 			r.URL.Path = "/index.html"
+		} else if r.URL.Path == "/ml5" {
+			log.Print(fmt.Sprintf("Q: %s", r.URL.RawQuery))
+			r.URL.Path = "/ml5.html"
 		}
 		lp := filepath.Join("templates", "layout.html")
 		fp := filepath.Join("templates", filepath.Clean(r.URL.Path))
@@ -36,6 +40,8 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		tmpl, err := template.ParseFiles(lp, fp)
+		tmpl.New("img").Parse(`{{define "img"}}` + r.URL.RawQuery + `{{end}}`)
+
 		if err != nil {
 			// Log the detailed error
 			log.Println(err.Error())
@@ -49,9 +55,9 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "POST":
-		log.Print(fmt.Sprintf("POST found: %s", r.URL.Path))
+		log.Print(fmt.Sprintf("POST: %s", r.URL.Path))
 
-		file, err := os.OpenFile("art/img/uploaded", os.O_WRONLY|os.O_CREATE, 0666)
+		file, err := ioutil.TempFile("ml5/img", "img.")
 		if err != nil {
 			log.Print(err)
 		}
@@ -59,7 +65,9 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 		defer f.Close()
 		io.Copy(file, f)
 		log.Print("Done")
-
-		http.Redirect(w, r, "/s/", 302)
+		w.Write([]byte(fmt.Sprintf(`{"uploadUrl":"/ml5?%s"}`, file.Name())))
+		//http.
+		//http.ResponseWriter(w, r, fmt.Sprintf("/ml5?%s", file.Name()), 302)
+		//http.Redirect(w, r, fmt.Sprintf("/ml5?%s", file.Name()), 302)
 	}
 }

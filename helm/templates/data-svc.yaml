@@ -11,26 +11,7 @@ metadata:
   labels:
     app: data
   annotations: 
-   getambassador.io/config: |
-      ---
-      apiVersion: ambassador/v0
-      kind:  Mapping
-      name:  {{ .Release.Name }}-data-{{ .Values.app.version }}
-      prefix: /data/
-      service: {{ .Release.Name }}-data-{{ .Values.app.version }}
-      {{include "canary-header" .}}
-        {{include "canary-header-mode" .}}
-      {{include "canary-weight" .}}
-      ---
-      apiVersion: ambassador/v0
-      kind:  Mapping
-      name:  {{ .Release.Name }}-data-metrics-{{ .Values.app.version }}
-      prefix: /data/metrics
-      rewrite: ""
-      service: {{ .Release.Name }}-data-{{ .Values.app.version }}
-      {{include "canary-header" .}}
-        {{include "canary-header-mode" .}}
-      {{include "canary-weight" .}} 
+   
 spec:
   ports:
   - name: http

@@ -40,6 +40,9 @@ db_nosql:
 mq_nats:
   enable: false
 
+ns:
+  enable: true
+
 api-gateway:
   image:
     tag: 0.51.0

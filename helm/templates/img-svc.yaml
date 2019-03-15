@@ -5,7 +5,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-img-{{ .Values.app.version }}
+  name: {{ .Release.Name }}-img
   namespace: {{ .Release.Namespace }}
   labels:
     app: img
@@ -14,19 +14,9 @@ metadata:
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
-      name:  {{ .Release.Name }}-img-{{ .Values.app.version }}
+      name:  {{ .Release.Name }}-img
       prefix: /img/
-      service: {{ .Release.Name }}-img-{{ .Values.app.version }}
-      {{include "canary-header" .}}
-        {{include "canary-header-mode" .}}
-      {{include "canary-weight" .}}
-      ---
-      apiVersion: ambassador/v0
-      kind:  Mapping
-      name:  {{ .Release.Name }}-img-metrics-{{ .Values.app.version }}
-      prefix: /img/metrics
-      rewrite: ""
-      service: {{ .Release.Name }}-img-{{ .Values.app.version }}
+      service: {{ .Release.Name }}-img
       {{include "canary-header" .}}
         {{include "canary-header-mode" .}}
       {{include "canary-weight" .}}

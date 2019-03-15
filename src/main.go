@@ -54,8 +54,11 @@ func main() {
 	AppName := flag.String("name", "k8s:art", "application name")
 	AppRole := flag.String("role", "api", "app role: api data ascii img ml5")
 	AppPort := flag.String("port", "8080", "application port")
-	AppPath := flag.String("path", "/s/", "path to serve static files")
-	AppDir := flag.String("dir", "./art", "the directory of static file to host")
+	AppPath := flag.String("path", "/ml5/", "path to serve static files")
+	AppDir := flag.String("dir", "./ml5", "the directory of static files to host")
+	ModelsPath := flag.String("mpath", "/models/", "path to serve models files")
+	ModelsDir := flag.String("mdir", "./ml5/models", "the directory of models files to host")
+
 	flag.Parse()
 	// Environment app
 	Environment = fmt.Sprintf("%s version:%s role:%s port:%s", *AppName, Version, *AppRole, *AppPort)
@@ -86,7 +89,9 @@ func main() {
 	case "ml5":
 
 		router.PathPrefix(*AppPath).Handler(http.StripPrefix(*AppPath, http.FileServer(http.Dir(*AppDir))))
+		router.PathPrefix(*ModelsPath).Handler(http.StripPrefix(*ModelsPath, http.FileServer(http.Dir(*ModelsDir))))
 
+		router.HandleFunc("/ml5", ml5Handler)
 		router.HandleFunc("/", ml5Handler)
 
 	}

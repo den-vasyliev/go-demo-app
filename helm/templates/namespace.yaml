@@ -1,3 +1,4 @@
+{{ if .Values.ns.enable }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -8,3 +9,4 @@ spec:
   - kubernetes
 status:
   phase: Active
+{{- end}}

@@ -17,17 +17,7 @@ metadata:
       apiVersion: ambassador/v0
       kind:  Mapping
       name:  {{ .Release.Name }}-api
-      prefix: /api/
-      service: {{ .Release.Name }}-api
-      {{include "canary-header" .}}
-        {{include "canary-header-mode" .}}
-      {{include "canary-weight" .}}
-      ---
-      apiVersion: ambassador/v0
-      kind:  Mapping
-      name:  {{ .Release.Name }}-api-metrics
-      prefix: /metrics
-      rewrite: ""
+      prefix: /
       service: {{ .Release.Name }}-api
       {{include "canary-header" .}}
         {{include "canary-header-mode" .}}
