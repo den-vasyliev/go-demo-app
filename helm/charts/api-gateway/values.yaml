@@ -9,7 +9,7 @@ app:
 
 image:
   repository: quay.io/datawire
-  tag: 0.40.0
+  tag: 0.51.2
   pullPolicy: IfNotPresent
 
 service:

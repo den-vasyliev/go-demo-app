@@ -3,5 +3,8 @@ data:
   key: demo
 kind: ConfigMap
 metadata:
-  name: app-configmap
+  name: {{ .Release.Namespace}}-configmap
   namespace: {{ .Release.Namespace }}
+  labels:
+    version: {{ .Values.app.version }}
+  

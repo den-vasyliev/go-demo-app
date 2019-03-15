@@ -4,6 +4,8 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-api
   namespace: {{ .Release.Namespace }}
+  labels:
+    version: {{ .Values.app.version }}
 spec:
   selector:
     matchLabels:
@@ -17,7 +19,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: {{ .Values.app.image }}:{{ .Values.app.version }}
+        image: {{ .Values.image.name }}:{{ .Values.image.tag }}
         command:
           - ./app
           - "-role"
@@ -33,7 +35,7 @@ spec:
           - name: APP_LICENSE
             valueFrom:
               secretKeyRef:
-                name: license
+                name: {{ .Release.Name }}-secret
                 key: license
         volumeMounts:
         - name: data
@@ -60,5 +62,5 @@ spec:
       volumes:
         - name: data
           configMap:
-            name: app-configmap
+            name: {{ .Release.Name }}-configmap
 

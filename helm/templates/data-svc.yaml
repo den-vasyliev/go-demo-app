@@ -10,8 +10,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: data
-  annotations: 
-   
+    version: {{ .Values.app.version }} 
 spec:
   ports:
   - name: http

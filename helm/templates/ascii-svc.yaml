@@ -10,6 +10,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: ascii
+    version: {{ .Values.app.version }}
   annotations:
    getambassador.io/config: |
       ---

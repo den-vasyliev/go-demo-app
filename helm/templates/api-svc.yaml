@@ -8,11 +8,20 @@ metadata:
   name: {{ .Release.Name }}-api
   namespace: {{ .Release.Namespace }}
   labels:
-    app: frontend
+    app: api
     version: {{ .Values.app.version }}
   annotations:
     
     getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  {{ .Release.Name }}-api-api
+      prefix: /api/
+      service: {{ .Release.Name }}-api
+      {{include "canary-header" .}}
+        {{include "canary-header-mode" .}}
+      {{include "canary-weight" .}}
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
@@ -22,7 +31,7 @@ metadata:
       {{include "canary-header" .}}
         {{include "canary-header-mode" .}}
       {{include "canary-weight" .}}
-      
+       
 spec:
   ports:
   - name: http

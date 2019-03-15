@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-db-sql
   namespace: {{ .Release.Namespace }}
+  labels:
+    service: db-sql
 spec:
   selector:
     matchLabels:
