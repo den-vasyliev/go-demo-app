@@ -48,6 +48,6 @@ ns:
 
 api-gateway:
   image:
-    tag: 0.51.0
+    tag: 0.51.2
   service:
     type: LoadBalancer

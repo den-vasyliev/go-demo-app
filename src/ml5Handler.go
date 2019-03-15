@@ -57,7 +57,7 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		log.Print(fmt.Sprintf("POST: %s", r.URL.Path))
 
-		file, err := ioutil.TempFile("ml5/img", "img.")
+		file, err := ioutil.TempFile("/tmp/ml5/img", "img.")
 		if err != nil {
 			log.Print(err)
 		}

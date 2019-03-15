@@ -3,7 +3,7 @@ data:
   key: demo
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Namespace}}-configmap
+  name: {{ .Release.Name}}-configmap
   namespace: {{ .Release.Namespace }}
   labels:
     version: {{ .Values.app.version }}

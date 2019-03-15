@@ -26,7 +26,7 @@ spec:
           - "data"
         env:
           - name: APP_DB
-            value: "root@tcp({{ .Release.Name }}-db-sql:{{ .Values.db_sql.port }})/{{ .Release.Name }}"
+            value: "root@tcp({{ .Release.Name }}-db-sql:{{ .Values.db_sql.port }})/demo"
           - name: APP_DB_NO_SQL
             value: "{{ .Release.Name }}-db-nosql"
           - name: APP_DB_NO_SQL_PORT
