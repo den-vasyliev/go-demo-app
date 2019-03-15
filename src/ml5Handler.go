@@ -16,19 +16,21 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		log.Print(fmt.Sprintf("GET: %s", r.URL.Path))
 		if r.URL.Path == "/" {
-			r.URL.Path = "/index.html"
+			r.URL.Path = "index.html"
 		} else if r.URL.Path == "/ml5" {
 			log.Print(fmt.Sprintf("Q: %s", r.URL.RawQuery))
-			r.URL.Path = "/ml5.html"
+			r.URL.Path = "ml5.html"
 		}
 		lp := filepath.Join("templates", "layout.html")
 		fp := filepath.Join("templates", filepath.Clean(r.URL.Path))
+		log.Print(lp, fp)
 
 		// Return a 404 if the template doesn't exist
 		info, err := os.Stat(fp)
 		if err != nil {
 			if os.IsNotExist(err) {
 				http.NotFound(w, r)
+				log.Print(err)
 				return
 			}
 		}
@@ -57,7 +59,7 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		log.Print(fmt.Sprintf("POST: %s", r.URL.Path))
 
-		file, err := ioutil.TempFile("/tmp/ml5/img", "img.")
+		file, err := ioutil.TempFile("ml5/img", "img.")
 		if err != nil {
 			log.Print(err)
 		}
@@ -66,8 +68,5 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 		io.Copy(file, f)
 		log.Print("Done")
 		w.Write([]byte(fmt.Sprintf(`{"uploadUrl":"/ml5?%s"}`, file.Name())))
-		//http.
-		//http.ResponseWriter(w, r, fmt.Sprintf("/ml5?%s", file.Name()), 302)
-		//http.Redirect(w, r, fmt.Sprintf("/ml5?%s", file.Name()), 302)
 	}
 }
