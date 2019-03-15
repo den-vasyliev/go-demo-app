@@ -23,7 +23,6 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 		}
 		lp := filepath.Join("templates", "layout.html")
 		fp := filepath.Join("templates", filepath.Clean(r.URL.Path))
-		log.Print(lp, fp)
 
 		// Return a 404 if the template doesn't exist
 		info, err := os.Stat(fp)
@@ -63,10 +62,11 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Print(err)
 		}
+		log.Print(file.Name())
 		f, _, _ := r.FormFile("image")
 		defer f.Close()
 		io.Copy(file, f)
-		log.Print("Done")
+		log.Print(file.Name())
 		w.Write([]byte(fmt.Sprintf(`{"uploadUrl":"/ml5?%s"}`, file.Name())))
 	}
 }
