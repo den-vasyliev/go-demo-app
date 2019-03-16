@@ -18,6 +18,7 @@ metadata:
       kind:  Mapping
       name:  {{ .Release.Name }}-ml5
       prefix: /ml5/
+      rewrite: /ml5/
       service: {{ .Release.Name }}-ml5
       {{include "canary-header" .}}
         {{include "canary-header-mode" .}}
