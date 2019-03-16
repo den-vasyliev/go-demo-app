@@ -17,7 +17,7 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 		log.Print(fmt.Sprintf("GET: %s", r.URL.Path))
 		if r.URL.Path == "/" {
 			r.URL.Path = "index.html"
-		} else if r.URL.Path == "/ml5" {
+		} else if r.URL.Path == "/ml" {
 			log.Print(fmt.Sprintf("Q: %s", r.URL.RawQuery))
 			r.URL.Path = "ml5.html"
 		}
@@ -67,6 +67,6 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 		defer f.Close()
 		io.Copy(file, f)
 		log.Print(file.Name())
-		w.Write([]byte(fmt.Sprintf(`{"uploadUrl":"/ml5?%s"}`, file.Name())))
+		w.Write([]byte(fmt.Sprintf(`{"uploadUrl":"/ml?%s"}`, file.Name())))
 	}
 }

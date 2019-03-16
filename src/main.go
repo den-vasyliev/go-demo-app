@@ -91,7 +91,7 @@ func main() {
 		router.PathPrefix(*AppPath).Handler(http.StripPrefix(*AppPath, http.FileServer(http.Dir(*AppDir))))
 		router.PathPrefix(*ModelsPath).Handler(http.StripPrefix(*ModelsPath, http.FileServer(http.Dir(*ModelsDir))))
 
-		router.HandleFunc("/ml5", ml5Handler)
+		router.HandleFunc("/ml", ml5Handler)
 		router.HandleFunc("/", ml5Handler)
 
 	}
