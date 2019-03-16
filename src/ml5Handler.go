@@ -66,7 +66,7 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 		f, _, _ := r.FormFile("image")
 		defer f.Close()
 		io.Copy(file, f)
-		log.Print("Done")
+		log.Print(file.Name())
 		w.Write([]byte(fmt.Sprintf(`{"uploadUrl":"/ml5?%s"}`, file.Name())))
 	}
 }
