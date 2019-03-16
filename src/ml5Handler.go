@@ -28,7 +28,7 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 		info, err := os.Stat(fp)
 		if err != nil {
 			if os.IsNotExist(err) {
-				log.Print("no template" + err)
+				log.Print(fmt.Sprintf("no template %s", err))
 				http.NotFound(w, r)
 				return
 			}
