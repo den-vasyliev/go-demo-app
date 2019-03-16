@@ -1,12 +1,12 @@
 {{define "title"}}K8S-Art{{end}}
 {{define "head"}}
-<link href="ml5/css/uppy.min.css" rel="stylesheet">
+<link href="/ml5/ml5/css/uppy.min.css" rel="stylesheet">
 {{end}}
 {{define "body"}}
 <div id="drag-drop-area"></div>
     <!-- Progress bar #1 -->
     <div class="UppyDragDrop-One-Progress"></div>
-  <script src="ml5/lib/uppy.min.js"></script>
+  <script src="/ml5/ml5/lib/uppy.min.js"></script>
  <script>
       var uppy = Uppy.Core({debug: true, autoProceed: true, restrictions: {allowedFileTypes: ['.jpeg', '.png', '.jpg'], maxFileSize: 2097134}})
       .use(Uppy.DragDrop, {target: '#drag-drop-area', note: 'TensorFlow.js + ml5.js - friendly machine learning for the web!', locale: {strings: { dropHereOr: 'Drop files here or %{browse}', browse: 'browse'}}})
