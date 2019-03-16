@@ -28,6 +28,7 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 		info, err := os.Stat(fp)
 		if err != nil {
 			if os.IsNotExist(err) {
+				log.Print("no template" + err)
 				http.NotFound(w, r)
 				return
 			}
@@ -35,6 +36,7 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 
 		// Return a 404 if the request is for a directory
 		if info.IsDir() {
+			log.Print("is dir")
 			http.NotFound(w, r)
 			return
 		}
