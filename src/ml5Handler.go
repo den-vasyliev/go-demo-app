@@ -21,8 +21,8 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 			log.Print(fmt.Sprintf("Q: %s", r.URL.RawQuery))
 			r.URL.Path = "ml5.html"
 		}
-		lp := filepath.Join("templates", "layout.html")
-		fp := filepath.Join("templates", filepath.Clean(r.URL.Path))
+		lp := filepath.Join("ml5/templates", "layout.html")
+		fp := filepath.Join("ml5/templates", filepath.Clean(r.URL.Path))
 
 		// Return a 404 if the template doesn't exist
 		info, err := os.Stat(fp)
