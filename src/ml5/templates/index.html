@@ -11,7 +11,7 @@
       var uppy = Uppy.Core({debug: true, autoProceed: true, restrictions: {allowedFileTypes: ['.jpeg', '.png', '.jpg'], maxFileSize: 2097134}})
       .use(Uppy.DragDrop, {target: '#drag-drop-area', note: 'TensorFlow.js + ml5.js - friendly machine learning for the web!', locale: {strings: { dropHereOr: 'Drop files here or %{browse}', browse: 'browse'}}})
       .use(Uppy.XHRUpload, {
-  endpoint: '/',
+  endpoint: '/ml5/',
   formData: true,
   fieldName: 'image',
   limit: 1,
