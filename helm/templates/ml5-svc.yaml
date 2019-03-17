@@ -18,20 +18,20 @@ metadata:
       kind:  Mapping
       name:  {{ .Release.Name }}-ml5
       prefix: /ml5/
-      service: {{ .Release.Name }}-ml5
+      service: {{ .Release.Name }}-ml
       {{include "canary-header" .}}
         {{include "canary-header-mode" .}}
       {{include "canary-weight" .}}
       ---
       apiVersion: ambassador/v0
       kind:  Mapping
-      name:  {{ .Release.Name }}-ml5-ml5
-      prefix: /ml5
-      service: {{ .Release.Name }}-ml5
+      name:  {{ .Release.Name }}-ml5
+      prefix: /models/
+      service: {{ .Release.Name }}-ml
       {{include "canary-header" .}}
         {{include "canary-header-mode" .}}
       {{include "canary-weight" .}}
-      --- 
+
 spec:
   ports:
   - name: http

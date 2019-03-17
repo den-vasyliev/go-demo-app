@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 )
 
@@ -15,9 +16,9 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		log.Print(fmt.Sprintf("GET: %s", r.URL.Path))
-		if r.URL.Path == "/" {
+		if r.URL.RawQuery == "" {
 			r.URL.Path = "index.html"
-		} else if r.URL.Path == "/ml" {
+		} else if r.URL.RawQuery != "" {
 			log.Print(fmt.Sprintf("Q: %s", r.URL.RawQuery))
 			r.URL.Path = "ml5.html"
 		}
@@ -42,7 +43,7 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		tmpl, err := template.ParseFiles(lp, fp)
-		tmpl.New("img").Parse(`{{define "img"}}` + r.URL.RawQuery + `{{end}}`)
+		tmpl.New("img").Parse(`{{define "img"}}` + `static/img/img.` + r.URL.RawQuery + `{{end}}`)
 
 		if err != nil {
 			// Log the detailed error
@@ -59,14 +60,16 @@ func ml5Handler(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		log.Print(fmt.Sprintf("POST: %s", r.URL.Path))
 
-		file, err := ioutil.TempFile("ml5/img", "img.")
+		tmpfile, err := ioutil.TempFile("ml5/img", "img.")
 		if err != nil {
 			log.Print(err)
 		}
 		f, _, _ := r.FormFile("image")
-		defer f.Close()
-		io.Copy(file, f)
-		log.Print(file.Name())
-		w.Write([]byte(fmt.Sprintf(`{"uploadUrl":"/ml?%s"}`, file.Name())))
+
+		defer f.Close() // clean up
+
+		io.Copy(tmpfile, f)
+		log.Print(tmpfile.Name())
+		w.Write([]byte(fmt.Sprintf(`{"uploadUrl":"?%s"}`, strings.Split(tmpfile.Name(), ".")[1])))
 	}
 }
