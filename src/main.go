@@ -52,7 +52,7 @@ func main() {
 
 	initOptions()
 	AppName := flag.String("name", "k8s:art", "application name")
-	AppRole := flag.String("role", "api", "app role: api data ascii img ml5")
+	AppRole := flag.String("role", "ml5", "app role: api data ascii img ml5")
 	AppPort := flag.String("port", "8080", "application port")
 	AppPath := flag.String("path", "/static/", "path to serve static files")
 	AppDir := flag.String("dir", "./ml5", "the directory of static files to host")
