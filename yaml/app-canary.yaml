@@ -26,12 +26,12 @@ spec:
     - demo-api.demo
   canaryAnalysis:
     # schedule interval (default 60s)
-    interval: 10s
+    interval: 15s
     # max number of failed metric checks before rollback
     threshold: 5
     # max traffic percentage routed to canary
     # percentage (0-100)
-    maxWeight: 50
+    maxWeight: 20
     # canary increment step
     # percentage (0-100)
     stepWeight: 10
@@ -40,17 +40,17 @@ spec:
       # minimum req success rate (non 5xx responses)
       # percentage (0-100)
       threshold: 99
-      interval: 10s
+      interval: 2s
     - name: istio_request_duration_seconds_bucket
       # maximum req duration P99
       # milliseconds
       threshold: 500
-      interval: 10s
+      interval: 2s
     # generate traffic during analysis
     webhooks:
       - name: load-test
         url: http://flagger-loadtester.demo/
         timeout: 5s
         metadata:
-          cmd: "hey -z 1m -q 10 -c 2 http://demo-api.demo/version"
+          cmd: "hey -z 2s -q 10 -c 2 http://demo-api.demo/version"
 EOF

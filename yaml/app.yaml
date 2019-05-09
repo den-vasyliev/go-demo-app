@@ -4,8 +4,7 @@ metadata:
   name: app
 spec:
   containers:
-    - image: gcr.io/kuar-demo/kuard-amd64:1
-      name: app
+    - image: denvasyliev/demo:v1.0.1
       ports:
         - containerPort: 8080
           name: http
