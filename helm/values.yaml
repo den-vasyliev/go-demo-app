@@ -4,7 +4,7 @@ app:
 
 image:
   name: denvasyliev/k8s-art
-  tag: v1.0.0
+  tag: v1
 
 api:
   replicas: 1

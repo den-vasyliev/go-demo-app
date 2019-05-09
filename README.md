@@ -90,24 +90,24 @@ vim Container
 	curl -XPOST --data '{"text":"test"}' $DEMOLB/ascii/
 
 	watch -t -d -n 0.5 curl -s $DEMOLB/api/
-	helm template ./helm --namespace demo --name demo2 --set image.tag=v2.0.0 --set app.version=v2 --set api.canary=30|k apply -f -
+	helm template ./helm --namespace demo --name demo2 --set image.tag=v2 --set app.version=v2 --set api.canary=30|k apply -f -
 
 	wget -O /tmp/g.png https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png
 	curl -F 'image=@/tmp/g.png' $DEMOLB/img/
 
-	helm template ./helm --namespace demo --name demo2 --set image.tag=v2.0.0 --set app.version=v2 --set api.canary=80|k apply -f -
-	helm template ./helm --namespace demo --name demo2 --set image.tag=v2.0.0 --set app.version=v2 --set api.canary=100|k apply -f -
+	helm template ./helm --namespace demo --name demo2 --set image.tag=v2 --set app.version=v2 --set api.canary=80|k apply -f -
+	helm template ./helm --namespace demo --name demo2 --set image.tag=v2 --set app.version=v2 --set api.canary=100|k apply -f -
 
 	helm template ./helm --namespace demo --name demo --set ns.enable=false --set api-gateway.enable=false|k delete -f -
 
-	helm template ./helm --namespace demo --name demo3 --set image.tag=v3.0.0 --set app.version=v3 --set api.canary=50 --set api.header=canary|k apply -f -
+	helm template ./helm --namespace demo --name demo3 --set image.tag=v3 --set app.version=v3 --set api.canary=50 --set api.header=canary|k apply -f -
 
 	watch kubectl get po,svc -n demo
 
 	watch -t -d -n 0.5 curl -s $DEMOLB/api/ -Hx-mode:canary
 	watch -t -d -n 0.5 curl -s $DEMOLB/api/ 
 
-	helm template ./helm --namespace demo --name demo3 --set image.tag=v3.0.0 --set app.version=v3 --set api.canary=100 |k apply -f -
+	helm template ./helm --namespace demo --name demo3 --set image.tag=v3 --set app.version=v3 --set api.canary=100 |k apply -f -
 	helm template ./helm --namespace demo --name demo2 --set ns.enable=false --set api-gateway.enable=false|k delete -f -
 
 	watch -t -d -n 0.5 curl -s $DEMOLB/api/ 
