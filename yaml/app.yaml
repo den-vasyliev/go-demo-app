@@ -5,6 +5,7 @@ metadata:
 spec:
   containers:
     - image: denvasyliev/demo:v1.0.1
+      name: app
       ports:
         - containerPort: 8080
           name: http
