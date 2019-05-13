@@ -118,6 +118,31 @@ vim Container
 	curl -F 'image=@/tmp/g.png' $DEMOLB/img/
 	OPEN_IN_BROWSER $DEMOLB/ml5/
 
+# EFK
+
+#https://github.com/upmc-enterprises/elasticsearch-operator
+#HELM
+helm repo add es-operator https://raw.githubusercontent.com/upmc-enterprises/elasticsearch-operator/master/charts/
+helm fetch es-operator/elasticsearch-operator
+helm fetch es-operator/elasticsearch
+
+k create ns logging
+
+helm template --name elasticsearch-operator elasticsearch-operator-0.1.3.tgz --set rbac.enabled=True --namespace logging | k create -n logging -f -
+k -n logging logs -f
+k get po -n logging -w
+helm template --name=elasticsearch elasticsearch-0.1.5.tgz \
+--set clientReplicas=1 \
+--set masterReplicas=1 \
+--set dataReplicas=2 \
+--set dataVolumeSize=10Gi \
+--set kibana.enabled=True \
+--set cerebro.enabled=True \
+--set zones="{europe-west4-b}" \
+--set storage.type=pd-standard \
+--set storage.classProvisioner=kubernetes.io/gce-pd \
+--namespace logging|k -n logging apply -f -
+
 # ISTIO
 
 	git clone https://github.com/banzaicloud/istio-operator.git -b release-1.0
