@@ -120,23 +120,24 @@ vim Container
 
 # EFK
 
-	#https://github.com/upmc-enterprises/elasticsearch-operator
+	https://github.com/upmc-enterprises/elasticsearch-operator
 
-#HELM
+##HELM packages
 
 	helm repo add es-operator https://raw.githubusercontent.com/upmc-enterprises/elasticsearch-operator/master/charts/
-
 	helm fetch es-operator/elasticsearch-operator	
-
 	helm fetch es-operator/elasticsearch	
+
+##Elasticsearch Operator
 
 	k create ns logging	
 
 	helm template --name elasticsearch-operator elasticsearch-operator-0.1.3.tgz --set rbac.enabled=True --namespace logging | k create -n logging -f -	
 
 	k -n logging logs -f	
-
 	k get po -n logging -w	
+
+##Elasticsearch Cluster
 
 	helm template --name=elasticsearch elasticsearch-0.1.5.tgz \
 	--set clientReplicas=1 \
@@ -149,6 +150,22 @@ vim Container
 	--set storage.type=pd-standard \
 	--set storage.classProvisioner=kubernetes.io/gce-pd \
 	--namespace logging|k -n logging apply -f -
+
+##Access Cluster
+k port-forward kibana-.... 5601 -n logging
+
+##Fluentbit
+	https://docs.fluentbit.io/manual/installation/kubernetes/
+
+	k create -f https://raw.githubusercontent.com/fluent/fluent-bit-kubernetes-logging/master/fluent-bit-service-account.yaml
+	
+	k create -f https://raw.githubusercontent.com/fluent/fluent-bit-kubernetes-logging/master/fluent-bit-role.yaml
+	
+	k create -f https://raw.githubusercontent.com/fluent/fluent-bit-kubernetes-logging/master/fluent-bit-role-binding.yaml
+
+	k create -f https://raw.githubusercontent.com/fluent/fluent-bit-kubernetes-logging/master/output/elasticsearch/fluent-bit-configmap.yaml
+
+	k create -f https://raw.githubusercontent.com/fluent/fluent-bit-kubernetes-logging/master/output/elasticsearch/fluent-bit-ds.yaml
 
 # ISTIO
 
