@@ -152,7 +152,7 @@ vim Container
 	--namespace logging|k -n logging apply -f -
 
 ## Access Cluster
-k port-forward kibana-.... 5601 -n logging
+	k port-forward kibana-.... 5601 -n logging
 
 ## Fluentbit
 	https://docs.fluentbit.io/manual/installation/kubernetes/
