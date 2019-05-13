@@ -123,15 +123,21 @@ vim Container
 #https://github.com/upmc-enterprises/elasticsearch-operator
 
 #HELM
+
 helm repo add es-operator https://raw.githubusercontent.com/upmc-enterprises/elasticsearch-operator/master/charts/
+
 helm fetch es-operator/elasticsearch-operator
+
 helm fetch es-operator/elasticsearch
 
 k create ns logging
 
 helm template --name elasticsearch-operator elasticsearch-operator-0.1.3.tgz --set rbac.enabled=True --namespace logging | k create -n logging -f -
+
 k -n logging logs -f
+
 k get po -n logging -w
+
 helm template --name=elasticsearch elasticsearch-0.1.5.tgz \
 --set clientReplicas=1 \
 --set masterReplicas=1 \
