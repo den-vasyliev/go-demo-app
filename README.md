@@ -122,13 +122,13 @@ vim Container
 
 	https://github.com/upmc-enterprises/elasticsearch-operator
 
-##HELM packages
+## HELM packages
 
 	helm repo add es-operator https://raw.githubusercontent.com/upmc-enterprises/elasticsearch-operator/master/charts/
 	helm fetch es-operator/elasticsearch-operator	
 	helm fetch es-operator/elasticsearch	
 
-##Elasticsearch Operator
+## Elasticsearch Operator
 
 	k create ns logging	
 
@@ -137,7 +137,7 @@ vim Container
 	k -n logging logs -f	
 	k get po -n logging -w	
 
-##Elasticsearch Cluster
+## Elasticsearch Cluster
 
 	helm template --name=elasticsearch elasticsearch-0.1.5.tgz \
 	--set clientReplicas=1 \
@@ -151,10 +151,10 @@ vim Container
 	--set storage.classProvisioner=kubernetes.io/gce-pd \
 	--namespace logging|k -n logging apply -f -
 
-##Access Cluster
+## Access Cluster
 k port-forward kibana-.... 5601 -n logging
 
-##Fluentbit
+## Fluentbit
 	https://docs.fluentbit.io/manual/installation/kubernetes/
 
 	k create -f https://raw.githubusercontent.com/fluent/fluent-bit-kubernetes-logging/master/fluent-bit-service-account.yaml
