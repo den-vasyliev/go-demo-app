@@ -1,12 +1,12 @@
 provider "google" {
-  credentials = "${file("../../certs/account.json")}"
-  project     = "august-cirrus-224620"
-  region      = "europe-west2"
+  project = "smartcity-gl"
+  region  = "europe-west2"
+  zone    = "europe-west2-a"
 }
 
 resource "google_container_cluster" "primary" {
   name                     = "gke-example"
-  zone                     = "europe-west2-a"
+  location                 = "europe-west2-a"
   remove_default_node_pool = true
 
   node_pool {
@@ -17,7 +17,7 @@ resource "google_container_cluster" "primary" {
 resource "google_container_node_pool" "primary_pool" {
   name       = "primary-pool"
   cluster    = "${google_container_cluster.primary.name}"
-  zone       = "europe-west2-a"
+  location   = "europe-west2-a"
   node_count = "2"
 
   node_config {
@@ -38,7 +38,7 @@ resource "google_container_node_pool" "primary_pool" {
 resource "google_container_node_pool" "new_pool" {
   name       = "new-pool"
   cluster    = "${google_container_cluster.primary.name}"
-  zone       = "europe-west2-a"
+  location   = "europe-west2-a"
   node_count = "4"
 
   node_config {

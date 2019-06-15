@@ -1,8 +1,6 @@
 {{- define "canary-weight" }}{{ if gt .Values.img.canary 0.0 }}weight: {{.Values.img.canary}}{{ end }} {{- end }}
 {{- define "canary-header" }}{{ if .Values.img.header  }}headers:{{ end }} {{- end }}
 {{- define "canary-header-mode" }}{{ if .Values.img.header  }}x-mode: {{ .Values.img.header }}{{ end }} {{- end }}
-{{ if or (eq .Values.app.version "v2") ( eq .Values.app.version "v3") }}
-
 ---
 apiVersion: v1
 kind: Service
@@ -30,4 +28,3 @@ spec:
     targetPort: {{ .Values.img.port }}
   selector:
     app: {{ .Release.Name }}-img
-{{- end}}

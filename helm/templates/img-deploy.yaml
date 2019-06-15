@@ -1,4 +1,3 @@
-{{ if  or ( eq .Values.app.version "v2")  ( eq .Values.app.version "v3") }}
 ---
 apiVersion: apps/v1 
 kind: Deployment
@@ -58,4 +57,3 @@ spec:
             port: {{ .Values.img.port }}
           initialDelaySeconds: 15
           periodSeconds: 3
-{{- end}}
