@@ -4,13 +4,13 @@ metadata:
   name: app-readinessprob
 spec:
   containers:
-    - image: gcr.io/kuar-demo/kuard-amd64:1
+    - image: gcr.io/smartcity-gl/demo:v2.0.1
       name: app
 
       livenessProbe:
         httpGet:
-          path: /healthy
-          port: 8080
+          path: /
+          port: 8000
         initialDelaySeconds: 5
         timeoutSeconds: 1
         periodSeconds: 10
@@ -18,8 +18,8 @@ spec:
 
       readinessProbe:
         httpGet:
-          path: /ready
-          port: 8080
+          path: /
+          port: 8000
         periodSeconds: 2
         initialDelaySeconds: 0
         failureThreshold: 3

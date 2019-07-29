@@ -2,10 +2,14 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: app
+  namespace: demo
+  labels: 
+    app: demo
+    run: demo
 spec:
   containers:
-    - image: denvasyliev/demo:v1.0.1
+    - image: gcr.io/smartcity-gl/harmonic:v1.0.0
       name: app
       ports:
-        - containerPort: 8080
+        - containerPort: 8000
           name: http
