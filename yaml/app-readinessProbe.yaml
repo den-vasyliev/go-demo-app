@@ -4,7 +4,7 @@ metadata:
   name: app-readinessprob
 spec:
   containers:
-    - image: gcr.io/smartcity-gl/demo:v2.0.1
+    - image: gcr.io/smartcity-gl/harmonic:v2.0.2
       name: app
 
       livenessProbe:
@@ -18,7 +18,7 @@ spec:
 
       readinessProbe:
         httpGet:
-          path: /
+          path: /ready
           port: 8000
         periodSeconds: 2
         initialDelaySeconds: 0
@@ -26,5 +26,5 @@ spec:
         successThreshold: 1
         
       ports:
-        - containerPort: 8080
+        - containerPort: 8000
           name: http
