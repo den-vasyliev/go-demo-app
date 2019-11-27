@@ -2,15 +2,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-db-sql
+  name: db-sql
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Release.Name }}-db-sql
+    app: db-sql
 spec:
   ports:
   - name: tcp-db
     port: 3306
     targetPort: 3306
   selector:
-    app: {{ .Release.Name }}-db-sql
+    app: db-sql
 

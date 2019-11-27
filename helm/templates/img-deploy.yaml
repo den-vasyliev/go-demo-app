@@ -31,11 +31,11 @@ spec:
           - name: APP_DATASTORE
             value: "{{ .Release.Name }}-data"
           - name: APP_DB_NO_SQL
-            value: "{{ .Release.Name }}-db-nosql"
+            value: "db-nosql"
           - name: APP_DB_NO_SQL_PORT
             value: "{{ .Values.db_nosql.port }}"
           - name: APP_DB_SQL
-            value: "{{ .Release.Name }}-db-sql"
+            value: "db-sql"
           - name: APP_DB_SQL_PORT
             value: "{{ .Values.db_sql.port }}"
         resources:

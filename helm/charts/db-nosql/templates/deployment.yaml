@@ -1,19 +1,19 @@
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-db-nosql
+  name: db-nosql
   namespace: {{ .Release.Namespace }}
   labels:
     service: db-nosql
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-db-nosql
+      app: db-nosql
   replicas: 1
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-db-nosql
+        app: db-nosql
     spec:
       containers:
       - name: redis
