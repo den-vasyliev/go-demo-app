@@ -1,11 +1,14 @@
 {{ if .Values.enable }}
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.app.name }}
   namespace: {{ .Release.Namespace }}
 spec:
+  selector:
+    matchLabels:
+      service: {{ .Values.app.name }}
   replicas: {{ .Values.app.replicas }}
   template:
     metadata:
