@@ -1,10 +1,10 @@
 app:
-  name: k8s-art
-  version: v2
+  name: k8sdiy
+  version: v4
 
 image:
-  name: denvasyliev/k8s-art
-  tag: v2.0.0
+  name: denvasyliev/k8sdiy
+  tag: v4.0.0
 
 api:
   replicas: 1
