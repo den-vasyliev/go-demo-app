@@ -6,36 +6,58 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
+
+	"os/signal"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/nats-io/nats.go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
+
+// API is api ref
+var API = make(map[string]string)
 
 // AppLicense app
 var AppLicense = os.Getenv("APP_LICENSE")
 
-// AppBackend app
-var AppBackend = os.Getenv("APP_BACKEND")
-
 // AppDatastore app
-var AppDatastore = os.Getenv("APP_DATASTORE")
+var AppDatastore = getEnv("APP_DATASTORE", "data")
+
+// AppDbUser name
+var AppDbUser = getEnv("AppDbPort", "root")
+
+// AppDbPort name
+var AppDbPort = getEnv("APP_DB_PORT", "3306")
+
+// AppDbName name
+var AppDbName = getEnv("APP_DB_NAME", "demo")
 
 // AppDb name
-var AppDb = os.Getenv("APP_DB")
+var AppDb = getEnv("APP_DB", AppDbUser+"@tcp(127.0.0.1:"+AppDbPort+")/"+AppDbName)
 
-// AppDbNoSQL app
-var AppDbNoSQL = os.Getenv("APP_DB_NO_SQL")
+// AppCache app
+var AppCache = getEnv("APP_CACHE", "127.0.0.1")
 
-// AppDbNoSQLPort app
-var AppDbNoSQLPort = os.Getenv("APP_DB_NO_SQL_PORT")
+// AppCachePort app
+var AppCachePort = getEnv("APP_CACHE_PORT", "6379")
+
+// AppCacheExpire app
+var AppCacheExpire = getEnv("APP_CACHE_EXPIRE", "120s")
 
 // Version app
 var Version = "v3"
 
 // Environment app
 var Environment = ""
+
+// APIReg is a api map
+var APIReg = make(map[string]string)
+
+// NC nats brocker
+var NC *nats.Conn
 
 type messageText struct {
 	Text string `json:"Text"`
@@ -50,21 +72,82 @@ var Role = ""
 
 func main() {
 
+	API["ascii"] = "curl -XPOST --data '{text:TEXT}' HOST/ascii/"
+	API["img"] = "curl -F 'image=@IMAGE' HOST/img/"
+	API["ml5"] = "curl HOST/ml5/"
+	API["data"] = "broker message api"
+
 	initOptions()
-	AppName := flag.String("name", "k8s:art", "application name")
-	AppRole := flag.String("role", "ml5", "app role: api data ascii img ml5")
+	AppName := flag.String("name", "k8sdiy", "application name")
+	AppRole := flag.String("role", "api", "app role: api data ascii img ml5")
 	AppPort := flag.String("port", "8080", "application port")
 	AppPath := flag.String("path", "/static/", "path to serve static files")
 	AppDir := flag.String("dir", "./ml5", "the directory of static files to host")
 	ModelsPath := flag.String("mpath", "/models/", "path to serve models files")
 	ModelsDir := flag.String("mdir", "./ml5/models", "the directory of models files to host")
 
-	flag.Parse()
-	// Environment app
-	Environment = fmt.Sprintf("%s version:%s role:%s port:%s", *AppName, Version, *AppRole, *AppPort)
-	Role = *AppRole
+	var urls = flag.String("server", nats.DefaultURL, "The nats server URLs (separated by comma)")
+	var userCreds = flag.String("creds", "", "User Credentials File")
+	var showTime = flag.Bool("timestamp", false, "Display timestamps")
+	var queueName = flag.String("queGroupName", "NATS-RPLY-22", "Queue Group Name")
+	var showHelp = flag.Bool("help", false, "Show help message")
 
-	log.Print(Environment)
+	// Environment app
+
+	Environment = fmt.Sprintf("%s-%s:%s", *AppName, *AppRole, Version)
+
+	//var subj = flag.String("subj", "demo", "The nats server URLs (separated by comma)")
+
+	log.SetFlags(0)
+	flag.Usage = usage
+
+	flag.Parse()
+
+	if *showHelp {
+		showUsageAndExit(0)
+	}
+
+	// Connect Options.
+	opts := []nats.Option{nats.Name("NATS Sample Responder")}
+	opts = setupConnOptions(opts)
+
+	// Use UserCredentials
+	if *userCreds != "" {
+		opts = append(opts, nats.UserCredentials(*userCreds))
+	}
+
+	// Connect to NATS
+	var err error
+
+	NC, err = nats.Connect(*urls, opts...)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := NC.LastError(); err != nil {
+		log.Fatal(err)
+	}
+
+	subj, i := *AppRole+".*", 0
+
+	NC.QueueSubscribe(subj, *queueName, func(msg *nats.Msg) {
+		i++
+		//log
+		printMsg(msg, i)
+
+		if *AppRole == "api" {
+			APIReg[msg.Subject] = string(msg.Data)
+		} else {
+			msg.Respond(DataHandler(msg, i))
+		}
+	})
+	NC.Flush()
+
+	log.Printf("Listening on [%s]: %s", subj, Environment)
+
+	if *showTime {
+		log.SetFlags(log.LstdFlags)
+	}
 
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/version", versionHandler)
@@ -75,26 +158,62 @@ func main() {
 	switch *AppRole {
 
 	case "api":
-		router.HandleFunc("/", apiHandler)
 
-	case "data":
-		router.HandleFunc("/", dataHandler)
+		router.HandleFunc("/", api)
 
 	case "ascii":
-		router.HandleFunc("/", asciiHandler)
+
+		if err := NC.Publish("api."+Environment, []byte(API["ascii"])); err != nil {
+			log.Fatal(err)
+		}
+
+		router.HandleFunc("/", ascii)
 
 	case "img":
-		router.HandleFunc("/", imgHandler)
+		if err := NC.Publish("api."+Environment, []byte(API["img"])); err != nil {
+			log.Fatal(err)
+		}
+		router.HandleFunc("/", img)
 
 	case "ml5":
+		if err := NC.Publish("api."+Environment, []byte(API["img"])); err != nil {
+			log.Fatal(err)
+		}
 
 		router.PathPrefix(*AppPath).Handler(http.StripPrefix(*AppPath, http.FileServer(http.Dir(*AppDir))))
 		router.PathPrefix(*ModelsPath).Handler(http.StripPrefix(*ModelsPath, http.FileServer(http.Dir(*ModelsDir))))
 
-		router.HandleFunc("/", ml5Handler)
+		router.HandleFunc("/", ml5)
 
+	case "data":
+
+		if err := NC.Publish("api."+Environment, []byte(API["data"])); err != nil {
+			log.Fatal(err)
+		}
+		router.HandleFunc("/", dataHandler)
 	}
 	log.Fatal(http.ListenAndServe(":"+*AppPort, router))
+
+	// Setup the interrupt handler to drain so we don't miss
+	// requests when scaling down.
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	<-c
+	log.Println()
+	log.Printf("Draining...")
+	NC.Drain()
+	log.Fatalf("Exiting")
+
+}
+
+func usage() {
+	log.Printf("Usage: app [-name name] [-role role] [-port port] \n")
+	flag.PrintDefaults()
+}
+
+func showUsageAndExit(exitcode int) {
+	usage()
+	os.Exit(exitcode)
 }
 
 func initOptions() {
@@ -131,4 +250,35 @@ func initOptions() {
 		"t",
 		convertDefaultOptions.StretchedScreen,
 		"Stretch the picture to overspread the screen")
+}
+
+func setupConnOptions(opts []nats.Option) []nats.Option {
+	totalWait := 10 * time.Minute
+	reconnectDelay := time.Second
+
+	opts = append(opts, nats.ReconnectWait(reconnectDelay))
+	opts = append(opts, nats.MaxReconnects(int(totalWait/reconnectDelay)))
+	opts = append(opts, nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
+		log.Printf("Disconnected due to: %s, will attempt reconnects for %.0fm", err, totalWait.Minutes())
+	}))
+	opts = append(opts, nats.ReconnectHandler(func(nc *nats.Conn) {
+		log.Printf("Reconnected [%s]", nc.ConnectedUrl())
+	}))
+	opts = append(opts, nats.ClosedHandler(func(nc *nats.Conn) {
+		log.Fatalf("Exiting: %v", nc.LastError())
+	}))
+	return opts
+}
+
+func printMsg(m *nats.Msg, i int) {
+	log.Printf("[#%d] Received on [%s]: '%s'\n", i, m.Subject, string(m.Data))
+}
+
+// getEnv get key environment variable if exist otherwise return defalutValue
+func getEnv(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if len(value) == 0 {
+		return defaultValue
+	}
+	return value
 }

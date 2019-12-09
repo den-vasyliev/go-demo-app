@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	_ "image/jpeg"
@@ -12,11 +13,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/nats-io/nats.go"
+
 	metrics "github.com/armon/go-metrics"
 	"github.com/go-redis/redis"
 )
 
-func asciiHandler(w http.ResponseWriter, r *http.Request) {
+func ascii(w http.ResponseWriter, r *http.Request) {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
 
 	var m messageText
@@ -34,12 +37,12 @@ func asciiHandler(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 			w.WriteHeader(422) // unprocessable entity
 			if err := json.NewEncoder(w).Encode(err); err != nil {
-				panic(err)
+				log.Print(err)
 			}
 		}
 
 		client := redis.NewClient(&redis.Options{
-			Addr:     fmt.Sprintf("%s:%s", AppDbNoSQL, AppDbNoSQLPort),
+			Addr:     fmt.Sprintf("%s:%s", AppCache, AppCachePort),
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})
@@ -48,12 +51,54 @@ func asciiHandler(w http.ResponseWriter, r *http.Request) {
 
 		hashStr, encodedStr := hash(m.Text)
 
-		client.Set(hashStr, encodedStr, 0)
-		client.Set(fmt.Sprintf("%x", md5.Sum([]byte(m.Text))), hashStr, 0)
+		cached, err := client.Get(hashStr).Result()
 
-		log.Print("Hash:", hashStr)
-		// message brocker placeholder
-		w.Write(rest("http://"+AppDatastore, fmt.Sprintf(`{"hash":"%s"}`, hashStr)))
+		if err != nil {
+			log.Print(err)
+			sec, _ := time.ParseDuration(AppCacheExpire)
+			client.Set(hashStr, encodedStr, sec)
+			client.Set(fmt.Sprintf("%x", md5.Sum([]byte(m.Text))), hashStr, sec)
 
+			log.Print("Hash:", hashStr)
+			// message brocker placeholder
+			// Create a unique subject name for replies.
+			uniqueReplyTo := nats.NewInbox()
+
+			// Listen for a single response
+			sub, err := NC.SubscribeSync(uniqueReplyTo)
+			if err != nil {
+				log.Print(err)
+			}
+			// Send the request.
+			// If processing is synchronous, use Request() which returns the response message.
+			if err := NC.PublishRequest(AppDatastore+".hash", uniqueReplyTo, []byte(fmt.Sprintf(`{"hash":"%s"}`, hashStr))); err != nil {
+				log.Print(err)
+			}
+
+			// Read the reply
+			msg, err := sub.NextMsg(time.Second)
+			var reply []byte
+			if err != nil {
+				log.Print(err)
+				reply = []byte(fmt.Sprintf("{%s}", err))
+			} else {
+				reply = msg.Data
+			}
+
+			// Use the response
+			log.Printf("Reply: %s", reply)
+			w.Write(reply)
+			//w.Write(rest("http://"+AppDatastore, fmt.Sprintf(`{"hash":"%s"}`, hashStr)))
+		} else {
+			decoded, err := hex.DecodeString(cached)
+			if err != nil {
+				log.Print(err)
+				w.Write([]byte("undef"))
+			} else {
+				log.Print("Cached")
+				w.Write([]byte(string(decoded)))
+			}
+
+		}
 	}
 }

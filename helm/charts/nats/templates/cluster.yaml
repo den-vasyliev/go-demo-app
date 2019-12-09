@@ -1,9 +1,7 @@
-{{ if .Values.nats.enable }}
 apiVersion: "nats.io/v1alpha2"
 kind: "NatsCluster"
 metadata:
-  name: "example-nats-cluster"
+  name: {{ .Release.Name }}-nats-cluster
 spec:
-  size: 3
+  size: 1
   version: "1.3.0"
-{{- end }}

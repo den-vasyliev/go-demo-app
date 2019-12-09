@@ -9,6 +9,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/nats-io/nats.go"
 )
 
 func dataHandler(w http.ResponseWriter, r *http.Request) {
@@ -30,4 +32,13 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Write([]byte(dataStore(m.Hash)))
 	}
+}
+
+//DataHandler export brocker msg func
+func DataHandler(m *nats.Msg, i int) []byte {
+
+	var t messageToken
+	json.Unmarshal(m.Data, &t)
+
+	return []byte(dataStore(string(t.Hash)))
 }

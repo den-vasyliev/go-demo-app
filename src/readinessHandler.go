@@ -26,7 +26,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "ascii":
 		client := redis.NewClient(&redis.Options{
-			Addr:     fmt.Sprintf("%s:%s", AppDbNoSQL, AppDbNoSQLPort),
+			Addr:     fmt.Sprintf("%s:%s", AppCache, AppCachePort),
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})
@@ -38,7 +38,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "data":
 		client := redis.NewClient(&redis.Options{
-			Addr:     fmt.Sprintf("%s:%s", AppDbNoSQL, AppDbNoSQLPort),
+			Addr:     fmt.Sprintf("%s:%s", AppCache, AppCachePort),
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})

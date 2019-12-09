@@ -12,7 +12,7 @@ import (
 	"text/template"
 )
 
-func ml5Handler(w http.ResponseWriter, r *http.Request) {
+func ml5(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		log.Print(fmt.Sprintf("GET: %s", r.URL.Path))

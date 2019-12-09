@@ -23,7 +23,7 @@ var reversed bool
 
 var convertDefaultOptions = convert.DefaultOptions
 
-func imgHandler(w http.ResponseWriter, r *http.Request) {
+func img(w http.ResponseWriter, r *http.Request) {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
 	switch r.Method {
 	case "GET":
