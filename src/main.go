@@ -129,6 +129,7 @@ func main() {
 	if err := NC.LastError(); err != nil {
 		log.Fatal(err)
 	}
+	defer NC.Close()
 
 	subj, i := *AppRole+".*", 0
 
@@ -138,14 +139,16 @@ func main() {
 		printMsg(msg, i)
 
 		if *AppRole == "api" {
+			log.Print("api")
 
 			APIReg[msg.Subject] = string(msg.Data)
 
 		} else if *AppRole == "ascii" {
-
+			log.Print("ascii")
 			msg.Respond(ASCIIHandler(msg, i))
 
 		} else {
+			log.Print("else")
 
 			msg.Respond(DataHandler(msg, i))
 
@@ -178,7 +181,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		router.HandleFunc("/", ascii)
+		//router.HandleFunc("/", ascii)
 
 	case "img":
 		if err := NC.Publish("api."+Environment, []byte(API["img"])); err != nil {

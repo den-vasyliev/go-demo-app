@@ -34,6 +34,8 @@ func dataStore(hash string) string {
 	if err != nil {
 		log.Print(err)
 	}
+	log.Print(hexStr)
+
 	_, err = db.Exec("CREATE TABLE IF NOT EXISTS demoTable (id INT NOT NULL AUTO_INCREMENT, token VARCHAR(100), text TEXT, PRIMARY KEY(id))")
 	_, err = db.Exec("insert into demoTable values(null,?,?)", hash, hexStr)
 

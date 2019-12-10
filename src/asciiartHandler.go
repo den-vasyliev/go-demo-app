@@ -46,7 +46,7 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 
 		log.Print("Hash:", hashStr)
 
-		msg, err := NC.Request(AppDatastore+".hash", []byte(fmt.Sprintf(`{"hash":"%s"}`, hashStr)), time.Second*10)
+		msg, err := NC.Request(AppDatastore+".hash", []byte(fmt.Sprintf(`{"hash":"%s"}`, hashStr)), 2*time.Second)
 		if err != nil {
 			log.Printf("Request: %e", err)
 		}
