@@ -45,24 +45,16 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 		client.Set(fmt.Sprintf("%x", md5.Sum([]byte(t.Text))), hashStr, sec)
 
 		log.Print("Hash:", hashStr)
-		// message brocker placeholder
-		// Create a unique subject name for replies.
 
-		// Listen for a single response
-
-		// Send the request.
-		// If processing is synchronous, use Request() which returns the response message.
-		msg, err := NC.Request(AppDatastore+".hash", []byte(fmt.Sprintf(`{"hash":"%s"}`, hashStr)), time.Second)
+		msg, err := NC.Request(AppDatastore+".hash", []byte(fmt.Sprintf(`{"hash":"%s"}`, hashStr)), time.Second*10)
 		if err != nil {
-			log.Print(err)
+			log.Printf("Request: %e", err)
 		}
 
-		// Read the reply
-		//msg, err := sub.NextMsg(time.Second)
 		var reply []byte
 		if err != nil {
-			log.Print(err)
-			reply = []byte(fmt.Sprintf("{%s}", err))
+			log.Printf("Reply: %e", err)
+			reply = []byte(fmt.Sprintf("{Reply:%s}", err))
 		} else {
 			reply = msg.Data
 		}
@@ -71,9 +63,6 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 		log.Printf("Reply: %s", reply)
 
 		return reply
-
-		//w.Write(reply)
-		//w.Write(rest("http://"+AppDatastore, fmt.Sprintf(`{"hash":"%s"}`, hashStr)))
 	}
 
 	decoded, err := hex.DecodeString(cached)
@@ -84,7 +73,6 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 
 	log.Print("Cached")
 	return []byte(string(decoded))
-	//w.Write([]byte(string(decoded)))
 
 }
 

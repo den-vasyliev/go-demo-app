@@ -21,20 +21,17 @@ func perfHandler(w http.ResponseWriter, r *http.Request) {
 	q := u.Query()
 	// Send the request.
 	// If processing is synchronous, use Request() which returns the response message.
-	log.Print("pub: " + q.Get("text"))
+	log.Printf("pub: %s", q.Get("text"))
 	msg, err := NC.Request("ascii.text", []byte(fmt.Sprintf(`{"text":"%s"}`, q.Get("text"))), time.Second*3) // Read the reply
 	var reply []byte
 	if err != nil {
-		log.Print(err)
+		log.Printf("Message: %e", err)
 		reply = []byte(fmt.Sprintf("{%s}", err))
 	} else {
 		reply = msg.Data
 	}
 
-	// Use the response
-	//log.Printf("Reply: %s", reply)
-
-	//return reply
+	log.Printf("Reply: %s", reply)
 
 	w.Write(reply)
 }
