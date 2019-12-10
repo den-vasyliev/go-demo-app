@@ -23,6 +23,9 @@ var API = make(map[string]string)
 // AppLicense app
 var AppLicense = os.Getenv("APP_LICENSE")
 
+// AppASCII app
+var AppASCII = getEnv("APP_ASCII", "ascii")
+
 // AppDatastore app
 var AppDatastore = getEnv("APP_DATASTORE", "data")
 
@@ -135,9 +138,17 @@ func main() {
 		printMsg(msg, i)
 
 		if *AppRole == "api" {
+
 			APIReg[msg.Subject] = string(msg.Data)
+
+		} else if *AppRole == "ascii" {
+
+			msg.Respond(ASCIIHandler(msg, i))
+
 		} else {
+
 			msg.Respond(DataHandler(msg, i))
+
 		}
 	})
 	NC.Flush()
@@ -153,6 +164,7 @@ func main() {
 	router.HandleFunc("/healthz", healthzHandler)
 	router.HandleFunc("/readinez", readinessHandler)
 	router.Handle("/metrics", promhttp.Handler())
+	router.HandleFunc("/perf", perfHandler)
 
 	switch *AppRole {
 

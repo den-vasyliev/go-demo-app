@@ -2,15 +2,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: db-nosql
+  name: cache
   namespace: {{ .Release.Namespace }}
   labels:
-    app: db-nosql
+    app: cache
 spec:
   ports:
-  - name: tcp-redis
+  - name: tcp-cache
     port: 6379
     targetPort: 6379
   selector:
-    app: db-nosql
+    app: cache
 

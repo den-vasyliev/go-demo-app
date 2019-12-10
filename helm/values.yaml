@@ -4,7 +4,7 @@ app:
 
 image:
   name: denvasyliev/k8sdiy
-  tag: v4.0.2
+  tag: v4.0.3
 
 api:
   replicas: 1
@@ -33,11 +33,14 @@ ml5:
 data:
   replicas: 1
   port: 8080
+  svc: data
   
-db_sql:
+db:
+  svc: db
   port: 3306
 
-db_nosql:
+cache:
+  svc: cache
   port: 6379
 
 nats:
@@ -46,7 +49,6 @@ nats:
   service:
     name: nats-cluster
     port: 4222
-
 
 ns:
   enable: true

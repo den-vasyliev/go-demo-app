@@ -28,22 +28,18 @@ spec:
           - {{ .Release.Namespace }}-{{ .Values.nats.service.name }}
         env:
           - name: APP_DB
-            value: "root@tcp(db-sql:{{ .Values.db_sql.port }})/demo"
-          - name: APP_DB_NO_SQL
-            value: "db-nosql"
-          - name: APP_DB_NO_SQL_PORT
-            value: "{{ .Values.db_nosql.port }}"
-          - name: APP_DB_SQL
-            value: "db-sql"
-          - name: APP_DB_SQL_PORT
-            value: "{{ .Values.db_sql.port }}"
+            value: "root@tcp(db:3306)/demo"
+          - name: APP_CACHE
+            value: "{{ .Values.cache.svc }}"
+          - name: APP_CACHE_PORT
+            value: "{{ .Values.cache.port }}"
         resources:
           requests:
             cpu: 100m
             memory: 100Mi
         ports:
         - containerPort: 8080
-          name: http
+        name: http
         securityContext:
         livenessProbe:
           httpGet:

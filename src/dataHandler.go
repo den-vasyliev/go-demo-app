@@ -34,7 +34,7 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//DataHandler export brocker msg func
+//DataHandler export broker msg func
 func DataHandler(m *nats.Msg, i int) []byte {
 
 	var t messageToken

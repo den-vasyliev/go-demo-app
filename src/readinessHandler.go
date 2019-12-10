@@ -50,7 +50,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 			log.Print(err)
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
-
+		log.Print(AppDb)
 		db, err := sql.Open("mysql", AppDb)
 		if err != nil {
 			log.Print(err)

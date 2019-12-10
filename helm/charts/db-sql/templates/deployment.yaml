@@ -1,19 +1,19 @@
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
-  name: db-sql
+  name: db
   namespace: {{ .Release.Namespace }}
   labels:
-    service: db-sql
+    service: db
 spec:
   selector:
     matchLabels:
-      app: db-sql
+      app: db
   replicas: 1
   template:
     metadata:
       labels:
-        app: db-sql
+        app: db
     spec:
       containers:
       - name: db

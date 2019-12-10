@@ -19,6 +19,75 @@ import (
 	"github.com/go-redis/redis"
 )
 
+// ASCIIHandler msr broker
+func ASCIIHandler(m *nats.Msg, i int) []byte {
+	defer metrics.MeasureSince([]string{"API"}, time.Now())
+
+	var t messageText
+
+	json.Unmarshal(m.Data, &t)
+
+	client := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%s", AppCache, AppCachePort),
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	log.Print("Text: ", t.Text)
+
+	hashStr, encodedStr := hash(t.Text)
+
+	cached, err := client.Get(hashStr).Result()
+
+	if err != nil {
+		sec, _ := time.ParseDuration(AppCacheExpire)
+		client.Set(hashStr, encodedStr, sec)
+		client.Set(fmt.Sprintf("%x", md5.Sum([]byte(t.Text))), hashStr, sec)
+
+		log.Print("Hash:", hashStr)
+		// message brocker placeholder
+		// Create a unique subject name for replies.
+
+		// Listen for a single response
+
+		// Send the request.
+		// If processing is synchronous, use Request() which returns the response message.
+		msg, err := NC.Request(AppDatastore+".hash", []byte(fmt.Sprintf(`{"hash":"%s"}`, hashStr)), time.Second)
+		if err != nil {
+			log.Print(err)
+		}
+
+		// Read the reply
+		//msg, err := sub.NextMsg(time.Second)
+		var reply []byte
+		if err != nil {
+			log.Print(err)
+			reply = []byte(fmt.Sprintf("{%s}", err))
+		} else {
+			reply = msg.Data
+		}
+
+		// Use the response
+		log.Printf("Reply: %s", reply)
+
+		return reply
+
+		//w.Write(reply)
+		//w.Write(rest("http://"+AppDatastore, fmt.Sprintf(`{"hash":"%s"}`, hashStr)))
+	}
+
+	decoded, err := hex.DecodeString(cached)
+	if err != nil {
+		log.Print(err)
+		return []byte("undef")
+	}
+
+	log.Print("Cached")
+	return []byte(string(decoded))
+	//w.Write([]byte(string(decoded)))
+
+}
+
 func ascii(w http.ResponseWriter, r *http.Request) {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
 

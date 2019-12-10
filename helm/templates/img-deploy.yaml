@@ -29,17 +29,6 @@ spec:
           - "-server"
           - "nats://perf-nats-cluster:4222"
         imagePullPolicy: Always
-        env:
-          - name: APP_DATASTORE
-            value: "{{ .Release.Name }}-data"
-          - name: APP_DB_NO_SQL
-            value: "db-nosql"
-          - name: APP_DB_NO_SQL_PORT
-            value: "{{ .Values.db_nosql.port }}"
-          - name: APP_DB_SQL
-            value: "db-sql"
-          - name: APP_DB_SQL_PORT
-            value: "{{ .Values.db_sql.port }}"
         resources:
           requests:
             cpu: 100m
