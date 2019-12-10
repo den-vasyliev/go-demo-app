@@ -4,7 +4,7 @@ app:
 
 image:
   name: denvasyliev/k8sdiy
-  tag: v4.0.0
+  tag: v4.0.1
 
 api:
   replicas: 1

@@ -102,8 +102,9 @@ func main() {
 	}
 
 	// Environment app
+	Role = *AppRole
 
-	Environment = fmt.Sprintf("%s-%s:%s", *AppName, *AppRole, Version)
+	Environment = fmt.Sprintf("%s-%s:%s", *AppName, Role, Version)
 
 	// Connect Options.
 	opts := []nats.Option{nats.Name("NATS Sample Responder")}
