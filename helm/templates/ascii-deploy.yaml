@@ -24,6 +24,8 @@ spec:
           - ./app
           - "-role"
           - "ascii"
+          - "-server"
+          - {{ .Release.Namespace }}-{{ .Values.nats.service.name }}
         imagePullPolicy: Always
         env:
           - name: APP_DATASTORE
@@ -41,7 +43,8 @@ spec:
             cpu: 100m
             memory: 100Mi
         ports:
-        - containerPort: 80
+        - containerPort: 8080
+          name: http
         securityContext:
         livenessProbe:
           httpGet:

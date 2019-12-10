@@ -24,6 +24,8 @@ spec:
           - ./app
           - "-role"
           - "data"
+          - "-server"
+          - {{ .Release.Namespace }}-{{ .Values.nats.service.name }}
         env:
           - name: APP_DB
             value: "root@tcp(db-sql:{{ .Values.db_sql.port }})/demo"
@@ -40,7 +42,8 @@ spec:
             cpu: 100m
             memory: 100Mi
         ports:
-        - containerPort: 80
+        - containerPort: 8080
+          name: http
         securityContext:
         livenessProbe:
           httpGet:

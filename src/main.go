@@ -92,12 +92,6 @@ func main() {
 	var queueName = flag.String("queGroupName", "NATS-RPLY-22", "Queue Group Name")
 	var showHelp = flag.Bool("help", false, "Show help message")
 
-	// Environment app
-
-	Environment = fmt.Sprintf("%s-%s:%s", *AppName, *AppRole, Version)
-
-	//var subj = flag.String("subj", "demo", "The nats server URLs (separated by comma)")
-
 	log.SetFlags(0)
 	flag.Usage = usage
 
@@ -106,6 +100,10 @@ func main() {
 	if *showHelp {
 		showUsageAndExit(0)
 	}
+
+	// Environment app
+
+	Environment = fmt.Sprintf("%s-%s:%s", *AppName, *AppRole, Version)
 
 	// Connect Options.
 	opts := []nats.Option{nats.Name("NATS Sample Responder")}

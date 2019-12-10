@@ -24,6 +24,8 @@ spec:
           - ./app
           - "-role"
           - "api"
+          - "-server"
+          - nats://{{ .Release.Namespace }}-{{ .Values.nats.service.name }}:{{ .Values.nats.service.port }}
         imagePullPolicy: Always
         env:
           - name: APP_BACKEND
@@ -45,7 +47,8 @@ spec:
             cpu: 100m
             memory: 100Mi
         ports:
-        - containerPort: 80
+        - containerPort: 8080
+          name: http
         securityContext:
         livenessProbe:
           httpGet:

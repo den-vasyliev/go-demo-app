@@ -42,9 +42,15 @@ db_nosql:
 
 nats:
   enable: true
+  size: 1
+  service:
+    name: nats-cluster
+    port: 4222
+
 
 ns:
   enable: true
+
 
 api-gateway:
   image:
