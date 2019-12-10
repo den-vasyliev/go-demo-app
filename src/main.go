@@ -92,7 +92,7 @@ func main() {
 	var urls = flag.String("server", nats.DefaultURL, "The nats server URLs (separated by comma)")
 	var userCreds = flag.String("creds", "", "User Credentials File")
 	var showTime = flag.Bool("timestamp", false, "Display timestamps")
-	var queueName = flag.String("queGroupName", "NATS-RPLY-22", "Queue Group Name")
+	var queueName = flag.String("queGroupName", "K8S-NATS-Q", "Queue Group Name")
 	var showHelp = flag.Bool("help", false, "Show help message")
 
 	log.SetFlags(0)
@@ -132,7 +132,7 @@ func main() {
 
 	subj, i := *AppRole+".*", 0
 
-	NC.QueueSubscribe(subj, *queueName, func(msg *nats.Msg) {
+	NC.QueueSubscribe(subj, *queueName+*AppRole, func(msg *nats.Msg) {
 		i++
 		//log
 		printMsg(msg, i)
