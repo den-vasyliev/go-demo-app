@@ -30,10 +30,13 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})
-		probe, err := client.Ping().Result()
-		log.Print(probe, err)
+		_, err := client.Ping().Result()
 		if err != nil {
+			log.Print(err)
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
+		} else {
+
+			w.Write([]byte("READY"))
 		}
 
 	case "data":
@@ -42,14 +45,15 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})
-		probe, err := client.Set("readiness_probe", 0, 0).Result()
-		log.Print(probe)
+		_, err := client.Set("readiness_probe", 0, 0).Result()
 		if err != nil {
+			log.Print(err)
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
 
 		db, err := sql.Open("mysql", AppDb)
 		if err != nil {
+			log.Print(err)
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
 		db.SetConnMaxLifetime(time.Second * 20)
@@ -58,10 +62,13 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 		err = db.Ping()
 
 		if err != nil {
+			log.Print(err)
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
-		}
+		} else {
 
-		w.Write([]byte("200"))
+			w.Write([]byte("READY"))
+
+		}
 
 	default:
 		http.Error(w, "Not Ready", http.StatusServiceUnavailable)
