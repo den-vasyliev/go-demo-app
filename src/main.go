@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
 	"log"
@@ -9,6 +10,8 @@ import (
 	"time"
 
 	"os/signal"
+
+	"github.com/go-redis/redis"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -59,8 +62,14 @@ var Environment = ""
 // APIReg is a api map
 var APIReg = make(map[string]string)
 
-// NC nats brocker
+// NC nats broker
 var NC *nats.Conn
+
+// DB mysql conn
+var DB *sql.DB
+
+// Cache redis conn
+var Cache *redis.Client
 
 type messageText struct {
 	Text string `json:"Text"`
@@ -94,6 +103,7 @@ func main() {
 	var showTime = flag.Bool("timestamp", false, "Display timestamps")
 	var queueName = flag.String("queGroupName", "K8S-NATS-Q", "Queue Group Name")
 	var showHelp = flag.Bool("help", false, "Show help message")
+	var err error
 
 	log.SetFlags(0)
 	flag.Usage = usage
@@ -108,6 +118,29 @@ func main() {
 	Role = *AppRole
 
 	Environment = fmt.Sprintf("%s-%s:%s", *AppName, Role, Version)
+	// Connect to cache
+	Cache := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%s", AppCache, AppCachePort),
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+	_, err = Cache.Ping().Result()
+	if err != nil {
+		log.Print(err)
+	}
+
+	// Connect to db
+
+	DB, err = sql.Open("mysql", AppDb)
+	if err != nil {
+		log.Print(err)
+	}
+	defer DB.Close()
+
+	err = DB.Ping()
+	if err != nil {
+		log.Print(err) // proper error handling instead of panic in your app
+	}
 
 	// Connect Options.
 	opts := []nats.Option{nats.Name("NATS Sample Responder")}
@@ -119,7 +152,6 @@ func main() {
 	}
 
 	// Connect to NATS
-	var err error
 
 	NC, err = nats.Connect(*urls, opts...)
 	if err != nil {
