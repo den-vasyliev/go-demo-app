@@ -8,7 +8,7 @@ import (
 func dataStore(hash string) string {
 	var Payload string
 
-	hexStr, err := Cache.Get(hash).Result()
+	hexStr, err := CACHE.Get(hash).Result()
 	if err != nil {
 		log.Print(err)
 	}

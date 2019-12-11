@@ -20,7 +20,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("READY"))
 
 	case "ascii":
-		_, err := Cache.Ping().Result()
+		_, err := CACHE.Ping().Result()
 		if err != nil {
 			log.Print(err)
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
@@ -30,7 +30,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "data":
-		_, err := Cache.Set("readiness_probe", 0, 0).Result()
+		_, err := CACHE.Set("readiness_probe", 0, 0).Result()
 		if err != nil {
 			log.Print(err)
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)

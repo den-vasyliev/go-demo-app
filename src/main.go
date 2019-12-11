@@ -68,8 +68,8 @@ var NC *nats.Conn
 // DB mysql conn
 var DB *sql.DB
 
-// Cache redis conn
-var Cache *redis.Client
+// CACHE redis conn
+var CACHE *redis.Client
 
 type messageText struct {
 	Text string `json:"Text"`
@@ -119,12 +119,12 @@ func main() {
 
 	Environment = fmt.Sprintf("%s-%s:%s", *AppName, Role, Version)
 	// Connect to cache
-	Cache := redis.NewClient(&redis.Options{
+	CACHE = redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", AppCache, AppCachePort),
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
-	_, err = Cache.Ping().Result()
+	_, err = CACHE.Ping().Result()
 	if err != nil {
 		log.Print(err)
 	}

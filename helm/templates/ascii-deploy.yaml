@@ -30,10 +30,10 @@ spec:
         env:
           - name: APP_DATASTORE
             value: "{{ .Release.Name }}-{{ .Values.data.svc }}"
+          - name: APP_DB
+            value: "root@tcp(db:3306)/demo"
           - name: APP_CACHE
             value: "{{ .Values.cache.svc }}"
-          - name: APP_CACHE_PORT
-            value: "{{ .Values.cache.port }}"
         resources:
           requests:
             cpu: 100m
@@ -46,12 +46,11 @@ spec:
           httpGet:
             path: /healthz
             port: {{ .Values.ascii.port }}
-          initialDelaySeconds: 10
+          initialDelaySeconds: 3
           periodSeconds: 3
         readinessProbe:
           httpGet:
             path: /readinez
             port: {{ .Values.ascii.port }}
-          initialDelaySeconds: 15
           periodSeconds: 3
 
