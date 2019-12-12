@@ -210,7 +210,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		//router.HandleFunc("/", ascii)
+		router.HandleFunc("/", ascii)
 
 	case "img":
 		if err := NC.Publish("api."+Environment, []byte(API["img"])); err != nil {
