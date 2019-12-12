@@ -9,7 +9,7 @@ import (
 )
 
 func hash(decodedStr string) (string, string) {
-	// defer metrics.MeasureSince([]string{"API"}, time.Now())
+	///defer metrics.MeasureSince([]string{"API"}, time.Now())
 	//log.Print("DecodedStr: ", decodedStr)
 	encodedStr := hex.EncodeToString([]byte(banner.PrintS(decodedStr)))
 	//log.Print("EncodedStr: ", encodedStr)

@@ -171,19 +171,16 @@ func main() {
 		printMsg(msg, i)
 
 		if *AppRole == "api" {
-			log.Print("api")
 
 			APIReg[msg.Subject] = string(msg.Data)
 
 		} else if *AppRole == "ascii" {
-			log.Print("ascii")
+
 			msg.Respond(ASCIIHandler(msg, i))
 
-		} else {
-			log.Print("else")
+		} else if *AppRole == "data" {
 
 			msg.Respond(DataHandler(msg, i))
-
 		}
 	})
 	NC.Flush()
@@ -238,6 +235,7 @@ func main() {
 		}
 		router.HandleFunc("/", dataHandler)
 	}
+
 	log.Fatal(http.ListenAndServe(":"+*AppPort, router))
 
 	// Setup the interrupt handler to drain so we don't miss

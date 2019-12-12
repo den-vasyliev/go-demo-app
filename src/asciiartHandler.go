@@ -31,6 +31,8 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 	cached, err := CACHE.Get(hashStr).Result()
 
 	if err != nil {
+		log.Print("Processing")
+
 		sec, _ := time.ParseDuration(AppCacheExpire)
 
 		CACHE.Set(hashStr, encodedStr, sec)
