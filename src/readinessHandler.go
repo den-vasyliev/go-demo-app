@@ -35,7 +35,6 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 			log.Print(err)
 			http.Error(w, "Not Ready", http.StatusServiceUnavailable)
 		}
-		log.Print(AppDb)
 
 		err = DB.Ping()
 
