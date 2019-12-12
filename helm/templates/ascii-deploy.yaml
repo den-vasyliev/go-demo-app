@@ -29,7 +29,7 @@ spec:
         imagePullPolicy: Always
         env:
           - name: APP_DATASTORE
-            value: "{{ .Release.Name }}-{{ .Values.data.svc }}"
+            value: "{{ .Values.data.svc }}"
           - name: APP_DB
             value: "root@tcp(db:3306)/demo"
           - name: APP_CACHE

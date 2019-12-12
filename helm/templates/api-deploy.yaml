@@ -29,9 +29,9 @@ spec:
         imagePullPolicy: Always
         env:
           - name: APP_BACKEND
-            value: "{{ .Release.Name }}-iscii"
+            value: "iscii"
           - name: APP_DATASTORE
-            value: "{{ .Release.Name }}-data"
+            value: "data"
           - name: APP_DB
             value: "root@tcp(db:3306)/demo"
           - name: APP_CACHE
