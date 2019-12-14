@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"runtime"
 	"time"
 
 	"os/signal"
@@ -86,7 +87,7 @@ type messageToken struct {
 var Role = ""
 
 func main() {
-
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	API["ascii"] = "curl -XPOST --data '{text:TEXT}' HOST/ascii/"
 	API["img"] = "curl -F 'image=@IMAGE' HOST/img/"
 	API["ml5"] = "curl HOST/ml5/"
@@ -136,6 +137,7 @@ func main() {
 	// Connect to db
 
 	DB, err = sql.Open("mysql", AppDb)
+	DB.SetMaxIdleConns(10000)
 	if err != nil {
 		log.Print(err)
 	}
