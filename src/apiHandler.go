@@ -52,6 +52,8 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 func api(w http.ResponseWriter, r *http.Request) {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
 
+	INM.SetGauge([]string{"foo"}, 42)
+
 	b, err := json.Marshal(APIReg)
 	if err != nil {
 		log.Print(err)

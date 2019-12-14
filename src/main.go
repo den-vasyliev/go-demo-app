@@ -7,11 +7,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"runtime"
 	"time"
 
-	"os/signal"
-
+	metrics "github.com/armon/go-metrics"
 	"github.com/go-redis/redis"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -75,6 +75,9 @@ var CACHE *redis.Client
 // Cache param
 var Cache *string
 
+// INM metrics
+var INM *metrics.InmemSink
+
 type messageText struct {
 	Text string `json:"Text"`
 }
@@ -88,6 +91,11 @@ var Role = ""
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
+	INM = metrics.NewInmemSink(10*time.Second, time.Minute)
+	sig := metrics.DefaultInmemSignal(INM)
+
+	defer sig.Stop()
+
 	API["ascii"] = "curl -XPOST --data '{text:TEXT}' HOST/ascii/"
 	API["img"] = "curl -F 'image=@IMAGE' HOST/img/"
 	API["ml5"] = "curl HOST/ml5/"
@@ -121,6 +129,8 @@ func main() {
 
 	// Environment app
 	Role = *AppRole
+
+	metrics.NewGlobal(metrics.DefaultConfig(Role), INM)
 
 	Environment = fmt.Sprintf("%s-%s:%s", *AppName, Role, Version)
 	// Connect to cache

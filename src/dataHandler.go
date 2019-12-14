@@ -8,12 +8,16 @@ import (
 	_ "image/png"
 	"log"
 	"net/http"
+	"net/url"
+	"time"
 
+	metrics "github.com/armon/go-metrics"
 	"github.com/nats-io/nats.go"
 )
 
 //DataHandler export broker msg func
 func DataHandler(m *nats.Msg, i int) []byte {
+	defer metrics.MeasureSince([]string{"DB"}, time.Now())
 
 	var err error
 	var t messageToken
@@ -57,24 +61,31 @@ func DataHandler(m *nats.Msg, i int) []byte {
 }
 
 func dataHandler(w http.ResponseWriter, r *http.Request) {
-	//var m messageToken
 
-	switch r.Method {
+	var Payload string
 
-	case "GET":
-		log.Printf("Get GET Request!")
-
-		w.Write([]byte(fmt.Sprintf("%s", Environment)))
-		/*
-			case "POST":
-				b, _ := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
-				if err := json.Unmarshal(b, &m); err != nil {
-					w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-					w.WriteHeader(422) // unprocessable entity
-					if err := json.NewEncoder(w).Encode(err); err != nil {
-						panic(err)
-					}
-				}
-				w.Write([]byte(dataStore(m.Hash)))*/
+	u, err := url.Parse(r.RequestURI)
+	if err != nil {
+		log.Print(err)
 	}
+	q := u.Query()
+
+	_, err = DB.Exec("insert into demo values(null,?,?)", q.Get("key"), q.Get("val"))
+
+	// additional iteration
+	_ = DB.QueryRow("SELECT text FROM demo WHERE token = ?", q.Get("key")).Scan(&Payload) // WHERE number = 13
+
+	w.Write([]byte(fmt.Sprintf("%s", Payload)))
+	/*
+		case "POST":
+			b, _ := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+			if err := json.Unmarshal(b, &m); err != nil {
+				w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+				w.WriteHeader(422) // unprocessable entity
+				if err := json.NewEncoder(w).Encode(err); err != nil {
+					panic(err)
+				}
+			}
+			w.Write([]byte(dataStore(m.Hash)))*/
+
 }
