@@ -70,8 +70,16 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	q := u.Query()
 
-	//_, err = DB.Exec("insert into demo values(null,?,?)", q.Get("key"), q.Get("val"))
-	stmt, err := DB.Prepare("SELECT text FROM demo WHERE token = ?")
+	stmt, err := DB.Prepare("insert into demo values(null,?,?)")
+
+	_, err = DB.Exec(q.Get("key"), q.Get("val"))
+
+	if err != nil {
+		log.Print(err)
+	}
+	defer stmt.Close()
+
+	stmt, err = DB.Prepare("SELECT text FROM demo WHERE token = ?")
 
 	if err != nil {
 		log.Print(err)
