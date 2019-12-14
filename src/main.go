@@ -72,7 +72,7 @@ var DB *sql.DB
 var CACHE *redis.Client
 
 // Cache param
-var Cache *bool
+var Cache *string
 
 type messageText struct {
 	Text string `json:"Text"`
@@ -100,7 +100,7 @@ func main() {
 	AppDir := flag.String("dir", "./ml5", "the directory of static files to host")
 	ModelsPath := flag.String("mpath", "/models/", "path to serve models files")
 	ModelsDir := flag.String("mdir", "./ml5/models", "the directory of models files to host")
-	Cache = flag.Bool("cache", true, "cache enable")
+	Cache = flag.String("cache", "true", "cache enable")
 
 	var urls = flag.String("server", nats.DefaultURL, "The nats server URLs (separated by comma)")
 	var userCreds = flag.String("creds", "", "User Credentials File")

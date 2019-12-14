@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	_ "image/jpeg"
 	_ "image/png"
@@ -28,13 +29,13 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 
 	cached, err := CACHE.Get(hashStr).Result()
 
-	if !*Cache {
-		err = nil
-		cached = "cached"
+	if *Cache == "false" {
+		err = errors.New("Processing")
+		cached = "636163686564"
 	}
 
 	if err != nil {
-		log.Print("Processing")
+		log.Print(err)
 
 		sec, _ := time.ParseDuration(AppCacheExpire)
 
@@ -58,9 +59,6 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 			reply = msg.Data
 		}
 
-		// Use the response
-		//log.Printf("Reply: %s", reply)
-
 		return reply
 	}
 
@@ -70,7 +68,7 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 		return []byte("undef")
 	}
 
-	log.Print("Cached")
+	log.Print(string(decoded))
 	return []byte(string(decoded))
 
 }
