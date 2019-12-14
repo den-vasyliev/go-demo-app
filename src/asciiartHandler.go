@@ -24,13 +24,11 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 
 	json.Unmarshal(m.Data, &t)
 
-	//log.Print("Text: ", t.Text)
-
 	hashStr, encodedStr := hash(t.Text)
 
 	cached, err := CACHE.Get(hashStr).Result()
 
-	if *Cache {
+	if !*Cache {
 		err = nil
 		cached = "cached"
 	}
