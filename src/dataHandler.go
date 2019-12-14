@@ -72,7 +72,7 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 
 	stmt, err := DB.Prepare("insert into demo values(null,?,?)")
 
-	_, err = DB.Exec(q.Get("key"), q.Get("val"))
+	_, err = stmt.Exec(q.Get("key"), q.Get("val"))
 
 	if err != nil {
 		log.Print(err)
@@ -87,7 +87,7 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 	defer stmt.Close()
 
 	// additional iteration
-	_ = DB.QueryRow(q.Get("key")).Scan(&Payload) // WHERE number = 13
+	_ = stmt.QueryRow(q.Get("key")).Scan(&Payload) // WHERE number = 13
 
 	w.Write([]byte(fmt.Sprintf("%s", Payload)))
 	/*
