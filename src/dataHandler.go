@@ -73,8 +73,8 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 	//_, err = DB.Exec("insert into demo values(null,?,?)", q.Get("key"), q.Get("val"))
 
 	// additional iteration
-	_ = DB.QueryRow("SELECT text FROM demo WHERE token = ?", q.Get("key")).Scan(&Payload) // WHERE number = 13
-
+	//_ = DB.QueryRow("SELECT text FROM demo WHERE token = ?", q.Get("key")).Scan(&Payload) // WHERE number = 13
+	Payload = "mock db" + q.Get("key")
 	w.Write([]byte(fmt.Sprintf("%s", Payload)))
 	/*
 		case "POST":
