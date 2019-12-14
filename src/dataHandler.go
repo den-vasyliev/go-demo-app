@@ -71,10 +71,16 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 	q := u.Query()
 
 	//_, err = DB.Exec("insert into demo values(null,?,?)", q.Get("key"), q.Get("val"))
+	stmt, err := DB.Prepare("SELECT text FROM demo WHERE token = ?")
+
+	if err != nil {
+		log.Print(err)
+	}
+	defer stmt.Close()
 
 	// additional iteration
-	//_ = DB.QueryRow("SELECT text FROM demo WHERE token = ?", q.Get("key")).Scan(&Payload) // WHERE number = 13
-	Payload = "mock db" + q.Get("key")
+	_ = DB.QueryRow(q.Get("key")).Scan(&Payload) // WHERE number = 13
+
 	w.Write([]byte(fmt.Sprintf("%s", Payload)))
 	/*
 		case "POST":
