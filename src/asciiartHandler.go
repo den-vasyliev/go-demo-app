@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	_ "image/jpeg"
 	_ "image/png"
@@ -31,8 +30,9 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 
 	cached, err := CACHE.Get(hashStr).Result()
 
-	if *CacheDisabled {
-		err = errors.New("cache not enabled")
+	if *Cache {
+		err = nil
+		cached = "cached"
 	}
 
 	if err != nil {

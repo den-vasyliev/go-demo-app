@@ -29,16 +29,4 @@ spec:
         - containerPort: {{ .Values.front.port }}
           name: http-front
         securityContext:
-        livenessProbe:
-          httpGet:
-            path: /
-            port: {{ .Values.front.port }}
-          initialDelaySeconds: 2
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /
-            port: {{ .Values.front.port }}
-          initialDelaySeconds: 0
-          periodSeconds: 3
-      
+        
