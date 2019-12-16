@@ -23,6 +23,7 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
 
 	var t messageText
+	var Payload string
 
 	json.Unmarshal(m.Data, &t)
 
@@ -35,7 +36,21 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 	}
 	defer stmt.Close()
 
-	log.Print("done: " + strconv.Itoa(i))
+	CACHE.Set("insert", strconv.Itoa(i), 0)
+
+	stmt, err = DB.Prepare("SELECT text FROM demo WHERE token = ? limit 1")
+
+	if err != nil {
+		log.Print(err)
+	}
+	defer stmt.Close()
+
+	// additional iteration
+	_ = stmt.QueryRow(strconv.Itoa(i)).Scan(&Payload) // WHERE number = 13
+
+	CACHE.Set("select", strconv.Itoa(i), 0)
+
+	//log.Print("done: " + strconv.Itoa(i))
 	return []byte(string("done: " + strconv.Itoa(i)))
 
 	hashStr, encodedStr := hash(t.Text)

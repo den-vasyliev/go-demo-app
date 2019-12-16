@@ -220,7 +220,7 @@ func main() {
 
 		} else if *AppRole == "ascii" {
 
-			printMsg(msg, i)
+			//printMsg(msg, i)
 
 			msg.Respond(ASCIIHandler(msg, i))
 
