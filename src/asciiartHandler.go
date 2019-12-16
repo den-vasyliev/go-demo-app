@@ -23,39 +23,40 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
 
 	var t messageText
-	var Payload string
 
 	json.Unmarshal(m.Data, &t)
+	/*
+		var Payload string
 
-	stmt, err := DB.Prepare("insert into demo values(null,?,?)")
+		stmt, err := DB.Prepare("insert into demo values(null,?,?)")
 
-	_, err = stmt.Exec(strconv.Itoa(i), strconv.Itoa(i))
+		_, err = stmt.Exec(strconv.Itoa(i), strconv.Itoa(i))
 
-	if err != nil {
-		log.Print(err)
-	}
-	defer stmt.Close()
+		if err != nil {
+			log.Print(err)
+		}
+		defer stmt.Close()
 
-	CACHE.Set("insert", strconv.Itoa(i), 0)
+		CACHE.Set("insert", strconv.Itoa(i), 0)
 
-	stmt, err = DB.Prepare("SELECT text FROM demo WHERE id = ? limit 1")
+		stmt, err = DB.Prepare("SELECT text FROM demo WHERE id = ? limit 1")
 
-	if err != nil {
-		log.Print(err)
-	}
-	defer stmt.Close()
+		if err != nil {
+			log.Print(err)
+		}
+		defer stmt.Close()
 
-	// additional iteration
-	_ = stmt.QueryRow(strconv.Itoa(i)).Scan(&Payload) // WHERE number = 13
+		// additional iteration
+		_ = stmt.QueryRow(strconv.Itoa(i)).Scan(&Payload) // WHERE number = 13
 
-	CACHE.Set("select", strconv.Itoa(i), 0)
+		CACHE.Set("select", strconv.Itoa(i), 0)
 
-	//log.Print("done: " + strconv.Itoa(i))
-	return []byte(string("done: " + strconv.Itoa(i)))
-
+		//log.Print("done: " + strconv.Itoa(i))
+		return []byte(string("done: " + strconv.Itoa(i)))
+	*/
 	hashStr, encodedStr := hash(t.Text)
 
-	cached, err := CACHE.Get(hashStr).Result()
+	cached, err := CACHE.Get(strconv.FormatUint(uint32(hashStr), 10)).Result()
 
 	if *Cache == "false" {
 		err = errors.New("Processing")
@@ -67,13 +68,13 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 
 		sec, _ := time.ParseDuration(AppCacheExpire)
 
-		CACHE.Set(hashStr, encodedStr, sec)
+		CACHE.Set(strconv.FormatUint(uint32(hashStr), 10), encodedStr, sec)
 
 		CACHE.Set(fmt.Sprintf("%x", md5.Sum([]byte(t.Text))), hashStr, sec)
 
 		//log.Print("Hash:", hashStr)
 
-		msg, err := NC.Request(AppDatastore+".hash", []byte(fmt.Sprintf(`{"hash":"%s"}`, hashStr)), 2*time.Second)
+		msg, err := NC.Request(AppDatastore+".hash", []byte(fmt.Sprintf(`{"hash":"%s"}`, strconv.FormatUint(uint32(hashStr), 10))), 2*time.Second)
 		if err != nil {
 			log.Printf("ErrRequest: %e", err)
 		}

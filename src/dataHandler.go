@@ -28,7 +28,7 @@ func DataHandler(m *nats.Msg, i int) []byte {
 
 	json.Unmarshal(m.Data, &t)
 
-	hexStr, err := CACHE.Get(string(t.Hash)).Result()
+	hexStr, err := CACHE.Get(t.Hash).Result()
 	if err != nil {
 		log.Print(err)
 	}
