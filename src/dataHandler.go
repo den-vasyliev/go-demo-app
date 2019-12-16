@@ -32,21 +32,34 @@ func DataHandler(m *nats.Msg, i int) []byte {
 	if err != nil {
 		log.Print(err)
 	}
+	/*
+		_, err = DB.Exec("CREATE TABLE IF NOT EXISTS demo (id INT NOT NULL AUTO_INCREMENT, token VARCHAR(100), text TEXT, PRIMARY KEY(id))")
 
-	_, err = DB.Exec("CREATE TABLE IF NOT EXISTS demo (id INT NOT NULL AUTO_INCREMENT, token VARCHAR(100), text TEXT, PRIMARY KEY(id))")
+		if err != nil {
+			log.Printf("CreateErr: %s", err) // proper error handling instead of panic in your app
+		}
+
+	*/
+	stmt, err := DB.Prepare("insert into demo values(null,?,?)")
+
+	_, err = stmt.Exec(t.Hash, hexStr)
 
 	if err != nil {
-		log.Printf("CreateErr: %s", err) // proper error handling instead of panic in your app
+		log.Print(err)
 	}
+	defer stmt.Close()
 
-	_, err = DB.Exec("insert into demo values(null,?,?)", t.Hash, hexStr)
+	stmt, err = DB.Prepare("SELECT text FROM demo WHERE token = ? limit 1")
 
 	if err != nil {
-		log.Printf("InsertErr: %s", err) // proper error handling instead of panic in your app
+		log.Print(err)
 	}
+	defer stmt.Close()
 
 	// additional iteration
-	err = DB.QueryRow("SELECT text FROM demo WHERE token = ?", t.Hash).Scan(&Payload) // WHERE number = 13
+	err = stmt.QueryRow(t.Hash).Scan(&Payload) // WHERE number = 13
+
+	REQ0 = REQ0 + 1
 
 	if err != nil {
 		log.Printf("QueryRowErr: %s", err) // proper error handling instead of panic in your app
