@@ -39,7 +39,7 @@ spec:
             memory: 100Mi
         ports:
         - containerPort: 8080
-        name: http
+        name: data
         securityContext:
         livenessProbe:
           httpGet:

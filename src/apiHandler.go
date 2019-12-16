@@ -19,9 +19,6 @@ func perfHandler(w http.ResponseWriter, r *http.Request) {
 		log.Print(err)
 	}
 	q := u.Query()
-	// Send the request.
-	// If processing is synchronous, use Request() which returns the response message.
-	//log.Printf("pub: %s", q.Get("text"))
 
 	msg, err := NC.Request("ascii.text", []byte(fmt.Sprintf(`{"text":"%s"}`, q.Get("text"))), 2*time.Second) // Read the reply
 
@@ -34,6 +31,7 @@ func perfHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//log.Printf("[api-reply]: %s", reply)
+	REQ0 = REQ0 + 1
 
 	w.Write(reply)
 }
@@ -58,5 +56,8 @@ func api(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Print(err)
 	}
+
+	REQ0 = REQ0 + 1
+
 	w.Write([]byte(b))
 }

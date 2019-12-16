@@ -9,6 +9,8 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+
+	//"sync"
 	"time"
 
 	metrics "github.com/armon/go-metrics"
@@ -120,7 +122,7 @@ func main() {
 	var urls = flag.String("server", nats.DefaultURL, "The nats server URLs (separated by comma)")
 	var userCreds = flag.String("creds", "", "User Credentials File")
 	var showTime = flag.Bool("timestamp", false, "Display timestamps")
-	var queueName = flag.String("queGroupName", "K8S-NATS-Q", "Queue Group Name")
+	//var queueName = flag.String("queGroupName", "K8S-NATS-Q", "Queue Group Name")
 	var showHelp = flag.Bool("help", false, "Show help message")
 	var err error
 
@@ -138,7 +140,27 @@ func main() {
 
 	metrics.NewGlobal(metrics.DefaultConfig(Role), INM)
 
+	// Perf
+
+	REQ0 = 0.0
+	REQ1 = 0.0
+	t0 := time.Now()
+
+	go func() { // Daniel told me to write this handler this way.
+		for {
+			select {
+			case <-time.After(time.Second * 10):
+				ts := time.Since(t0)
+				log.Println("[", Role, "] time: ", ts, " requests: ", REQ0, " rps: ", (REQ0-REQ1)/10, " throughput:", float64(REQ0)/ts.Seconds())
+				REQ1 = REQ0
+			}
+		}
+	}()
+
+	time.Sleep(10000 * time.Millisecond)
+
 	Environment = fmt.Sprintf("%s-%s:%s", *AppName, Role, Version)
+
 	// Connect to cache
 	CACHE = redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", AppCache, AppCachePort),
@@ -165,7 +187,9 @@ func main() {
 	}
 
 	// Connect Options.
-	opts := []nats.Option{nats.Name("NATS Sample Responder")}
+	subj, i := *AppRole+".*", 0
+
+	opts := []nats.Option{nats.Name(Role + " on " + subj)}
 	opts = setupConnOptions(opts)
 
 	// Use UserCredentials
@@ -185,12 +209,10 @@ func main() {
 	}
 	defer NC.Close()
 
-	subj, i := *AppRole+".*", 0
+	// Subscribe
+	if _, err := NC.Subscribe(subj, func(msg *nats.Msg) {
 
-	NC.QueueSubscribe(subj, *queueName+*AppRole, func(msg *nats.Msg) {
 		i++
-		//log
-		printMsg(msg, i)
 
 		if *AppRole == "api" {
 
@@ -198,16 +220,45 @@ func main() {
 
 		} else if *AppRole == "ascii" {
 
+			printMsg(msg, i)
+
 			msg.Respond(ASCIIHandler(msg, i))
 
 		} else if *AppRole == "data" {
 
 			msg.Respond(DataHandler(msg, i))
 		}
-	})
-	NC.Flush()
 
-	log.Printf("Listening on [%s]: %s", subj, Environment)
+		REQ0 = REQ0 + 1
+
+		//	wg.Done()
+	}); err != nil {
+
+		log.Print(err)
+	}
+
+	/*
+		NC.QueueSubscribe(subj, *queueName+*AppRole, func(msg *nats.Msg) {
+			i++
+			//log
+			printMsg(msg, i)
+
+			if *AppRole == "api" {
+
+				APIReg[msg.Subject] = string(msg.Data)
+
+			} else if *AppRole == "ascii" {
+
+				msg.Respond(ASCIIHandler(msg, i))
+
+			} else if *AppRole == "data" {
+
+				msg.Respond(DataHandler(msg, i))
+			}
+		})
+		NC.Flush()
+	*/
+	log.Printf("Listening on [%s]: %s port: %s", subj, Environment, *AppPort)
 
 	if *showTime {
 		log.SetFlags(log.LstdFlags)
@@ -225,6 +276,7 @@ func main() {
 	case "api":
 
 		router.HandleFunc("/", api)
+		// Use a WaitGroup to wait for a message to arrive
 
 	case "ascii":
 
@@ -256,23 +308,6 @@ func main() {
 			log.Fatal(err)
 		}
 		router.HandleFunc("/", dataHandler)
-
-		REQ0 = 0.0
-		REQ1 = 0.0
-		t0 := time.Now()
-
-		go func() { // Daniel told me to write this handler this way.
-			for {
-				select {
-				case <-time.After(time.Second * 10):
-					ts := time.Since(t0)
-					log.Println("time: ", ts, " requests: ", REQ0, " rps: ", (REQ0-REQ1)/10, " throughput:", float64(REQ0)/ts.Seconds())
-					REQ1 = REQ0
-				}
-			}
-		}()
-
-		time.Sleep(10000 * time.Millisecond)
 
 	}
 

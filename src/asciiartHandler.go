@@ -10,6 +10,7 @@ import (
 	_ "image/png"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -24,6 +25,18 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 	var t messageText
 
 	json.Unmarshal(m.Data, &t)
+
+	stmt, err := DB.Prepare("insert into demo values(null,?,?)")
+
+	_, err = stmt.Exec(strconv.Itoa(i), strconv.Itoa(i))
+
+	if err != nil {
+		log.Print(err)
+	}
+	defer stmt.Close()
+
+	log.Print("done: " + strconv.Itoa(i))
+	return []byte(string("done: " + strconv.Itoa(i)))
 
 	hashStr, encodedStr := hash(t.Text)
 
@@ -59,6 +72,8 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 			reply = msg.Data
 		}
 
+		REQ0 = REQ0 + 1
+
 		return reply
 	}
 
@@ -67,8 +82,10 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 		log.Print(err)
 		return []byte("undef")
 	}
+	log.Print("done: " + strconv.Itoa(i))
+	//return []byte(string("done: " + strconv.Itoa(i)))
 
-	log.Print(string(decoded))
+	//log.Print(string(decoded))
 	return []byte(string(decoded))
 
 }
@@ -83,6 +100,7 @@ func ascii(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		var b []byte
 		b = append([]byte(""), Environment...)
+
 		w.Write(b)
 		/*
 			case "POST":
