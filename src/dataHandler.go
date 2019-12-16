@@ -79,7 +79,7 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer stmt.Close()
 
-	stmt, err = DB.Prepare("SELECT text FROM demo WHERE token = ?")
+	stmt, err = DB.Prepare("SELECT text FROM demo WHERE token = ? limit 1")
 
 	if err != nil {
 		log.Print(err)
@@ -88,6 +88,7 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 
 	// additional iteration
 	_ = stmt.QueryRow(q.Get("key")).Scan(&Payload) // WHERE number = 13
+	REQ = REQ + 1
 
 	w.Write([]byte(fmt.Sprintf("%s", Payload)))
 	/*

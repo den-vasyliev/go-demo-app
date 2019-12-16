@@ -75,6 +75,9 @@ var CACHE *redis.Client
 // Cache param
 var Cache *string
 
+//REQ counter
+var REQ float64
+
 // INM metrics
 var INM *metrics.InmemSink
 
@@ -250,6 +253,22 @@ func main() {
 			log.Fatal(err)
 		}
 		router.HandleFunc("/", dataHandler)
+
+		REQ = 0.0
+		t0 := time.Now()
+
+		go func() { // Daniel told me to write this handler this way.
+			for {
+				select {
+				case <-time.After(time.Second * 10):
+					ts := time.Since(t0)
+					log.Println("time: ", ts, " requests: ", REQ, " throughput:", float64(REQ)/ts.Seconds())
+				}
+			}
+		}()
+
+		time.Sleep(10000 * time.Millisecond)
+
 	}
 
 	log.Fatal(http.ListenAndServe(":"+*AppPort, router))
