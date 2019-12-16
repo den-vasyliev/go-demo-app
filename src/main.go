@@ -75,8 +75,11 @@ var CACHE *redis.Client
 // Cache param
 var Cache *string
 
-//REQ counter
-var REQ float64
+//REQ0 counter
+var REQ0 float64
+
+//REQ1 counter
+var REQ1 float64
 
 // INM metrics
 var INM *metrics.InmemSink
@@ -254,7 +257,8 @@ func main() {
 		}
 		router.HandleFunc("/", dataHandler)
 
-		REQ = 0.0
+		REQ0 = 0.0
+		REQ1 = 0.0
 		t0 := time.Now()
 
 		go func() { // Daniel told me to write this handler this way.
@@ -262,7 +266,8 @@ func main() {
 				select {
 				case <-time.After(time.Second * 10):
 					ts := time.Since(t0)
-					log.Println("time: ", ts, " requests: ", REQ, " throughput:", float64(REQ)/ts.Seconds())
+					log.Println("time: ", ts, " requests: ", REQ0, " rps: ", (REQ0-REQ1)/10, " throughput:", float64(REQ0)/ts.Seconds())
+					REQ1 = REQ0
 				}
 			}
 		}()

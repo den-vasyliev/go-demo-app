@@ -88,7 +88,7 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 
 	// additional iteration
 	_ = stmt.QueryRow(q.Get("key")).Scan(&Payload) // WHERE number = 13
-	REQ = REQ + 1
+	REQ0 = REQ0 + 1
 
 	w.Write([]byte(fmt.Sprintf("%s", Payload)))
 	/*
