@@ -56,7 +56,7 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 	*/
 	hashStr, encodedStr := hash(t.Text)
 
-	cached, err := CACHE.Get(strconv.FormatUint(uint32(hashStr), 10)).Result()
+	cached, err := CACHE.Get(strconv.FormatUint(uint64(hashStr), 10)).Result()
 
 	if *Cache == "false" {
 		err = errors.New("Processing")
@@ -68,13 +68,13 @@ func ASCIIHandler(m *nats.Msg, i int) []byte {
 
 		sec, _ := time.ParseDuration(AppCacheExpire)
 
-		CACHE.Set(strconv.FormatUint(uint32(hashStr), 10), encodedStr, sec)
+		CACHE.Set(strconv.FormatUint(uint64(hashStr), 10), encodedStr, sec)
 
 		CACHE.Set(fmt.Sprintf("%x", md5.Sum([]byte(t.Text))), hashStr, sec)
 
 		//log.Print("Hash:", hashStr)
 
-		msg, err := NC.Request(AppDatastore+".hash", []byte(fmt.Sprintf(`{"hash":"%s"}`, strconv.FormatUint(uint32(hashStr), 10))), 2*time.Second)
+		msg, err := NC.Request(AppDatastore+".hash", []byte(fmt.Sprintf(`{"hash":"%s"}`, strconv.FormatUint(uint64(hashStr), 10))), 2*time.Second)
 		if err != nil {
 			log.Printf("ErrRequest: %e", err)
 		}

@@ -307,6 +307,13 @@ func main() {
 		if err := NC.Publish("api."+Environment, []byte(API["data"])); err != nil {
 			log.Fatal(err)
 		}
+
+		_, err = DB.Exec("CREATE TABLE IF NOT EXISTS demo (id INT NOT NULL AUTO_INCREMENT, token VARCHAR(100), text TEXT, PRIMARY KEY(id))")
+
+		if err != nil {
+			log.Printf("CreateErr: %s", err) // proper error handling instead of panic in your app
+		}
+
 		router.HandleFunc("/", dataHandler)
 
 	}
