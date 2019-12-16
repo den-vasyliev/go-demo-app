@@ -32,14 +32,7 @@ func DataHandler(m *nats.Msg, i int) []byte {
 	if err != nil {
 		log.Print(err)
 	}
-	/*
-		_, err = DB.Exec("CREATE TABLE IF NOT EXISTS demo (id INT NOT NULL AUTO_INCREMENT, token VARCHAR(100), text TEXT, PRIMARY KEY(id))")
 
-		if err != nil {
-			log.Printf("CreateErr: %s", err) // proper error handling instead of panic in your app
-		}
-
-	*/
 	stmt, err := DB.Prepare("insert into demo values(null,?,?)")
 
 	_, err = stmt.Exec(t.Hash, hexStr)
@@ -58,6 +51,15 @@ func DataHandler(m *nats.Msg, i int) []byte {
 
 	// additional iteration
 	err = stmt.QueryRow(t.Hash).Scan(&Payload) // WHERE number = 13
+
+	stmt, err = DB.Prepare("DELETE from demo where token = ?")
+
+	_, err = stmt.Exec(t.Hash)
+
+	if err != nil {
+		log.Print(err)
+	}
+	defer stmt.Close()
 
 	REQ0 = REQ0 + 1
 
