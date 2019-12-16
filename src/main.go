@@ -149,9 +149,9 @@ func main() {
 	go func() { // Daniel told me to write this handler this way.
 		for {
 			select {
-			case <-time.After(time.Second * 10):
+			case <-time.After(time.Second * 1):
 				ts := time.Since(t0)
-				log.Println("[", Role, "] time: ", ts, " requests: ", REQ0, " rps: ", (REQ0-REQ1)/10, " throughput:", float64(REQ0)/ts.Seconds())
+				log.Println("[", Role, "] time: ", ts, " requests: ", REQ0, " rps: ", (REQ0-REQ1)/1, " throughput:", float64(REQ0)/ts.Seconds())
 				REQ1 = REQ0
 			}
 		}
