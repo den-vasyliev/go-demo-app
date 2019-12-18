@@ -23,7 +23,7 @@ func ASCIIHandler(r *Req, i int) {
 
 	hexEncodedStr := hex.EncodeToString([]byte(banner.PrintS(string(hexDecodedStr))))
 
-	if err := EC.Publish("data.json.hash", &Req{Token: r.Token, Hextr: hexEncodedStr, Reply: r.Reply}); err != nil {
+	if err := EC.Publish("data.json.hash", &Req{Token: r.Token, Hextr: hexEncodedStr, Reply: r.Reply, Cmd: r.Cmd}); err != nil {
 		log.Print(err)
 	}
 	REQ0 = REQ0 + 1

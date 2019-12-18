@@ -19,12 +19,6 @@ func DataHandler(r *Req, i int) {
 	var err error
 	var Payload string
 	tokenStr := strconv.FormatUint(uint64(r.Token), 10)
-	//json.Unmarshal(m.Data, &t)
-
-	//	hexStr, err := CACHE.Get(t.Hash).Result()
-	//	if err != nil {
-	//		log.Print(err)
-	//	}
 
 	_, err = STMTIns.Exec(r.Token, r.Hextr)
 
@@ -32,16 +26,17 @@ func DataHandler(r *Req, i int) {
 		log.Print(err)
 	}
 
-	// additional iteration
-	err = STMTSel.QueryRow(r.Token).Scan(&Payload) // WHERE number = 13
+	Payload = r.Hextr
 
-	if err != nil {
-		log.Printf("QueryRowErr: %s", err) // proper error handling instead of panic in your app
+	if r.Cmd == "read" {
+		// additional iteration
+		err = STMTSel.QueryRow(r.Token).Scan(&Payload) // WHERE number = 13
+
+		if err != nil {
+			log.Printf("QueryRowErr: %s", err) // proper error handling instead of panic in your app
+		}
+
 	}
-
-	//decoded, err = hex.DecodeString(Payload)
-
-	//hex.Decode(decoded, []byte(Payload))
 	sec, _ := time.ParseDuration(AppCacheExpire)
 
 	err = CACHE.Set(tokenStr, Payload, sec).Err()
@@ -51,8 +46,6 @@ func DataHandler(r *Req, i int) {
 	}
 
 	NC.Publish(r.Reply, []byte(tokenStr))
-
-	//return []byte()
 
 }
 

@@ -69,7 +69,7 @@ func perfHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Send the request.
 		// If processing is synchronous, use Request() which returns the response message.
-		if err := EC.Publish("ascii.json.banner", &Req{Token: token, Hextr: hexEncodedStr, Reply: uniqueReplyTo}); err != nil {
+		if err := EC.Publish("ascii.json.banner", &Req{Token: token, Hextr: hexEncodedStr, Reply: uniqueReplyTo, Cmd: q.Get("cmd")}); err != nil {
 			log.Print(err)
 		}
 

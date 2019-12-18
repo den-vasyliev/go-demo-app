@@ -108,6 +108,7 @@ type Req struct {
 	Token uint32
 	Hextr string
 	Reply string
+	Cmd   string
 }
 
 // Role application name
@@ -248,30 +249,9 @@ func main() {
 		}
 
 	}); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
-	/*
-		NC.QueueSubscribe(subj, *queueName+*AppRole, func(msg *nats.Msg) {
-			i++
-			//log
-			printMsg(msg, i)
-
-			if *AppRole == "api" {
-
-				APIReg[msg.Subject] = string(msg.Data)
-
-			} else if *AppRole == "ascii" {
-
-				msg.Respond(ASCIIHandler(msg, i))
-
-			} else if *AppRole == "data" {
-
-				msg.Respond(DataHandler(msg, i))
-			}
-		})
-		NC.Flush()
-	*/
 	log.Printf("Listening on [%s]: %s port: %s", subj, Environment, *AppPort)
 
 	if *showTime {
