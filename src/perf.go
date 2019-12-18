@@ -57,7 +57,7 @@ func BumpMySQL(db *sql.DB, buf chan int, qq chan int) {
 
 var threads = flag.Int("threads", 8, "number of user threads")
 
-func perf_() {
+func _perf() {
 
 	flag.Parse()
 	log.Println("User threads:", *threads)
@@ -165,7 +165,7 @@ func perf_() {
 
 }
 
-func setupConnOptions(opts []nats.Option) []nats.Option {
+func _setupConnOptions(opts []nats.Option) []nats.Option {
 	totalWait := 10 * time.Minute
 	reconnectDelay := time.Second
 
@@ -183,7 +183,7 @@ func setupConnOptions(opts []nats.Option) []nats.Option {
 	opts = append(opts, nats.ErrorHandler(natsErrHandler))
 	return opts
 }
-func natsErrHandler(NC *nats.Conn, sub *nats.Subscription, natsErr error) {
+func _natsErrHandler(NC *nats.Conn, sub *nats.Subscription, natsErr error) {
 	fmt.Printf("error: %v\n", natsErr)
 	if natsErr == nats.ErrSlowConsumer {
 		pendingMsgs, _, err := sub.Pending()
@@ -197,6 +197,6 @@ func natsErrHandler(NC *nats.Conn, sub *nats.Subscription, natsErr error) {
 	}
 	// check for other errors
 }
-func printMsg(m *nats.Msg, i int) {
+func _printMsg(m *nats.Msg, i int) {
 	log.Printf("[#%d] Received on [%s]: '%s'\n", i, m.Subject, string(m.Data))
 }
