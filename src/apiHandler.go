@@ -19,10 +19,11 @@ import (
 func perfHandler(w http.ResponseWriter, r *http.Request) {
 
 	REQ0 = REQ0 + 1
-
 	var reply []byte
-
+	var hexEncodedStr, cached string
+	var token uint32
 	u, err := url.Parse(r.RequestURI)
+
 	if err != nil {
 		log.Print(err)
 	}
@@ -30,18 +31,27 @@ func perfHandler(w http.ResponseWriter, r *http.Request) {
 
 	h := fnv.New32a()
 
-	h.Write([]byte(q.Get("text")))
-
-	tokenStr := strconv.FormatUint(uint64(h.Sum32()), 10)
-
-	token := h.Sum32()
-	hexEncodedStr := hex.EncodeToString([]byte(q.Get("text")))
-
-	cached, err := CACHE.Get(tokenStr).Result()
-
 	if *Cache == "false" {
+
+		h.Write([]byte(q.Get("text") + strconv.FormatFloat(REQ0, 'f', 0, 32)))
+		tokenStr := strconv.FormatUint(uint64(h.Sum32()), 10)
+		token = h.Sum32()
+
+		hexEncodedStr = hex.EncodeToString([]byte(q.Get("text") + strconv.FormatFloat(REQ0, 'f', 0, 32)))
+
 		err = errors.New("NoCache")
-		cached = "636163686564"
+		cached = tokenStr
+
+	} else {
+		h.Write([]byte(q.Get("text")))
+
+		tokenStr := strconv.FormatUint(uint64(h.Sum32()), 10)
+
+		token = h.Sum32()
+		hexEncodedStr = hex.EncodeToString([]byte(q.Get("text")))
+
+		cached, err = CACHE.Get(tokenStr).Result()
+
 	}
 
 	if err == nil {
