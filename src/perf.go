@@ -57,7 +57,7 @@ func BumpMySQL(db *sql.DB, buf chan int, qq chan int) {
 
 var threads = flag.Int("threads", 8, "number of user threads")
 
-func perf() {
+func perf_() {
 
 	flag.Parse()
 	log.Println("User threads:", *threads)
