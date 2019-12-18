@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/bmizerany/pat"
 	"github.com/CrowdSurge/banner"
 	"github.com/armon/go-metrics"
 	"github.com/go-redis/redis"
