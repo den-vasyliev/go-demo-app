@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/bmizerany/pat"
+
 	"database/sql"
 	"flag"
 	"fmt"
@@ -17,10 +19,8 @@ import (
 	"github.com/go-redis/redis"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/nats-io/nats.go"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // API is api ref
@@ -129,10 +129,10 @@ func main() {
 	AppName := flag.String("name", "k8sdiy", "application name")
 	AppRole := flag.String("role", "api", "app role: api data ascii img ml5")
 	AppPort := flag.String("port", "8080", "application port")
-	AppPath := flag.String("path", "/static/", "path to serve static files")
-	AppDir := flag.String("dir", "./ml5", "the directory of static files to host")
-	ModelsPath := flag.String("mpath", "/models/", "path to serve models files")
-	ModelsDir := flag.String("mdir", "./ml5/models", "the directory of models files to host")
+	//AppPath := flag.String("path", "/static/", "path to serve static files")
+	//AppDir := flag.String("dir", "./ml5", "the directory of static files to host")
+	//ModelsPath := flag.String("mpath", "/models/", "path to serve models files")
+	//ModelsDir := flag.String("mdir", "./ml5/models", "the directory of models files to host")
 	Cache = flag.String("cache", "true", "cache enable")
 
 	var urls = flag.String("server", nats.DefaultURL, "The nats server URLs (separated by comma)")
@@ -278,42 +278,49 @@ func main() {
 		log.SetFlags(log.LstdFlags)
 	}
 
-	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/version", versionHandler)
-	router.HandleFunc("/healthz", healthzHandler)
-	router.HandleFunc("/readinez", readinessHandler)
-	router.Handle("/metrics", promhttp.Handler())
-	router.HandleFunc("/perf", perfHandler)
+	router := pat.New()
+	router.Get("/version", http.HandlerFunc(versionHandler))
+	router.Get("/healthz", http.HandlerFunc(healthzHandler))
+	router.Get("/readinez", http.HandlerFunc(readinessHandler))
+
+	//router.Handle("/metrics", promhttp.Handler())
+	router.Get("/perf", http.HandlerFunc(perfHandler))
+
+	//router.HandlerFunc("/perf", perfHandler)
 
 	switch *AppRole {
 
 	case "api":
+		router.Get("/", http.HandlerFunc(api))
 
-		router.HandleFunc("/", api)
+		//router.HandleFunc("/", api)
 
 	case "ascii":
 
 		if err := NC.Publish("api."+Environment, []byte(API["ascii"])); err != nil {
 			log.Fatal(err)
 		}
+		router.Get("/", http.HandlerFunc(ascii))
 
-		router.HandleFunc("/", ascii)
+		//router.HandleFunc("/", ascii)
 
 	case "img":
 		if err := NC.Publish("api."+Environment, []byte(API["img"])); err != nil {
 			log.Fatal(err)
 		}
-		router.HandleFunc("/", img)
+		//router.HandleFunc("/", img)
+		router.Get("/", http.HandlerFunc(img))
 
 	case "ml5":
 		if err := NC.Publish("api."+Environment, []byte(API["img"])); err != nil {
 			log.Fatal(err)
 		}
 
-		router.PathPrefix(*AppPath).Handler(http.StripPrefix(*AppPath, http.FileServer(http.Dir(*AppDir))))
-		router.PathPrefix(*ModelsPath).Handler(http.StripPrefix(*ModelsPath, http.FileServer(http.Dir(*ModelsDir))))
+		//router.PathPrefix(*AppPath).Handler(http.StripPrefix(*AppPath, http.FileServer(http.Dir(*AppDir))))
+		//router.PathPrefix(*ModelsPath).Handler(http.StripPrefix(*ModelsPath, http.FileServer(http.Dir(*ModelsDir))))
 
-		router.HandleFunc("/", ml5)
+		//router.HandleFunc("/", ml5)
+		router.Get("/", http.HandlerFunc(ml5))
 
 	case "data":
 
@@ -327,7 +334,8 @@ func main() {
 			log.Printf("CreateErr: %s", err) // proper error handling instead of panic in your app
 		}
 
-		router.HandleFunc("/", dataHandler)
+		//router.HandleFunc("/", dataHandler)
+		router.Get("/", http.HandlerFunc(dataHandler))
 
 	}
 
