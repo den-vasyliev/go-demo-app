@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/nats-io/go-nats"
+	"github.com/nats-io/nats.go"
 	//metrics "github.com/armon/go-metrics"
 )
 
