@@ -68,6 +68,9 @@ var APIReg = make(map[string]string)
 // NC nats broker
 var NC *nats.Conn
 
+// EC nats encoded
+var EC *nats.EncodedConn
+
 // DB mysql conn
 var DB *sql.DB
 
@@ -86,12 +89,25 @@ var REQ1 float64
 // INM metrics
 var INM *metrics.InmemSink
 
+// STMTIns insert
+var STMTIns *sql.Stmt
+
+// STMTSel select
+var STMTSel *sql.Stmt
+
 type messageText struct {
 	Text string `json:"Text"`
 }
 
 type messageToken struct {
 	Hash string `json:"Hash"`
+}
+
+// Req Define the object
+type Req struct {
+	Token uint32
+	Hextr string
+	Reply string
 }
 
 // Role application name
@@ -157,8 +173,6 @@ func main() {
 		}
 	}()
 
-	time.Sleep(10000 * time.Millisecond)
-
 	Environment = fmt.Sprintf("%s-%s:%s", *AppName, Role, Version)
 
 	// Connect to cache
@@ -187,7 +201,7 @@ func main() {
 	}
 
 	// Connect Options.
-	subj, i := *AppRole+".*", 0
+	subj, subjJSON, i := *AppRole+".*", *AppRole+".json.*", 0
 
 	opts := []nats.Option{nats.Name(Role + " on " + subj)}
 	opts = setupConnOptions(opts)
@@ -209,32 +223,32 @@ func main() {
 	}
 	defer NC.Close()
 
+	EC, err = nats.NewEncodedConn(NC, nats.JSON_ENCODER)
+	defer EC.Close()
+
+	STMTIns, err = DB.Prepare("insert into demo values(null,?,?)")
+	STMTSel, err = DB.Prepare("SELECT text FROM demo WHERE token = ? limit 1")
+	defer STMTIns.Close()
+	defer STMTSel.Close()
+
 	// Subscribe
-	if _, err := NC.Subscribe(subj, func(msg *nats.Msg) {
-
-		i++
-
-		if *AppRole == "api" {
-
-			APIReg[msg.Subject] = string(msg.Data)
-
-		} else if *AppRole == "ascii" {
-
-			//printMsg(msg, i)
-
-			msg.Respond(ASCIIHandler(msg, i))
-
-		} else if *AppRole == "data" {
-
-			msg.Respond(DataHandler(msg, i))
-		}
+	if _, err = EC.Subscribe(subjJSON, func(r *Req) {
 
 		REQ0 = REQ0 + 1
 
-		//	wg.Done()
-	}); err != nil {
+		i++
 
-		log.Print(err)
+		if *AppRole == "ascii" {
+
+			go ASCIIHandler(r, i)
+
+		} else if *AppRole == "data" {
+
+			go DataHandler(r, i)
+		}
+
+	}); err != nil {
+		log.Fatal(err)
 	}
 
 	/*
@@ -276,7 +290,6 @@ func main() {
 	case "api":
 
 		router.HandleFunc("/", api)
-		// Use a WaitGroup to wait for a message to arrive
 
 	case "ascii":
 
@@ -308,7 +321,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		_, err = DB.Exec("CREATE TABLE IF NOT EXISTS demo (id INT NOT NULL AUTO_INCREMENT, token VARCHAR(100), text TEXT, PRIMARY KEY(id))")
+		_, err = DB.Exec("CREATE TABLE IF NOT EXISTS demo (id INT NOT NULL AUTO_INCREMENT, token INT UNSIGNED NOT NULL, text TEXT, PRIMARY KEY(id, token))")
 
 		if err != nil {
 			log.Printf("CreateErr: %s", err) // proper error handling instead of panic in your app

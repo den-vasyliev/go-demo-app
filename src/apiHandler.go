@@ -1,18 +1,26 @@
 package main
 
 import (
+	"encoding/hex"
 	"encoding/json"
-	"fmt"
+	"errors"
+	"hash/fnv"
 	_ "image/jpeg"
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
-	metrics "github.com/armon/go-metrics"
+	"github.com/nats-io/go-nats"
+	//metrics "github.com/armon/go-metrics"
 )
 
 func perfHandler(w http.ResponseWriter, r *http.Request) {
+
+	REQ0 = REQ0 + 1
+
+	var reply []byte
 
 	u, err := url.Parse(r.RequestURI)
 	if err != nil {
@@ -20,37 +28,70 @@ func perfHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	q := u.Query()
 
-	msg, err := NC.Request("ascii.text", []byte(fmt.Sprintf(`{"text":"%s"}`, q.Get("text"))), 2*time.Second) // Read the reply
+	h := fnv.New32a()
 
-	var reply []byte
-	if err != nil {
-		log.Printf("Message: %e", err)
-		reply = []byte(fmt.Sprintf("{%s}", err))
-	} else {
-		reply = msg.Data
+	h.Write([]byte(q.Get("text")))
+
+	tokenStr := strconv.FormatUint(uint64(h.Sum32()), 10)
+
+	token := h.Sum32()
+	hexEncodedStr := hex.EncodeToString([]byte(q.Get("text")))
+
+	cached, err := CACHE.Get(tokenStr).Result()
+
+	if *Cache == "false" {
+		err = errors.New("NoCache")
+		cached = "636163686564"
 	}
 
-	//log.Printf("[api-reply]: %s", reply)
-	REQ0 = REQ0 + 1
+	if err == nil {
+		reply, err = hex.DecodeString(cached)
+		w.Write(reply)
+	} else {
+		// Create a unique subject name for replies.
+		uniqueReplyTo := nats.NewInbox()
 
-	w.Write(reply)
+		// Listen for a single response
+		sub, err := NC.SubscribeSync(uniqueReplyTo)
+		if err != nil {
+			log.Print(err)
+		}
+
+		// Send the request.
+		// If processing is synchronous, use Request() which returns the response message.
+		if err := EC.Publish("ascii.json.banner", &Req{Token: token, Hextr: hexEncodedStr, Reply: uniqueReplyTo}); err != nil {
+			log.Print(err)
+		}
+
+		// Read the reply
+		msg, err := sub.NextMsg(2 * time.Second)
+		if err != nil {
+			log.Print(err)
+		}
+
+		cached, err := CACHE.Get(string(msg.Data)).Result()
+
+		reply, _ = hex.DecodeString(cached)
+		w.Write(reply)
+
+	}
 }
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
 	var b []byte
+	REQ0 = REQ0 + 1
+
 	b = append([]byte(""), Environment...)
 	w.Write(b)
 }
 
 func healthzHandler(w http.ResponseWriter, r *http.Request) {
+	REQ0 = REQ0 + 1
 
 	w.Write([]byte("Healthz: alive!"))
 }
 
 func api(w http.ResponseWriter, r *http.Request) {
-	defer metrics.MeasureSince([]string{"API"}, time.Now())
-
-	INM.SetGauge([]string{"foo"}, 42)
 
 	b, err := json.Marshal(APIReg)
 	if err != nil {

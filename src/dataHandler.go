@@ -1,77 +1,58 @@
 package main
 
 import (
-	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	_ "image/jpeg"
 	_ "image/png"
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
-
-	metrics "github.com/armon/go-metrics"
-	"github.com/nats-io/nats.go"
+	//metrics "github.com/armon/go-metrics"
 )
 
 //DataHandler export broker msg func
-func DataHandler(m *nats.Msg, i int) []byte {
-	defer metrics.MeasureSince([]string{"DB"}, time.Now())
-
-	var err error
-	var t messageToken
-	var Payload string
-	var decoded []byte
-
-	log.Print("Processing")
-
-	json.Unmarshal(m.Data, &t)
-
-	hexStr, err := CACHE.Get(t.Hash).Result()
-	if err != nil {
-		log.Print(err)
-	}
-
-	stmt, err := DB.Prepare("insert into demo values(null,?,?)")
-
-	_, err = stmt.Exec(t.Hash, hexStr)
-
-	if err != nil {
-		log.Print(err)
-	}
-	defer stmt.Close()
-
-	stmt, err = DB.Prepare("SELECT text FROM demo WHERE token = ? limit 1")
-
-	if err != nil {
-		log.Print(err)
-	}
-	defer stmt.Close()
-
-	// additional iteration
-	err = stmt.QueryRow(t.Hash).Scan(&Payload) // WHERE number = 13
-
-	stmt, err = DB.Prepare("DELETE from demo where token = ?")
-
-	_, err = stmt.Exec(t.Hash)
-
-	if err != nil {
-		log.Print(err)
-	}
-	defer stmt.Close()
+func DataHandler(r *Req, i int) {
 
 	REQ0 = REQ0 + 1
+	var err error
+	var Payload string
+	tokenStr := strconv.FormatUint(uint64(r.Token), 10)
+	//json.Unmarshal(m.Data, &t)
+
+	//	hexStr, err := CACHE.Get(t.Hash).Result()
+	//	if err != nil {
+	//		log.Print(err)
+	//	}
+
+	_, err = STMTIns.Exec(r.Token, r.Hextr)
+
+	if err != nil {
+		log.Print(err)
+	}
+
+	// additional iteration
+	err = STMTSel.QueryRow(r.Token).Scan(&Payload) // WHERE number = 13
 
 	if err != nil {
 		log.Printf("QueryRowErr: %s", err) // proper error handling instead of panic in your app
 	}
 
-	decoded, err = hex.DecodeString(Payload)
+	//decoded, err = hex.DecodeString(Payload)
+
+	//hex.Decode(decoded, []byte(Payload))
+	sec, _ := time.ParseDuration(AppCacheExpire)
+
+	err = CACHE.Set(tokenStr, Payload, sec).Err()
+
 	if err != nil {
-		log.Printf("DecodeStringErr:%s", err)
+		log.Print(err)
 	}
-	return []byte(string(decoded))
+
+	NC.Publish(r.Reply, []byte(tokenStr))
+
+	//return []byte()
 
 }
 
