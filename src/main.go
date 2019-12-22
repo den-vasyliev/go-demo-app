@@ -175,11 +175,6 @@ func main() {
 	router.Get("/healthz", http.HandlerFunc(healthz))
 	router.Get("/readinez", http.HandlerFunc(readinez))
 
-	//router.Handle("/metrics", promhttp.Handler())
-	router.Get("/perf", http.HandlerFunc(perfHandler))
-
-	//router.HandlerFunc("/perf", perfHandler)
-
 	switch *AppRole {
 
 	case "api":

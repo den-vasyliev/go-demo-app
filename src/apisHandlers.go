@@ -7,18 +7,6 @@ import (
 	"net/http"
 )
 
-func api(w http.ResponseWriter, r *http.Request) {
-
-	b, err := json.Marshal(APIReg)
-	if err != nil {
-		log.Print(err)
-	}
-
-	REQ0 = REQ0 + 1
-
-	w.Write([]byte(b))
-}
-
 func ascii(w http.ResponseWriter, r *http.Request) {
 
 	var b []byte
@@ -38,11 +26,14 @@ func data(w http.ResponseWriter, r *http.Request) {
 }
 
 func version(w http.ResponseWriter, r *http.Request) {
-	var b []byte
+	b, err := json.Marshal(APIReg)
+	if err != nil {
+		log.Print(err)
+	}
+
 	REQ0 = REQ0 + 1
 
-	b = append([]byte(""), Environment...)
-	w.Write(b)
+	w.Write([]byte(b))
 }
 
 func healthz(w http.ResponseWriter, r *http.Request) {
