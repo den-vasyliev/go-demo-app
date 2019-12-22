@@ -12,17 +12,6 @@ import (
 	"github.com/qeesung/image2ascii/convert"
 )
 
-var imageFilename string
-var ratio float64
-var fixedWidth int
-var fixedHeight int
-var fitScreen bool
-var stretchedScreen bool
-var colored bool
-var reversed bool
-
-var convertDefaultOptions = convert.DefaultOptions
-
 func img(w http.ResponseWriter, r *http.Request) {
 	defer metrics.MeasureSince([]string{"API"}, time.Now())
 	switch r.Method {
@@ -50,19 +39,4 @@ func img(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-}
-
-func parseOptions() (*convert.Options, error) {
-
-	// config  the options
-	convertOptions := &convert.Options{
-		Ratio:           ratio,
-		FixedWidth:      fixedWidth,
-		FixedHeight:     fixedHeight,
-		FitScreen:       fitScreen,
-		StretchedScreen: stretchedScreen,
-		Colored:         colored,
-		Reversed:        reversed,
-	}
-	return convertOptions, nil
 }

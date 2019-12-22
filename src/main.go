@@ -1,8 +1,6 @@
 package main
 
 import (
-	"github.com/bmizerany/pat"
-
 	"database/sql"
 	"flag"
 	"fmt"
@@ -11,97 +9,14 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
-
-	//"sync"
 	"time"
 
-	metrics "github.com/armon/go-metrics"
+	"github.com/armon/go-metrics"
+	"github.com/bmizerany/pat"
 	"github.com/go-redis/redis"
-
 	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/nats-io/nats.go"
 )
-
-// API is api ref
-var API = make(map[string]string)
-
-// AppLicense app
-var AppLicense = os.Getenv("APP_LICENSE")
-
-// AppASCII app
-var AppASCII = getEnv("APP_ASCII", "ascii")
-
-// AppDatastore app
-var AppDatastore = getEnv("APP_DATASTORE", "data")
-
-// AppDbUser name
-var AppDbUser = getEnv("AppDbPort", "root")
-
-// AppDbPort name
-var AppDbPort = getEnv("APP_DB_PORT", "3306")
-
-// AppDbName name
-var AppDbName = getEnv("APP_DB_NAME", "demo")
-
-// AppDb name
-var AppDb = getEnv("APP_DB", AppDbUser+"@tcp(127.0.0.1:"+AppDbPort+")/"+AppDbName)
-
-// AppCache app
-var AppCache = getEnv("APP_CACHE", "127.0.0.1")
-
-// AppCachePort app
-var AppCachePort = getEnv("APP_CACHE_PORT", "6379")
-
-// AppCacheExpire app
-var AppCacheExpire = getEnv("APP_CACHE_EXPIRE", "120s")
-
-// Version app
-var Version = "v3"
-
-// Environment app
-var Environment = ""
-
-// APIReg is a api map
-var APIReg = make(map[string]string)
-
-// NC nats broker
-var NC *nats.Conn
-
-// EC nats encoded
-var EC *nats.EncodedConn
-
-// DB mysql conn
-var DB *sql.DB
-
-// CACHE redis conn
-var CACHE *redis.Client
-
-// Cache param
-var Cache *string
-
-//REQ0 counter
-var REQ0 float64
-
-//REQ1 counter
-var REQ1 float64
-
-// INM metrics
-var INM *metrics.InmemSink
-
-// STMTIns insert
-var STMTIns *sql.Stmt
-
-// STMTSel select
-var STMTSel *sql.Stmt
-
-type messageText struct {
-	Text string `json:"Text"`
-}
-
-type messageToken struct {
-	Hash string `json:"Hash"`
-}
 
 // Req Define the object
 type Req struct {
@@ -110,9 +25,6 @@ type Req struct {
 	Reply string
 	Cmd   string
 }
-
-// Role application name
-var Role = ""
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
@@ -190,7 +102,7 @@ func main() {
 	// Connect to db
 
 	DB, err = sql.Open("mysql", AppDb)
-	DB.SetMaxIdleConns(10000)
+	//	DB.SetMaxIdleConns(10000)
 	if err != nil {
 		log.Print(err)
 	}
@@ -241,7 +153,7 @@ func main() {
 
 		if *AppRole == "ascii" {
 
-			go ASCIIHandler(r, i)
+			go AsciiHandler(r, i)
 
 		} else if *AppRole == "data" {
 
@@ -259,9 +171,9 @@ func main() {
 	}
 
 	router := pat.New()
-	router.Get("/version", http.HandlerFunc(versionHandler))
-	router.Get("/healthz", http.HandlerFunc(healthzHandler))
-	router.Get("/readinez", http.HandlerFunc(readinessHandler))
+	router.Get("/version", http.HandlerFunc(version))
+	router.Get("/healthz", http.HandlerFunc(healthz))
+	router.Get("/readinez", http.HandlerFunc(readinez))
 
 	//router.Handle("/metrics", promhttp.Handler())
 	router.Get("/perf", http.HandlerFunc(perfHandler))
@@ -315,7 +227,7 @@ func main() {
 		}
 
 		//router.HandleFunc("/", dataHandler)
-		router.Get("/", http.HandlerFunc(dataHandler))
+		router.Get("/", http.HandlerFunc(data))
 
 	}
 
@@ -331,97 +243,4 @@ func main() {
 	NC.Drain()
 	log.Fatalf("Exiting")
 
-}
-
-func usage() {
-	log.Printf("Usage: app [-name name] [-role role] [-port port] \n")
-	flag.PrintDefaults()
-}
-
-func showUsageAndExit(exitcode int) {
-	usage()
-	os.Exit(exitcode)
-}
-
-func initOptions() {
-
-	flag.StringVar(&imageFilename,
-		"f",
-		"",
-		"Image filename to be convert")
-	flag.Float64Var(&ratio,
-		"r",
-		convertDefaultOptions.Ratio,
-		"Ratio to scale the image, ignored when use -w or -g")
-	flag.IntVar(&fixedWidth,
-		"w",
-		convertDefaultOptions.FixedWidth,
-		"Expected image width, -1 for image default width")
-	flag.IntVar(&fixedHeight,
-		"g",
-		convertDefaultOptions.FixedHeight,
-		"Expected image height, -1 for image default height")
-	flag.BoolVar(&fitScreen,
-		"s",
-		convertDefaultOptions.FitScreen,
-		"Fit the terminal screen, ignored when use -w, -g, -r")
-	flag.BoolVar(&colored,
-		"c",
-		convertDefaultOptions.Colored,
-		"Colored the ascii when output to the terminal")
-	flag.BoolVar(&reversed,
-		"i",
-		convertDefaultOptions.Reversed,
-		"Reversed the ascii when output to the terminal")
-	flag.BoolVar(&stretchedScreen,
-		"t",
-		convertDefaultOptions.StretchedScreen,
-		"Stretch the picture to overspread the screen")
-}
-
-func setupConnOptions(opts []nats.Option) []nats.Option {
-	totalWait := 10 * time.Minute
-	reconnectDelay := time.Second
-
-	opts = append(opts, nats.ReconnectWait(reconnectDelay))
-	opts = append(opts, nats.MaxReconnects(int(totalWait/reconnectDelay)))
-	opts = append(opts, nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
-		log.Printf("Disconnected due to: %s, will attempt reconnects for %.0fm", err, totalWait.Minutes())
-	}))
-	opts = append(opts, nats.ReconnectHandler(func(nc *nats.Conn) {
-		log.Printf("Reconnected [%s]", nc.ConnectedUrl())
-	}))
-	opts = append(opts, nats.ClosedHandler(func(nc *nats.Conn) {
-		log.Fatalf("Exiting: %v", nc.LastError())
-	}))
-	opts = append(opts, nats.ErrorHandler(natsErrHandler))
-	return opts
-}
-
-func printMsg(m *nats.Msg, i int) {
-	log.Printf("[#%d] Received on [%s]: '%s'\n", i, m.Subject, string(m.Data))
-}
-
-// getEnv get key environment variable if exist otherwise return defalutValue
-func getEnv(key, defaultValue string) string {
-	value := os.Getenv(key)
-	if len(value) == 0 {
-		return defaultValue
-	}
-	return value
-}
-
-func natsErrHandler(NC *nats.Conn, sub *nats.Subscription, natsErr error) {
-	fmt.Printf("error: %v\n", natsErr)
-	if natsErr == nats.ErrSlowConsumer {
-		pendingMsgs, _, err := sub.Pending()
-		if err != nil {
-			fmt.Printf("couldn't get pending messages: %v", err)
-			return
-		}
-		fmt.Printf("Falling behind with %d pending messages on subject %q.\n",
-			pendingMsgs, sub.Subject)
-		// Log error, notify operations...
-	}
-	// check for other errors
 }
