@@ -23,7 +23,7 @@ type Req struct {
 	Token uint32
 	Hextr string
 	Reply string
-	Cmd   string
+	Db    string
 }
 
 func main() {

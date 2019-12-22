@@ -1,12 +1,9 @@
 package main
 
 import (
-	"fmt"
 	_ "image/jpeg"
 	_ "image/png"
 	"log"
-	"net/http"
-	"net/url"
 	"strconv"
 	"time"
 	//metrics "github.com/armon/go-metrics"
@@ -17,26 +14,30 @@ func DataHandler(r *Req, i int) {
 
 	REQ0 = REQ0 + 1
 	var err error
-	var Payload string
+	var Payload string = r.Hextr
+
 	tokenStr := strconv.FormatUint(uint64(r.Token), 10)
 
-	_, err = STMTIns.Exec(r.Token, r.Hextr)
+	if r.Db == "write" || r.Db == "rw" {
 
-	if err != nil {
-		log.Print(err)
+		_, err = STMTIns.Exec(r.Token, r.Hextr)
+
+		if err != nil {
+			log.Print(err)
+		}
 	}
 
-	Payload = r.Hextr
-
-	if r.Cmd == "read" {
+	if r.Db == "read" || r.Db == "rw" {
 		// additional iteration
 		err = STMTSel.QueryRow(r.Token).Scan(&Payload) // WHERE number = 13
 
 		if err != nil {
+			Payload = r.Hextr
 			log.Printf("QueryRowErr: %s", err) // proper error handling instead of panic in your app
 		}
 
 	}
+
 	sec, _ := time.ParseDuration(AppCacheExpire)
 
 	err = CACHE.Set(tokenStr, Payload, sec).Err()
@@ -46,40 +47,5 @@ func DataHandler(r *Req, i int) {
 	}
 
 	NC.Publish(r.Reply, []byte(tokenStr))
-
-}
-
-func dataHandler(w http.ResponseWriter, r *http.Request) {
-
-	var Payload string
-
-	u, err := url.Parse(r.RequestURI)
-	if err != nil {
-		log.Print(err)
-	}
-	q := u.Query()
-
-	stmt, err := DB.Prepare("insert into demo values(null,?,?)")
-
-	_, err = stmt.Exec(q.Get("key"), q.Get("val"))
-
-	if err != nil {
-		log.Print(err)
-	}
-	defer stmt.Close()
-
-	stmt, err = DB.Prepare("SELECT text FROM demo WHERE token = ? limit 1")
-
-	if err != nil {
-		log.Print(err)
-	}
-	defer stmt.Close()
-
-	// additional iteration
-	_ = stmt.QueryRow(q.Get("key")).Scan(&Payload) // WHERE number = 13
-
-	REQ0 = REQ0 + 1
-
-	w.Write([]byte(fmt.Sprintf("%s", Payload)))
 
 }
