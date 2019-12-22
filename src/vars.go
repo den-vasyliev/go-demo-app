@@ -61,6 +61,8 @@ var (
 	STMTSel *sql.Stmt
 	// Role application name
 	Role = ""
+	// Wait timeout
+	Wait *string
 
 	imageFilename   string
 	ratio           float64

@@ -47,6 +47,7 @@ func main() {
 	//ModelsPath := flag.String("mpath", "/models/", "path to serve models files")
 	//ModelsDir := flag.String("mdir", "./ml5/models", "the directory of models files to host")
 	Cache = flag.String("cache", "true", "cache enable")
+	Wait = flag.String("wait", "2", "wait timeout")
 
 	var urls = flag.String("server", nats.DefaultURL, "The nats server URLs (separated by comma)")
 	var userCreds = flag.String("creds", "", "User Credentials File")

@@ -73,7 +73,9 @@ func api(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Read the reply
-		msg, err := sub.NextMsg(2 * time.Second)
+		sec, _ := time.ParseDuration(*Wait)
+
+		msg, err := sub.NextMsg(sec)
 		if err != nil {
 			log.Print(err)
 		}
