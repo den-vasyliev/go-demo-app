@@ -1,4 +1,4 @@
-FROM denvasyliev/k8sdiy:builder-v3 as builder
+FROM denvasyliev/k8sdiy:builder as builder
 ARG APP_VERSION
 WORKDIR /go/src/app
 COPY src/ .
