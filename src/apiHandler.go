@@ -6,7 +6,6 @@ import (
 	"hash/fnv"
 	_ "image/jpeg"
 	"log"
-	"net/url"
 	"strconv"
 	"time"
 
@@ -26,37 +25,40 @@ func api(ctx *fasthttp.RequestCtx) {
 	var hexEncodedStr, cached string
 	var token uint32
 	h := fnv.New32a()
+	var err error
 
-	// parse uri
-	u, err := url.Parse(string(ctx.RequestURI()))
-	if err != nil {
-		log.Print(err)
-	}
+	if ctx.QueryArgs() != nil {
+		// parse uri
+		/*	u, err := url.Parse(string(ctx.QueryArgs().String()))
 
-	// get uri parameters
-	q := u.Query()
+			if err != nil {
+				log.Print(err)
+			}
 
-	if len(q.Get("text")) > 0 {
+			// get uri parameters
+			//q := u.Query()
+			log.Print(ctx.FormValue("text"))
+		*/
 		// we won't cache
 		if *Cache == "false" {
 			// create bin hash from text+request_siq
-			h.Write([]byte(q.Get("text") + strconv.FormatFloat(REQ0, 'f', 0, 32)))
+			h.Write(ctx.FormValue("text"))
 			// we need token as a string
 			tokenStr := strconv.FormatUint(uint64(h.Sum32()), 10)
 			// bin token
 			token = h.Sum32()
 			// encode text to hex
-			hexEncodedStr = hex.EncodeToString([]byte(q.Get("text") + strconv.FormatFloat(REQ0, 'f', 0, 32)))
+			hexEncodedStr = hex.EncodeToString(ctx.FormValue("text"))
 			// need this for the next check
 			err = errors.New("NoCache")
 			// define reply
 			cached = tokenStr
 			// default cache check first
 		} else {
-			h.Write([]byte(q.Get("text")))
+			h.Write(ctx.FormValue("text"))
 			tokenStr := strconv.FormatUint(uint64(h.Sum32()), 10)
 			token = h.Sum32()
-			hexEncodedStr = hex.EncodeToString([]byte(q.Get("text")))
+			hexEncodedStr = hex.EncodeToString(ctx.FormValue("text"))
 			cached, err = CACHE.Get(tokenStr).Result()
 
 		}
@@ -76,7 +78,7 @@ func api(ctx *fasthttp.RequestCtx) {
 			}
 			// Send the request.
 			// If processing is synchronous, use Request() which returns the response message.
-			if err := EC.Publish("ascii.json.banner", &Req{Token: token, Hextr: hexEncodedStr, Reply: uniqueReplyTo, Db: q.Get("db")}); err != nil {
+			if err := EC.Publish("ascii.json.banner", &Req{Token: token, Hextr: hexEncodedStr, Reply: uniqueReplyTo, Db: string(ctx.FormValue("db"))}); err != nil {
 				log.Print(err)
 			}
 			// Read the reply for Wait seconds
