@@ -5,17 +5,18 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
+
+	//"net/http"
 	"os"
 	"os/signal"
 	"runtime"
 	"time"
 
 	"github.com/armon/go-metrics"
-	"github.com/bmizerany/pat"
 	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/nats-io/nats.go"
+	"github.com/valyala/fasthttp"
 )
 
 // Req Define the object
@@ -171,15 +172,32 @@ func main() {
 		log.SetFlags(log.LstdFlags)
 	}
 
-	router := pat.New()
-	router.Get("/version", http.HandlerFunc(version))
-	router.Get("/healthz", http.HandlerFunc(healthz))
-	router.Get("/readinez", http.HandlerFunc(readinez))
+	// the corresponding fasthttp code
+	router := func(ctx *fasthttp.RequestCtx) {
+		switch string(ctx.Path()) {
+		case "/":
+			api(ctx)
+		case "/version":
+			//		version(ctx)
+		case "/healthz":
+			//		healthz(ctx)
+		case "/readinez":
+			//		readinez.HandlerFunc(ctx)
+		default:
+			ctx.Error("not found", fasthttp.StatusNotFound)
+		}
+	}
 
+	/*
+		router := pat.New()
+		router.Get("/version", http.HandlerFunc(version))
+		router.Get("/healthz", http.HandlerFunc(healthz))
+		router.Get("/readinez", http.HandlerFunc(readinez))
+	*/
 	switch *AppRole {
 
 	case "api":
-		router.Get("/", http.HandlerFunc(api))
+		//router.Get("/", http.HandlerFunc(api))
 
 		//router.HandleFunc("/", api)
 
@@ -188,7 +206,7 @@ func main() {
 		if err := NC.Publish("api."+Environment, []byte(API["ascii"])); err != nil {
 			log.Fatal(err)
 		}
-		router.Get("/", http.HandlerFunc(ascii))
+		//router.Get("/", http.HandlerFunc(ascii))
 
 		//router.HandleFunc("/", ascii)
 
@@ -197,7 +215,7 @@ func main() {
 			log.Fatal(err)
 		}
 		//router.HandleFunc("/", img)
-		router.Get("/", http.HandlerFunc(img))
+		//router.Get("/", http.HandlerFunc(img))
 
 	case "ml5":
 		if err := NC.Publish("api."+Environment, []byte(API["img"])); err != nil {
@@ -208,7 +226,7 @@ func main() {
 		//router.PathPrefix(*ModelsPath).Handler(http.StripPrefix(*ModelsPath, http.FileServer(http.Dir(*ModelsDir))))
 
 		//router.HandleFunc("/", ml5)
-		router.Get("/", http.HandlerFunc(ml5))
+		//router.Get("/", http.HandlerFunc(ml5))
 
 	case "data":
 
@@ -223,11 +241,13 @@ func main() {
 		}
 
 		//router.HandleFunc("/", dataHandler)
-		router.Get("/", http.HandlerFunc(data))
+		//router.Get("/", http.HandlerFunc(data))
 
 	}
 
-	log.Fatal(http.ListenAndServe(":"+*AppPort, router))
+	log.Fatal(fasthttp.ListenAndServe(":"+*AppPort, router))
+
+	//log.Fatal(http.ListenAndServe(":"+*AppPort, router))
 
 	// Setup the interrupt handler to drain so we don't miss
 	// requests when scaling down.

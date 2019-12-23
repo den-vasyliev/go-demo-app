@@ -6,16 +6,20 @@ import (
 	"hash/fnv"
 	_ "image/jpeg"
 	"log"
-	"net/http"
 	"net/url"
 	"strconv"
 	"time"
 
 	"github.com/nats-io/nats.go"
+	"github.com/valyala/fasthttp"
 	//metrics "github.com/armon/go-metrics"
 )
 
-func api(w http.ResponseWriter, r *http.Request) {
+func api(ctx *fasthttp.RequestCtx) {
+	//	fmt.Fprintf(ctx, "Hi there! RequestURI is %q", ctx.RequestURI())
+	//}
+
+	//func api(w http.ResponseWriter, r *http.Request) {
 	// increment counter
 	REQ0 = REQ0 + 1
 	var reply []byte
@@ -24,7 +28,7 @@ func api(w http.ResponseWriter, r *http.Request) {
 	h := fnv.New32a()
 
 	// parse uri
-	u, err := url.Parse(r.RequestURI)
+	u, err := url.Parse(string(ctx.RequestURI()))
 	if err != nil {
 		log.Print(err)
 	}
@@ -59,7 +63,7 @@ func api(w http.ResponseWriter, r *http.Request) {
 		// if cache found - reply
 		if err == nil {
 			reply, err = hex.DecodeString(cached)
-			w.Write(reply)
+			ctx.Write(reply)
 			// if cache not found - processing
 		} else {
 			// Create a unique subject name for replies.
@@ -86,11 +90,11 @@ func api(w http.ResponseWriter, r *http.Request) {
 			// decode cached reply
 			reply, _ = hex.DecodeString(cached)
 
-			w.Write(reply)
+			ctx.Write(reply)
 
 		}
 
 	} else {
-		w.Write(append([]byte(""), Environment...))
+		ctx.Write(append([]byte(""), Environment...))
 	}
 }
