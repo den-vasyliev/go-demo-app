@@ -5,7 +5,7 @@ app:
 
 image:
   name: denvasyliev/k8sdiy
-  tag: v4.0.22
+  tag: v5.3.1 
 
 front:
   version: 3.0.1
