@@ -1,32 +1,44 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nats-operator
-  # Change to the name of the namespace where to install NATS Operator.
-  # Alternatively, change to "nats-io" to perform a cluster-scoped deployment in supported versions.
-  namespace: {{ .Release.Namespace }}
+  name: {{ template "nats.fullname" . }}
+  labels:
+    app: {{ template "nats.name" . }}
+    chart: {{ template "nats.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    namespace: {{ .Release.Namespace }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      name: nats-operator
+      app: {{ template "nats.name" . }}
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        name: nats-operator
+        app: {{ template "nats.name" . }}
+        release: {{ .Release.Name }}
+      {{- if .Values.podLabels }}
+        {{ .Values.podLabels}}
+      {{- end }}
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{ .Values.podAnnotations }}
+      {{- end }}
     spec:
+      {{- if .Values.rbacEnabled }}
       serviceAccountName: nats-operator
+      {{- end }}
       containers:
       - name: nats-operator
-        image: connecteverything/nats-operator:0.6.0
-        imagePullPolicy: IfNotPresent
+        image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.pullPolicy  }}
+        {{- if .Values.clusterScoped }}
         args:
         - nats-operator
-        # Uncomment to perform a cluster-scoped deployment in supported versions.
-        #- --feature-gates=ClusterScoped=true
-        ports:
-        - name: readyz
-          containerPort: 8080
+        - --feature-gates=ClusterScoped=true
+        {{- end }}
         env:
         - name: MY_POD_NAMESPACE
           valueFrom:
@@ -36,9 +48,71 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
+        ports:
+        - name: readyz
+          containerPort: 8080
+        {{- if .Values.livenessProbe.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /readyz
+            port: readyz
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.livenessProbe.successThreshold }}
+          failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+        {{- end }}
+        {{- if .Values.readinessProbe.enabled }}
         readinessProbe:
           httpGet:
             path: /readyz
             port: readyz
-          initialDelaySeconds: 15
-          timeoutSeconds: 3
+          initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.readinessProbe.successThreshold }}
+          failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+        {{- end }}
+        resources:
+{{ toYaml .Values.resources | indent 10}}
+      {{- if .Values.securityContext.enabled }}
+      securityContext:
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{ .Values.nodeSelector }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations:
+        {{ .Values.tolerations }}
+      {{- end }}
+      {{- if .Values.schedulerName }}
+      schedulerName: "{{ .Values.schedulerName}}"
+      {{- end }}
+      {{- if eq .Values.antiAffinity "hard" }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchLabels:
+                  app: "{{ template "nats.name" . }}"
+                  release: {{ .Release.Name | quote }}
+      {{- else if eq .Values.antiAffinity "soft" }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: "{{ template "nats.name" . }}"
+                  release: "{{ .Release.Name }}"
+      {{- end }}
+      {{- if .Values.pullSecrets }}
+      imagePullSecrets:
+        {{ .Values.pullSecrets}}
+      {{- end }}

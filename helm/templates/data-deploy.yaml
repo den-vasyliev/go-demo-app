@@ -25,7 +25,7 @@ spec:
           - "-role"
           - "data"
           - "-server"
-          - {{ .Release.Namespace }}-{{ .Values.nats.service.name }}
+          - {{ .Values.nats.service.name }}
         env:
           - name: APP_DB
             value: "root@tcp(db:3306)/demo"

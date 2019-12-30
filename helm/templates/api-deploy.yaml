@@ -25,7 +25,7 @@ spec:
           - "-role"
           - "api"
           - "-server"
-          - nats://{{ .Release.Namespace }}-{{ .Values.nats.service.name }}:{{ .Values.nats.service.port }}
+          - {{ .Values.nats.service.name }}
         imagePullPolicy: Always
         env:
           - name: APP_BACKEND

@@ -27,7 +27,7 @@ spec:
           - "-r"
           - "0.2"
           - "-server"
-          - "nats://perf-nats-cluster:4222"
+          - {{ .Values.nats.service.name }}
         imagePullPolicy: Always
         env:
           - name: APP_DB

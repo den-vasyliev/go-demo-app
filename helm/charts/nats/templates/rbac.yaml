@@ -1,44 +1,8 @@
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: nats-operator
-  # Change to the name of the namespace where to install NATS Operator.
-  # Alternatively, change to "nats-io" to perform a cluster-scoped deployment in supported versions.
-  namespace: {{ .Release.Namespace }}
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: nats-operator-binding
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: nats-operator
-subjects:
-- kind: ServiceAccount
-  name: nats-operator
-  # Change to the name of the namespace where to install NATS Operator.
-  # Alternatively, change to "nats-io" to perform a cluster-scoped deployment in supported versions.
-  namespace: {{ .Release.Namespace }}
-
-# NOTE: When performing multiple namespace-scoped installations, all
-# "nats-operator" service accounts (across the different namespaces)
-# MUST be added to this binding.
-#- kind: ServiceAccount
-#  name: nats-operator
-#  namespace: nats-io
-#- kind: ServiceAccount
-#  name: nats-operator
-#  namespace: namespace-2
-#(...)
-
----
+{{- if .Values.rbacEnabled }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: nats-operator
+  name: nats-io:nats-operator-crd
 rules:
 # Allow creating CRDs
 - apiGroups:
@@ -46,15 +10,41 @@ rules:
   resources:
   - customresourcedefinitions
   verbs: ["get", "list", "create", "update", "watch"]
-
-# Allow all actions on NATS Operator manager CRDs
+# Allow all actions on NatsClusters
 - apiGroups:
   - nats.io
   resources:
   - natsclusters
   - natsserviceroles
   verbs: ["*"]
-
+# Allowed actions on Pods
+- apiGroups: [""]
+  resources:
+  - pods
+  verbs: ["create", "watch", "get", "patch", "update", "delete", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nats-io:nats-operator-crd-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: nats-io:nats-operator-crd
+subjects:
+- kind: ServiceAccount
+  name: nats-operator
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+{{- if .Values.clusterScoped }}
+kind: ClusterRole
+{{- else }}
+kind: Role
+{{- end }}
+metadata:
+  name: nats-io:nats-operator
+rules:
 # Allowed actions on Pods
 - apiGroups: [""]
   resources:
@@ -94,33 +84,25 @@ rules:
   resources:
   - endpoints
   verbs: ["create", "watch", "get", "update", "delete", "list"]
-
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: nats-server
-  namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: nats-server
-rules:
-- apiGroups: [""]
-  resources:
-  - nodes
-  verbs: ["get"]
----
-apiVersion: rbac.authorization.k8s.io/v1
+{{- if .Values.clusterScoped }}
 kind: ClusterRoleBinding
+{{- else }}
+kind: RoleBinding
+{{- end }}
 metadata:
-  name: nats-server-binding
+  name: nats-io:nats-operator-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
+  {{- if .Values.clusterScoped }}
   kind: ClusterRole
-  name: nats-server
+  {{- else }}
+  kind: Role
+  {{- end }}
+  name: nats-io:nats-operator
 subjects:
 - kind: ServiceAccount
-  name: nats-server
+  name: nats-operator
   namespace: {{ .Release.Namespace }}
+{{- end }}

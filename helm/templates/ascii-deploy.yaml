@@ -25,7 +25,7 @@ spec:
           - "-role"
           - "ascii"
           - "-server"
-          - {{ .Release.Namespace }}-{{ .Values.nats.service.name }}
+          - {{ .Values.nats.service.name }}
         imagePullPolicy: Always
         env:
           - name: APP_DATASTORE
