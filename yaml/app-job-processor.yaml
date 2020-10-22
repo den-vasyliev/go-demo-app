@@ -1,0 +1,126 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: app-job-processor
+spec:
+  template:
+    spec:
+ 
+      volumes:
+ 
+      - name: data-input
+        persistentVolumeClaim:
+          claimName: sportradar-pvc-input
+
+      - name: data-output
+        persistentVolumeClaim:
+          claimName: sportradar-pvc-output
+
+      - name: data-params
+        secret:
+          secretName: data-params
+
+      - name: metrics-params
+        secret:
+          secretName: metrics-params
+
+      - name: data-secret
+        secret:
+          secretName: storage-secret
+
+      - name: data-code
+        secret:
+          secretName: soccer-code
+
+      - name: metrics-code
+        secret:
+          secretName: metrics-code
+
+      - name: gcp-auth
+        secret:
+          secretName: gcp-sa
+
+      - name: gsutil-conf
+        secret:
+          secretName: gsutil-conf
+      
+      containers:
+      - name: main
+        image: busybox
+        command: ["/bin/sh", "-c", "echo Finish"]
+
+      initContainers:
+      - name: init
+        image: google/cloud-sdk:275.0.0-alpine
+        command: ["/bin/sh", "-c", "cp /tmp/.boto /root/ && gsutil -m rsync -dr gs://glow-sportradar/ /tmp/data/input
+"]
+         
+        volumeMounts:
+        - name: data-input
+          mountPath: /tmp/data/input
+        - name: gcp-auth
+          mountPath: /tmp/data/auth
+        - name: gsutil-conf
+          mountPath: /tmp
+
+      - name: processor
+        image: glowtools/soccer:latest-122f4de
+        env:
+          - name: SECRET_NAME
+            value: /tmp/data/secrets/secret
+
+          - name: FAAS_SECRET_PATH
+            value: /tmp/data/secrets
+
+          - name: DEBUG
+            value: ""
+
+#        command: ["sh",  "-c", "sleep 36000"]
+        command: ["sh", "-c", "PYTHONPATH=/home/app/python:/home/app/function python /tmp/data/code/handler.py $DEBUG -conf /tmp/data/conf/conf"]
+
+        volumeMounts:
+
+        - name: data-code
+          mountPath: /tmp/data/code
+          readOnly: true
+
+        - name: data-params
+          mountPath: /tmp/data/conf
+          readOnly: true
+
+        - name: data-secret
+          mountPath: /tmp/data/secrets
+          readOnly: true
+
+        - name: data-input
+          mountPath: /tmp/data/input
+          readOnly: true
+
+        - name: data-output
+          mountPath: /tmp/data/output
+
+      - name: metrics
+        image: glowtools/soccermetrics:latest-990f291
+
+#        command: ["sh",  "-c", "sleep 36000"]
+        command: ["sh", "-c", "PYTHONPATH=/home/app/python:/home/app/function python /tmp/data/code/handler.py -conf /tmp/data/conf/conf"]
+
+        volumeMounts:
+
+        - name: metrics-code
+          mountPath: /tmp/data/code
+          readOnly: true
+
+        - name: metrics-params
+          mountPath: /tmp/data/conf
+          readOnly: true
+
+        - name: data-input
+          mountPath: /tmp/data/input
+          readOnly: true
+
+        - name: data-output
+          mountPath: /tmp/data/output
+
+      restartPolicy: Never
+  backoffLimit: 0

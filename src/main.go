@@ -40,8 +40,9 @@ func main() {
 	API["data"] = "broker message api"
 
 	initOptions()
+
 	AppName := flag.String("name", "k8sdiy", "application name")
-	AppRole := flag.String("role", "api", "app role: api data ascii img ml5")
+	AppRole := flag.String("role", "api", "app role: api data ascii img ml5 iot")
 	AppPort := flag.String("port", "8080", "application port")
 	//AppPath := flag.String("path", "/static/", "path to serve static files")
 	//AppDir := flag.String("dir", "./ml5", "the directory of static files to host")
@@ -50,8 +51,8 @@ func main() {
 	Cache = flag.String("cache", "true", "cache enable")
 	Wait = flag.String("wait", "2s", "wait timeout")
 
-	var urls = flag.String("server", nats.DefaultURL, "The nats server URLs (separated by comma)")
-	var userCreds = flag.String("creds", "", "User Credentials File")
+	Urls = flag.String("server", nats.DefaultURL, "The nats server URLs (separated by comma)")
+	//var userCreds = flag.String("creds", "", "User Credentials File")
 	var showTime = flag.Bool("timestamp", false, "Display timestamps")
 	//var queueName = flag.String("queGroupName", "K8S-NATS-Q", "Queue Group Name")
 	var showHelp = flag.Bool("help", false, "Show help message")
@@ -89,84 +90,7 @@ func main() {
 	}()
 
 	Environment = fmt.Sprintf("%s-%s:%s", *AppName, Role, Version)
-
-	// Connect to cache
-	CACHE = redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", AppCache, AppCachePort),
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
-	_, err = CACHE.Ping().Result()
-	if err != nil {
-		log.Print(err)
-	}
-
-	// Connect to db
-
-	DB, err = sql.Open("mysql", AppDb)
-	//	DB.SetMaxIdleConns(10000)
-	if err != nil {
-		log.Print(err)
-	}
-	defer DB.Close()
-
-	err = DB.Ping()
-	if err != nil {
-		log.Print(err) // proper error handling instead of panic in your app
-	}
-
 	// Connect Options.
-	subj, subjJSON, i := *AppRole+".*", *AppRole+".json.*", 0
-
-	opts := []nats.Option{nats.Name(Role + " on " + subj)}
-	opts = setupConnOptions(opts)
-
-	// Use UserCredentials
-	if *userCreds != "" {
-		opts = append(opts, nats.UserCredentials(*userCreds))
-	}
-
-	// Connect to NATS
-
-	NC, err = nats.Connect(*urls, opts...)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := NC.LastError(); err != nil {
-		log.Fatal(err)
-	}
-	defer NC.Close()
-
-	EC, err = nats.NewEncodedConn(NC, nats.JSON_ENCODER)
-	defer EC.Close()
-
-	STMTIns, err = DB.Prepare("insert into demo values(null,?,?)")
-	STMTSel, err = DB.Prepare("SELECT text FROM demo WHERE token = ? limit 1")
-	defer STMTIns.Close()
-	defer STMTSel.Close()
-
-	// Subscribe
-	if _, err = EC.Subscribe(subjJSON, func(r *Req) {
-
-		REQ0 = REQ0 + 1
-
-		i++
-
-		if *AppRole == "ascii" {
-
-			go AsciiHandler(r, i)
-
-		} else if *AppRole == "data" {
-
-			go DataHandler(r, i)
-		}
-
-	}); err != nil {
-		log.Print(err)
-	}
-
-	log.Printf("Listening on [%s]: %s port: %s", subj, Environment, *AppPort)
 
 	if *showTime {
 		log.SetFlags(log.LstdFlags)
@@ -176,13 +100,15 @@ func main() {
 	router := func(ctx *fasthttp.RequestCtx) {
 		switch string(ctx.Path()) {
 		case "/":
-			api(ctx)
+			img(ctx)
 		case "/version":
-			//		version(ctx)
+			version(ctx)
 		case "/healthz":
 			//		healthz(ctx)
 		case "/readinez":
 			//		readinez.HandlerFunc(ctx)
+		case "/img":
+			img(ctx)
 		default:
 			ctx.Error("not found", fasthttp.StatusNotFound)
 		}
@@ -196,31 +122,36 @@ func main() {
 	*/
 	switch *AppRole {
 
+	/*	case "iot":
+		svr := &service.Server{
+			KeepAlive:        300,           // seconds
+			ConnectTimeout:   2,             // seconds
+			SessionsProvider: "mem",         // keeps sessions in memory
+			Authenticator:    "mockSuccess", // always succeed
+			TopicsProvider:   "mem",         // keeps topic subscriptions in memory
+		}
+		// Listen and serve connections at localhost:1883
+		err := svr.ListenAndServe("tcp://:1883")
+		fmt.Printf("%v", err)
+	*/
 	case "api":
 		//router.Get("/", http.HandlerFunc(api))
 
 		//router.HandleFunc("/", api)
 
 	case "ascii":
-
-		if err := NC.Publish("api."+Environment, []byte(API["ascii"])); err != nil {
-			log.Fatal(err)
-		}
 		//router.Get("/", http.HandlerFunc(ascii))
 
 		//router.HandleFunc("/", ascii)
 
 	case "img":
-		if err := NC.Publish("api."+Environment, []byte(API["img"])); err != nil {
-			log.Fatal(err)
-		}
-		//router.HandleFunc("/", img)
-		//router.Get("/", http.HandlerFunc(img))
+		//if err := NC.Publish("api."+Environment, []byte(API["img"])); err != nil {
+	//		log.Fatal(err)
+	//		}
+	//router.HandleFunc("/", img)
+	//router.Get("/", http.HandlerFunc(img))
 
 	case "ml5":
-		if err := NC.Publish("api."+Environment, []byte(API["img"])); err != nil {
-			log.Fatal(err)
-		}
 
 		//router.PathPrefix(*AppPath).Handler(http.StripPrefix(*AppPath, http.FileServer(http.Dir(*AppDir))))
 		//router.PathPrefix(*ModelsPath).Handler(http.StripPrefix(*ModelsPath, http.FileServer(http.Dir(*ModelsDir))))
@@ -229,10 +160,6 @@ func main() {
 		//router.Get("/", http.HandlerFunc(ml5))
 
 	case "data":
-
-		if err := NC.Publish("api."+Environment, []byte(API["data"])); err != nil {
-			log.Fatal(err)
-		}
 
 		_, err = DB.Exec("CREATE TABLE IF NOT EXISTS demo (id INT NOT NULL AUTO_INCREMENT, token INT UNSIGNED NOT NULL, text TEXT, PRIMARY KEY(id, token))")
 
@@ -258,5 +185,90 @@ func main() {
 	log.Printf("Draining...")
 	NC.Drain()
 	log.Fatalf("Exiting")
+
+}
+
+func cache() {
+	// Connect to cache
+	CACHE = redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%s", AppCache, AppCachePort),
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+	_, err := CACHE.Ping().Result()
+	if err != nil {
+		log.Print(err)
+	}
+}
+
+func db() {
+	// Connect to db
+
+	DB, err := sql.Open("mysql", AppDb)
+	//	DB.SetMaxIdleConns(10000)
+	if err != nil {
+		log.Print(err)
+	}
+	defer DB.Close()
+
+	err = DB.Ping()
+	if err != nil {
+		log.Print(err) // proper error handling instead of panic in your app
+	}
+
+	STMTIns, err = DB.Prepare("insert into demo values(null,?,?)")
+	STMTSel, err = DB.Prepare("SELECT text FROM demo WHERE token = ? limit 1")
+	defer STMTIns.Close()
+	defer STMTSel.Close()
+}
+
+func mq() {
+	subj, subjJSON, i := *AppRole+".*", *AppRole+".json.*", 0
+
+	opts := []nats.Option{nats.Name(Role + " on " + subj)}
+	opts = setupConnOptions(opts)
+
+	// Use UserCredentials
+	/*if *userCreds != "" {
+		opts = append(opts, nats.UserCredentials(*userCreds))
+	}
+	*/
+
+	// Connect to NATS
+	var err error
+	NC, err = nats.Connect(*Urls, opts...)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := NC.LastError(); err != nil {
+		log.Fatal(err)
+	}
+	defer NC.Close()
+
+	EC, err = nats.NewEncodedConn(NC, nats.JSON_ENCODER)
+	defer EC.Close()
+
+	// Subscribe
+	if _, err = EC.Subscribe(subjJSON, func(r *Req) {
+
+		REQ0 = REQ0 + 1
+
+		i++
+
+		if *AppRole == "ascii" {
+
+			go AsciiHandler(r, i)
+
+		} else if *AppRole == "data" {
+
+			go DataHandler(r, i)
+		}
+
+	}); err != nil {
+		log.Print(err)
+	}
+
+	log.Printf("Listening on [%s]: %s port: %s", subj, Environment, *AppPort)
 
 }

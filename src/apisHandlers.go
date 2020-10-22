@@ -1,10 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"log"
 	"net/http"
+
+	"github.com/valyala/fasthttp"
 )
 
 func ascii(w http.ResponseWriter, r *http.Request) {
@@ -25,21 +26,16 @@ func data(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func version(w http.ResponseWriter, r *http.Request) {
-	b, err := json.Marshal(APIReg)
-	if err != nil {
-		log.Print(err)
-	}
+func version(ctx *fasthttp.RequestCtx) {
+	var b []byte
+	b = append([]byte(""), Environment...)
 
-	REQ0 = REQ0 + 1
-
-	w.Write([]byte(b))
+	ctx.Write(b)
 }
 
-func healthz(w http.ResponseWriter, r *http.Request) {
-	REQ0 = REQ0 + 1
+func healthz(ctx *fasthttp.RequestCtx) {
 
-	w.Write([]byte("Healthz: alive!"))
+	ctx.Write([]byte("Healthz: alive!"))
 }
 
 func readinez(w http.ResponseWriter, r *http.Request) {

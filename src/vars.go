@@ -13,6 +13,12 @@ import (
 var (
 	// API is api ref
 	API = make(map[string]string)
+	//Urls nats addresses
+	Urls *string
+	// AppRole app role
+	AppRole *string
+	//AppPort app port
+	AppPort *string
 	// AppLicense app
 	AppLicense = os.Getenv("APP_LICENSE")
 	// AppASCII app

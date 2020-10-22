@@ -5,35 +5,34 @@ import (
 	_ "image/jpeg"
 	"io"
 	"log"
-	"net/http"
-	"time"
 
-	metrics "github.com/armon/go-metrics"
 	"github.com/qeesung/image2ascii/convert"
+	"github.com/valyala/fasthttp"
 )
 
-func img(w http.ResponseWriter, r *http.Request) {
-	defer metrics.MeasureSince([]string{"API"}, time.Now())
-	switch r.Method {
+func img(ctx *fasthttp.RequestCtx) {
+
+	switch string(ctx.Method()) {
 	case "GET":
 		var b []byte
 		b = append([]byte(""), Environment...)
-		w.Write(b)
+		ctx.Write(b)
 	case "POST":
 		var Buf bytes.Buffer
 
-		f, _, _ := r.FormFile("image")
-		defer f.Close()
-		io.Copy(&Buf, f)
+		f, _ := ctx.FormFile("image")
+		ff, _ := f.Open()
+		//defer f.Close()
+		io.Copy(&Buf, ff)
 		b := Buf.Bytes()
 
 		Buf.Reset()
-		w.Header().Set("Content-Type", "text/plain")
+		//ctx.Header().Set("Content-Type", "text/plain")
 
 		if convertOptions, err := parseOptions(); err == nil {
 			converter := convert.NewImageConverter()
 
-			w.Write([]byte(converter.ImageFile2ASCIIString(b, convertOptions)))
+			ctx.Write([]byte(converter.ImageFile2ASCIIString(b, convertOptions)))
 		} else {
 			log.Print("No opt")
 		}
