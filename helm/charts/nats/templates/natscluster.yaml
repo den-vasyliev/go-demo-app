@@ -4,7 +4,9 @@ apiVersion: "nats.io/v1alpha2"
 kind: "NatsCluster"
 metadata:
   name: {{ .Values.cluster.name }}
+{{- if and .Values.clusterScoped .Values.cluster.namespace }} 
   namespace: {{ .Release.Namespace }}
+{{- end }}
 spec:
   size: {{ .Values.cluster.size }}
   version: {{ .Values.cluster.version }}

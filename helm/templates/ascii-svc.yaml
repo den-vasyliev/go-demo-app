@@ -14,7 +14,7 @@ metadata:
   annotations:
    getambassador.io/config: |
       ---
-      apiVersion: ambassador/v0
+      apiVersion: ambassador/v1
       kind:  Mapping
       name:  {{ .Release.Name }}-ascii
       prefix: /ascii/

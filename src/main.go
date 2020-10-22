@@ -161,7 +161,7 @@ func main() {
 
 	case "data":
 
-		_, err = DB.Exec("CREATE TABLE IF NOT EXISTS demo (id INT NOT NULL AUTO_INCREMENT, token INT UNSIGNED NOT NULL, text TEXT, PRIMARY KEY(id, token))")
+		//_, err = DB.Exec("CREATE TABLE IF NOT EXISTS demo (id INT NOT NULL AUTO_INCREMENT, token INT UNSIGNED NOT NULL, text TEXT, PRIMARY KEY(id, token))")
 
 		if err != nil {
 			log.Printf("CreateErr: %s", err) // proper error handling instead of panic in your app

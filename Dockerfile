@@ -1,4 +1,4 @@
-FROM 291cc428dfa2 as builder
+FROM denvasyliev/k8sdiy:builder-v2 as builder
 ARG APP_VERSION
 WORKDIR /go/src/app
 COPY src/ .
