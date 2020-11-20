@@ -1,7 +1,7 @@
 ---
 {{- if .Values.cluster.create }}
 apiVersion: "nats.io/v1alpha2"
-kind: "NatsCluster"
+kind: NatsCluster
 metadata:
   name: {{ .Values.cluster.name }}
 {{- if and .Values.clusterScoped .Values.cluster.namespace }} 

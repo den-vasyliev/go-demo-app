@@ -9,7 +9,7 @@ metadata:
     run: demo
 spec:
   containers:
-    - image: gcr.io/smartcity-gl/harmonic:v2.0.2
+    - image: gcr.io/k8s-k3s/demo:v1.0.0
       name: app
       ports:
         - containerPort: 8000
