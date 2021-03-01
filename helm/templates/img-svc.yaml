@@ -16,7 +16,7 @@ metadata:
       apiVersion: ambassador/v1
       kind:  Mapping
       name:  {{ .Release.Name }}-img
-      prefix: /api/
+      prefix: /img/
       service: {{ .Release.Name }}-img
       {{include "canary-header" .}}
         {{include "canary-header-mode" .}}
