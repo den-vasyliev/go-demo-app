@@ -13,7 +13,7 @@ front:
   canary: 0.0
   header: ""
   port: 8080
-  tag: front-v3.0.3
+  tag: front-v3.0.2
 
 api:
   replicas: 1
@@ -60,7 +60,7 @@ nats:
     port: 4222
 
 ns:
-  enable: true
+  enable: false
 
 
 api-gateway:
