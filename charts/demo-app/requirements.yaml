@@ -1,3 +1,0 @@
-dependencies:
-- name: nats-operator
-  condition: cluster.create
