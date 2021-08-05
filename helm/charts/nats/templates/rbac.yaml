@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: nats-io:nats-operator-crd
+  name: nats-io-nats-operator-crd
 rules:
 # Allow creating CRDs
 - apiGroups:
@@ -26,11 +26,11 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: nats-io:nats-operator-crd-binding
+  name: nats-io-nats-operator-crd-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: nats-io:nats-operator-crd
+  name: nats-io-nats-operator-crd
 subjects:
 - kind: ServiceAccount
   name: nats-operator
@@ -43,7 +43,7 @@ kind: ClusterRole
 kind: Role
 {{- end }}
 metadata:
-  name: nats-io:nats-operator
+  name: nats-io-nats-operator
 rules:
 # Allowed actions on Pods
 - apiGroups: [""]
@@ -92,7 +92,7 @@ kind: ClusterRoleBinding
 kind: RoleBinding
 {{- end }}
 metadata:
-  name: nats-io:nats-operator-binding
+  name: nats-io-nats-operator-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   {{- if .Values.clusterScoped }}
@@ -100,7 +100,7 @@ roleRef:
   {{- else }}
   kind: Role
   {{- end }}
-  name: nats-io:nats-operator
+  name: nats-io-nats-operator
 subjects:
 - kind: ServiceAccount
   name: nats-operator

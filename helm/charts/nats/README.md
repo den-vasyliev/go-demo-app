@@ -102,10 +102,12 @@ their default values.
 | `readinessProbe.failureThreshold`            | Minimum consecutive failures for the probe to be considered failed after having succeeded.   | `6`                                             |
 | `readinessProbe.successThreshold`            | Minimum consecutive successes for the probe to be considered successful after having failed. | `1`                                             |
 | `cluster.create`                             | Create and deploy a NATS Cluster togheter with the operator                                  | `true`                                          |
-| `cluster.name`                               | Name of NATS Clust 																																					| `nats-cluster` 																	|
-| `cluster.namespace`                          | Namespace to deploy the NATS Cluster in, only possible if `clusterScoped` is set to `true`   | ``                                         |
+| `cluster.name`                               | Name of NATS Cluster                                                                         | `nats-cluster`                                  |
+| `cluster.namespace`                          | Namespace to deploy the NATS Cluster in, only possible if `clusterScoped` is set to `true`   | `nats-io`                                       |
 | `cluster.version`                            | Version of NATS Cluster                                                                      | `1.4.1`                                         |
 | `cluster.size`                               | Number of NATS Cluster nodes                                                                 | `3`                                             |
+| `cluster.annotations`                        | Optional custom annotations to add to Pods in the cluster                                    | `{}`                                            |
+| `cluster.resources`                          | Optional CPU/Memory resource requests/limits to set on Pods in the cluster                   | `{}`                                            |
 | `cluster.auth.enabled`                       | Switch to enable/disable client authentication                                               | `true`                                          |
 | `cluster.auth.enableServiceAccounts`         | Enable ServiceAccounts permissions                                                           | `false`                                         |
 | `cluster.auth.username`                      | Client authentication username                                                               | `true`                                          |

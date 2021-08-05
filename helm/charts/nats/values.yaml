@@ -9,11 +9,14 @@ rbacEnabled: true
 ## * The Release namespace must be "nats-io"
 clusterScoped: false
 
+## Set default Replica Coint for the Operator
+replicaCount: 1
+
 image:
-# connecteverything/nats-operator:0.2.3-v1alpha2
+# connecteverything/nats-operator:0.7.4
   registry: docker.io
   repository: connecteverything/nats-operator
-  tag: 0.6.0
+  tag: 0.7.4
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -62,24 +65,22 @@ podAnnotations: {}
 ##
 podLabels: {}
 
-## Update strategy, can be set to RollingUpdate or OnDelete by default.
-## https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#updating-statefulsets
+## Update strategy, can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
 
-updateStrategy: OnDelete
-## Partition update strategy
-## https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#partitions
-# rollingUpdatePartition:
+updateStrategy: RollingUpdate
+# rollingUpdateMaxSurge: 25%
+# rollingUpdateMaxUnavailable: "25% 
 
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
 ##
 resources: {}
 # limits:
-#   cpu: 500m
-#   memory: 512Mi
-# requests:
 #   cpu: 100m
-#   memory: 256Mi
+#   memory: 64Mi
+# requests:
+#   cpu: 10m
+#   memory: 64Mi
 
 ## Configure extra options for liveness and readiness probes
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes)
@@ -105,21 +106,32 @@ cluster:
   name: nats-cluster
 
   ## Choose namespace for cluster deployment if clusterScoped is set to true
-  # namesapce: "some-namespace"
+  namespace: "nats-io"
 
   ## Nats version
   ## Image tags are listed here: https://hub.docker.com/_/nats?tab=tags
   version: 1.4.1
 
   ## Cluster Size
-  size: 1
+  size: 3
+
+  ## Optional custom annotations to add to Pods in the cluster
+  annotations: {}
+
+  resources: {}
+  # limits:
+  #   cpu: 500m
+  #   memory: 512Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 256Mi
 
   ## Client Authentication
   ## ref: https://github.com/nats-io/gnatsd#authentication
   ## note: token not supported only user/password will work with this chart version
   ##
   auth:
-    enabled: false
+    enabled: true
 
     # NOTE: Only supported in Kubernetes v1.12+ clusters having the "TokenRequest" API enabled.
     enableServiceAccounts: false
@@ -155,6 +167,13 @@ cluster:
     repository: "connecteverything/nats-server-config-reloader"
     tag: "0.2.2-v1alpha2"
     pullPolicy: "IfNotPresent"
+    resources: {}
+    # limits:
+    #   cpu: 50m
+    #   memory: 32Mi
+    # requests:
+    #   cpu: 10m
+    #   memory: 32Mi
 
   ## Prometheus Metrics Exporter
   ##
@@ -162,7 +181,7 @@ cluster:
     enabled: false
     registry: "docker.io"
     repository: "synadia/prometheus-nats-exporter"
-    tag: "0.2.0"
+    tag: "0.6.2"
     pullPolicy: "IfNotPresent"
 
     # Prometheus Operator ServiceMonitor config
