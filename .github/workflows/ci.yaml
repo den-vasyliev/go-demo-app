@@ -14,4 +14,4 @@ jobs:
      - name: Run unit tests
        run: make unit-test
      - name: Build Linux binary
-       run: make
+       run: make PLATFORM=linux/amd64
