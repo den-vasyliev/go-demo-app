@@ -46,6 +46,10 @@ func DataHandler(r *Req, i int) {
 		log.Print(err)
 	}
 
-	NC.Publish(r.Reply, []byte(tokenStr))
+	err = NC.Publish(r.Reply, []byte(tokenStr))
+
+	if err != nil {
+		log.Print(err)
+	}
 
 }

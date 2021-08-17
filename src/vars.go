@@ -7,7 +7,7 @@ import (
 	"github.com/armon/go-metrics"
 	"github.com/go-redis/redis"
 	"github.com/nats-io/nats.go"
-	"github.com/qeesung/image2ascii/convert"
+	"github.com/den-vasyliev/image2ascii/convert"
 )
 
 var (

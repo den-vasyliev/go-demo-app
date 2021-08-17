@@ -6,7 +6,7 @@ import (
 	"io"
 	"log"
 
-	"github.com/qeesung/image2ascii/convert"
+	"github.com/den-vasyliev/image2ascii/convert"
 	"github.com/valyala/fasthttp"
 )
 
@@ -32,7 +32,7 @@ func img(ctx *fasthttp.RequestCtx) {
 		if convertOptions, err := parseOptions(); err == nil {
 			converter := convert.NewImageConverter()
 
-			ctx.Write([]byte(converter.ImageFile2ASCIIString(b, convertOptions)))
+			ctx.Write([]byte(converter.ImageBuf2ASCIIString(b, convertOptions)))
 		} else {
 			log.Print("No opt")
 		}
