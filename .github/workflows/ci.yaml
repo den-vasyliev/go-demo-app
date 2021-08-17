@@ -6,8 +6,6 @@ jobs:
   ci:
     name: CI
     runs-on: ubuntu-latest
-    container:
-      image: jess/img:v0.5.7
     steps:
      - name: Checkout code
        uses: actions/checkout@v2
@@ -16,4 +14,4 @@ jobs:
      - name: Run unit tests
        run: make unit-test
      - name: Build Linux binary
-       run: make PLATFORM=linux/amd64
+       run: make

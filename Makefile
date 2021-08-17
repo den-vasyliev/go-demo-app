@@ -5,7 +5,7 @@ test: unit-test
 
 PLATFORM=local
 
-BUILDER = img
+BUILDER = docker
 
 build:
 	@echo "Let's build it"
