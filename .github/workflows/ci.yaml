@@ -57,19 +57,19 @@ jobs:
          echo "GITHUB_SHA: ${GITHUB_SHA}"
          echo "::set-output name=sha_short::${GITHUB_SHA::7}"
    
-      - name: update current version
-        uses: mikefarah/yq@3.3.2
-        with: 
-          cmd: yq w -i helm/values.yaml image.tag build-${{ steps.vars.outputs.sha_short }}
+     - name: update current version
+       uses: mikefarah/yq@3.3.2
+       with: 
+         cmd: yq w -i helm/values.yaml image.tag build-${{ steps.vars.outputs.sha_short }}
         
-      - name: setup git config
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "<>"
-          git add helm/values.yaml
-          git commit -m "update code version to ${{ steps.vars.outputs.sha_short }}"
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: master
+     - name: setup git config
+       run: |
+         git config user.name "GitHub Actions"
+         git config user.email "<>"
+         git add helm/values.yaml
+         git commit -m "update code version to ${{ steps.vars.outputs.sha_short }}"
+     - name: Push changes
+       uses: ad-m/github-push-action@master
+       with:
+         github_token: ${{ secrets.ACTIONS_TOKEN }}
+         branch: master
