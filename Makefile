@@ -9,8 +9,7 @@ BUILDER = docker
 
 build:
 	@echo "Let's build it"
-	#@echo $(git rev-parse HEAD|cut -c1-7)
-	#@export APP_BUILD_INFO=$(git rev-parse HEAD|cut -c1-7)
+	@export APP_BUILD_INFO=$(git rev-parse HEAD|cut -c1-7)
 	@${BUILDER} build \
 	--target build -o bin/ . \
 	--platform ${PLATFORM}

@@ -76,14 +76,14 @@ func main() {
 
 	REQ0 = 0.0
 	REQ1 = 0.0
-	t0 := time.Now()
+	//t0 := time.Now()
 
 	go func() { // Daniel told me to write this handler this way.
 		for {
 			select {
 			case <-time.After(time.Second * 1):
-				ts := time.Since(t0)
-				log.Println("[", Role, "] time: ", ts, " requests: ", REQ0, " rps: ", (REQ0-REQ1)/1, " throughput:", float64(REQ0)/ts.Seconds())
+			//	ts := time.Since(t0)
+			//	log.Println("[", Role, "] time: ", ts, " requests: ", REQ0, " rps: ", (REQ0-REQ1)/1, " throughput:", float64(REQ0)/ts.Seconds())
 				REQ1 = REQ0
 			}
 		}
@@ -91,6 +91,8 @@ func main() {
 
 	Environment = fmt.Sprintf("%s-%s:%s", *AppName, Role, Version)
 	// Connect Options.
+
+	log.Printf("Listening on [%s]: %s port: %s", *AppRole, Environment, *AppPort)
 
 	if *showTime {
 		log.SetFlags(log.LstdFlags)

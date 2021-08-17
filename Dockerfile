@@ -9,7 +9,7 @@ FROM builder AS build
 ARG TARGETOS
 ARG TARGETARCH
 RUN --mount=type=cache,target=/root/.cache/go-build \
-	CGO_ENABLED=0 GOOS=linux GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o app -a -installsuffix cgo -ldflags "-X main.Version=$APP_BUILD_INFO" -v ./...
+	CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o app -a -installsuffix cgo -ldflags "-X main.Version=$APP_BUILD_INFO" -v ./...
 
 FROM golangci/golangci-lint:v1.27-alpine AS lint-base
 
