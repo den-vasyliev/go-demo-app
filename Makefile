@@ -8,19 +8,19 @@ PLATFORM=linux
 BUILDER = docker
 
 TAG=denvasyliev/k8sdiy
+
 BUILD=$$(git rev-parse HEAD|cut -c1-7)
 
 build:
 	@echo "Let's build ${BUILD}"
 	@${BUILDER} build --progress plain \
-	--target build . --build-arg APP_BUILD_INFO=${BUILD} \
+	--target bin . --build-arg APP_BUILD_INFO=${BUILD} \
 	--platform ${PLATFORM} \
 	--tag ${TAG}:build-${BUILD}
 
 push:
 	@echo "Let's push it"
-	@export APP_BUILD_INFO=$(git rev-parse HEAD|cut -c1-7)
-	@${BUILDER} push ${TAG}:build-${APP_BUILD_INFO}
+	@${BUILDER} push ${TAG}:build-${BUILD}
 
 unit-test:
 	@echo "Run tests here..."

@@ -33,11 +33,18 @@ jobs:
          echo "GITHUB_SHA: ${GITHUB_SHA}"
          echo "::set-output name=sha_short::${GITHUB_SHA::7}"  
  
-     - name: Build and Push
-       uses: docker/build-push-action@v2
-       with:
-         push: true
-         tags: denvasyliev/k8sdiy:build-${{ steps.vars.outputs.sha_short }}
+     - name: Run build
+       run: make build
+
+     - name: Run push
+       run: make push
+
+#     - name: Build and Push
+#       uses: docker/build-push-action@v2
+#       with:
+#         push: true
+#         tags: denvasyliev/k8sdiy:build-${{ steps.vars.outputs.sha_short }}
+ 
   cd:
     name: CD
     needs: ci
