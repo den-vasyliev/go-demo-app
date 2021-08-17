@@ -18,11 +18,11 @@ jobs:
      - name: Docker login
        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
      - name: Declare SHA vars to use on other actions
-      id: vars
-      shell: bash
-      run: |
-        echo "GITHUB_SHA: ${GITHUB_SHA}"
-        echo "::set-output name=sha_short::${GITHUB_SHA::7}"  
+       id: vars
+       shell: bash
+       run: |
+         echo "GITHUB_SHA: ${GITHUB_SHA}"
+         echo "::set-output name=sha_short::${GITHUB_SHA::7}"  
      - name: Build Image
        uses: docker/build-push-action@v1
        with:
