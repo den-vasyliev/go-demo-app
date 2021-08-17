@@ -1,6 +1,9 @@
 name: Continuous Integration
 
-on: [push]
+on: 
+  push:
+    paths:
+      - 'src/**'
 
 jobs:
   ci:
@@ -8,21 +11,28 @@ jobs:
     runs-on: ubuntu-latest
     env:
        DOCKER_BUILDKIT: "1"
+ 
     steps:
+ 
      - name: Checkout code
        uses: actions/checkout@v2
+ 
      - name: Run linter
        run: make lint
+ 
      - name: Run unit tests
        run: make unit-test
+ 
      - name: Docker login
        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+ 
      - name: Declare SHA vars to use on other actions
        id: vars
        shell: bash
        run: |
          echo "GITHUB_SHA: ${GITHUB_SHA}"
          echo "::set-output name=sha_short::${GITHUB_SHA::7}"  
+ 
      - name: Build and Push
        uses: docker/build-push-action@v2
        with:
@@ -30,3 +40,36 @@ jobs:
          password: ${{ secrets.DOCKER_PASSWORD }}
          repository: denvasyliev/k8sdiy
          tags: build-${{ steps.vars.outputs.sha_short }}
+  cd:
+    name: CD
+    needs: ci
+    runs-on: ubuntu-latest
+ 
+    steps:
+   
+     - name: Checkout code
+       uses: actions/checkout@v2
+   
+     - name: Declare SHA vars to use on other actions
+       id: vars
+       shell: bash
+       run: |
+         echo "GITHUB_SHA: ${GITHUB_SHA}"
+         echo "::set-output name=sha_short::${GITHUB_SHA::7}"
+   
+      - name: update current version
+        uses: mikefarah/yq@3.3.2
+        with: 
+          cmd: yq w -i helm/values.yaml image.tag build-${{ steps.vars.outputs.sha_short }}
+        
+      - name: setup git config
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "<>"
+          git add helm/values.yaml
+          git commit -m "update code version to ${{ steps.vars.outputs.sha_short }}"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: master
