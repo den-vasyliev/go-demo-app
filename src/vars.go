@@ -40,7 +40,7 @@ var (
 	// AppCacheExpire app
 	AppCacheExpire = getEnv("APP_CACHE_EXPIRE", "120s")
 	// Version app
-	Version = "v3"
+	Version = "BUILD"
 	// Environment app
 	Environment = ""
 	// APIReg is a api map
