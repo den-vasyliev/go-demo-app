@@ -17,7 +17,7 @@ FROM builder AS lint
 COPY --from=lint-base /usr/bin/golangci-lint /usr/bin/golangci-lint
 RUN --mount=type=cache,target=/root/.cache/go-build \
   --mount=type=cache,target=/root/.cache/golangci-lint \
-  GO111MODULE=on golangci-lint run --disable-all -E asciicheck main.go
+  GO111MODULE=on golangci-lint run --disable-all main.go
 
 FROM builder AS unit-test
 RUN go test -v 

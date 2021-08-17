@@ -19,7 +19,7 @@ unit-test:
 
 lint:
 	@echo "Run lint here..."
-	@docker build --target lint
+	@docker build --target lint .
 clean:
 	@echo "Cleaning up..."
 	rm -rf bin
