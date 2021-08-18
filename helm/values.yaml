@@ -1,4 +1,4 @@
-app:
+rapp:
   name: k8sdiy
   version: v4
   port: 80
@@ -54,4 +54,4 @@ api-gateway:
   image:
     tag: 0.51.2
   service:
-    type: ClusterIP
+    type: NodePort
