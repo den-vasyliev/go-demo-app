@@ -1,4 +1,4 @@
-rapp:
+app:
   name: k8sdiy
   version: v4
   port: 80
