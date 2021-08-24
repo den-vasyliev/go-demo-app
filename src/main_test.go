@@ -6,7 +6,7 @@ import (
 
 
 func TestGetEnv(t *testing.T) {
-    getEnv("Version", "app")
+    getEnv("Version", "demo")
 
 }
 

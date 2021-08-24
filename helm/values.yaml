@@ -4,7 +4,7 @@ app:
   port: 80
 image:
   name: denvasyliev/k8sdiy
-  tag: build-588bece
+  tag: build-373f67d
 front:
   version: 3.0.1
   replicas: 1
@@ -54,4 +54,4 @@ api-gateway:
   image:
     tag: 0.51.2
   service:
-    type: LoadBalancer
+    type: NodePort
