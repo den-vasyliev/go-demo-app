@@ -1,4 +1,4 @@
-{{- define "canary-weight" }}{{ if gt .Values.api.canary 0.0 }}weight: {{.Values.api.canary}}{{ end }} {{- end }}
+{{- define "canary-weight" }}{{ if .Values.api.canary }}weight: {{.Values.api.canary}}{{ end }} {{- end }}
 {{- define "canary-header" }}{{ if .Values.api.header  }}headers:{{ end }} {{- end }}
 {{- define "canary-header-mode" }}{{ if .Values.api.header  }}x-mode: {{ .Values.api.header }}{{ end }} {{- end }}
 ---

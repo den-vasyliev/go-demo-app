@@ -8,28 +8,28 @@ image:
 front:
   version: 3.0.1
   replicas: 1
-  canary: 0.0
+  canary: 0
   header: ""
   port: 8080
   tag: front-v3.0.2
 api:
   replicas: 1
-  canary: 0.0
+  canary: 0
   header: ""
   port: 8080
 ascii:
   replicas: 1
-  canary: 0.0
+  canary: 0
   header: ""
   port: 8080
 img:
   replicas: 1
-  canary: 0.0
+  canary: 0
   header: ""
   port: 8080
 ml5:
   replicas: 1
-  canary: 0.0
+  canary: 0
   header: ""
   port: 8080
 data:

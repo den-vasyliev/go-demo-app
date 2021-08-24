@@ -1,4 +1,4 @@
-{{- define "canary-weight" }}{{ if gt .Values.img.canary 0.0 }}weight: {{.Values.img.canary}}{{ end }} {{- end }}
+{{- define "canary-weight" }}{{ if .Values.img.canary }}weight: {{.Values.img.canary}}{{ end }} {{- end }}
 {{- define "canary-header" }}{{ if .Values.img.header  }}headers:{{ end }} {{- end }}
 {{- define "canary-header-mode" }}{{ if .Values.img.header  }}x-mode: {{ .Values.img.header }}{{ end }} {{- end }}
 ---

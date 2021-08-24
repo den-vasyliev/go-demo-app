@@ -1,4 +1,4 @@
-{{- define "canary-weight" }}{{ if gt .Values.ascii.canary 0.0 }}weight: {{.Values.ascii.canary}}{{ end }} {{- end }}
+{{- define "canary-weight" }}{{ if .Values.ascii.canary }}weight: {{.Values.ascii.canary}}{{ end }} {{- end }}
 {{- define "canary-header" }}{{ if .Values.ascii.header  }}headers:{{ end }} {{- end }}
 {{- define "canary-header-mode" }}{{ if .Values.ascii.header  }}x-mode: {{ .Values.ascii.header }}{{ end }} {{- end }}
 

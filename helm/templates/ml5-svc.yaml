@@ -1,4 +1,4 @@
-{{- define "canary-weight" }}{{ if gt .Values.ml5.canary 0.0 }}weight: {{.Values.ml5.canary}}{{ end }} {{- end }}
+{{- define "canary-weight" }}{{ if .Values.ml5.canary }}weight: {{.Values.ml5.canary}}{{ end }} {{- end }}
 {{- define "canary-header" }}{{ if .Values.ml5.header  }}headers:{{ end }} {{- end }}
 {{- define "canary-header-mode" }}{{ if .Values.ml5.header  }}x-mode: {{ .Values.ml5.header }}{{ end }} {{- end }}
 {{ if eq .Values.app.version "v3" }}
