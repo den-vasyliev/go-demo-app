@@ -3,11 +3,11 @@
 all: build 
 test: unit-test
 
-PLATFORM=linux 
+PLATFORM=linux/amd64 
 
 BUILDER = docker
 
-TAG=denvasyliev/k8sdiy
+TAG=gcr.io/k8s-k3s/demo
 
 BUILD=$$(git rev-parse HEAD|cut -c1-7)
 
