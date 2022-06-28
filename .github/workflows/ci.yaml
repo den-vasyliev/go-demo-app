@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'src/**'
+      - 'helm/**'
 
 jobs:
   ci:
@@ -41,6 +42,16 @@ jobs:
 
      - name: Run push
        run: make push
+
+#     - name: Build and Push to GCR
+#       uses: raccoondev/push-docker-gcr
+#       with:
+#         gcr_host: gcr.io
+#         image_name: 
+#         image_tag: latest
+#         env:
+#           GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
+#           GOOGLE_PROJECT_ID: ${{ secrets.GOOGLE_PROJECT_ID }}
 
 #     - name: Build and Push
 #       uses: docker/build-push-action@v2

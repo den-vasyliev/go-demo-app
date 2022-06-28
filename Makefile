@@ -7,7 +7,7 @@ PLATFORM=linux/amd64
 
 BUILDER = docker
 
-TAG=gcr.io/k8s-k3s/demo
+TAG=denvasyliev/demo
 
 BUILD=$$(git rev-parse HEAD|cut -c1-7)
 
