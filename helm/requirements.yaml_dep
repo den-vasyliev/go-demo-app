@@ -1,3 +1,0 @@
-dependencies:
-- name: nats
-  condition: cluster.create
