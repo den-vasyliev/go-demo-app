@@ -4,7 +4,7 @@ app:
   port: 80
 image:
   name: denvasyliev/k8sdiy
-  tag: build-20cc413
+  tag: build-9f0341f
 front:
   version: 3.0.1
   replicas: 1
