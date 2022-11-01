@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: redis
-        image: arm64v8/redis
+        image: redis
         resources:
           requests:
             cpu: 100m
