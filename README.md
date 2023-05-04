@@ -1,7 +1,7 @@
 # Let's KIK!
 
 #
-## Runc and containerazed app
+## Runc and containerazed app https://developers.redhat.com/blog/2018/02/22/container-terminology-practical-introduction#containerized__components
 	mkdir demo
 
 vim Container
