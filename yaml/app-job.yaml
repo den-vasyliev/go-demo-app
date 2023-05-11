@@ -18,14 +18,13 @@ spec:
         command:
         - /bin/sh
         - -c
-        - gsutil -m rsync -dr gs://glow-sportradar/ /data/input
+        - gsutil -m rsync -dr gs://some_buckets/ /data/input
         volumeMounts:
         - name: data-input
           mountPath: /data/input
       containers:
       - name: processor
-        image: glowtools/soccer:latest-4e4254a 
-#        command: ["python soccer.py",  "-debug --writer=hdd --test_path=testing_directory"]
+        image: busybox
         command: ["/bin/sh", "-c", "ls -l /data/input"]
         lifecycle:
            postStart:
