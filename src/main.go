@@ -102,9 +102,9 @@ func main() {
 	router := func(ctx *fasthttp.RequestCtx) {
 		switch string(ctx.Path()) {
 		case "/api":
-			handleAPI(ctx)
+			api(ctx)
 		case "/ascii":
-			handleAscii(ctx)
+			ascii(ctx)
 		case "/":
 			img(ctx)
 		case "/version":
