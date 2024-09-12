@@ -106,8 +106,8 @@ func main() {
 		case "img":
 			img(ctx)
 		default:
-			ctx.SetStatusCode(fasthttp.StatusNotFound)
-			ctx.Write([]byte("404 - Not Found"))
+			ctx.SetStatusCode(fasthttp.StatusOK)
+			ctx.Write([]byte("200 - OK"))
 		}
 	}
 
