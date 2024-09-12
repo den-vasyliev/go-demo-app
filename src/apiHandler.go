@@ -21,7 +21,7 @@ func api(ctx *fasthttp.RequestCtx) {
 
 	//func api(w http.ResponseWriter, r *http.Request) {
 	// increment counter
-	REQ0 = REQ0 + 1
+	REQ0++
 	var reply []byte
 	var hexEncodedStr, cached string
 	var token uint32
@@ -31,7 +31,9 @@ func api(ctx *fasthttp.RequestCtx) {
 	u, err := url.Parse(string(ctx.RequestURI()))
 	if err != nil {
 		log.Print(err)
-	}
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.Write([]byte("Failed to parse request URI"))
+		return	}
 
 	// get uri parameters
 	q := u.Query()
@@ -63,9 +65,17 @@ func api(ctx *fasthttp.RequestCtx) {
 		// if cache found - reply
 		if err == nil {
 			reply, err = hex.DecodeString(cached)
+			if err != nil {
+				ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+				ctx.Write([]byte("Error decoding cached reply"))
+				return
+			}
 			ctx.Write(reply)
+			return
 			// if cache not found - processing
-		} else {
+		
+			// Processing
+
 			// Create a unique subject name for replies.
 			uniqueReplyTo := nats.NewInbox()
 
@@ -73,18 +83,24 @@ func api(ctx *fasthttp.RequestCtx) {
 			sub, err := NC.SubscribeSync(uniqueReplyTo)
 			if err != nil {
 				log.Print(err)
-			}
+				ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+				return			}
 			// Send the request.
 			// If processing is synchronous, use Request() which returns the response message.
 			if err := EC.Publish("ascii.json.banner", &Req{Token: token, Hextr: hexEncodedStr, Reply: uniqueReplyTo, Db: q.Get("db")}); err != nil {
 				log.Print(err)
+				ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+				return
 			}
 			// Read the reply for Wait seconds
 			sec, _ := time.ParseDuration(*Wait)
 			msg, err := sub.NextMsg(sec)
 			if err != nil {
 				log.Print(err)
+				ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+				return
 			}
+								
 			// get result from data service
 			cached, err := CACHE.Get(string(msg.Data)).Result()
 			// decode cached reply
