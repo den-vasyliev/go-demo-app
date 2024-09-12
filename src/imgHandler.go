@@ -13,7 +13,7 @@ import (
 func img(ctx *fasthttp.RequestCtx) {
 	switch string(ctx.Method()) {
 	case "GET":
-		if Environment == nil {
+		if Environment == "" {
 			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
 			ctx.Write([]byte("Environment variable not set"))
 			return
