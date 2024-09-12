@@ -60,6 +60,9 @@ func api(ctx *fasthttp.RequestCtx) {
 			token = h.Sum32()
 			hexEncodedStr = hex.EncodeToString([]byte(q.Get("text")))
 			cached, err = CACHE.Get(tokenStr).Result()
+			if err != nil {
+				log.Printf("Cache get error: %v", err)
+			}
 
 		}
 		// if cache found - reply
@@ -96,21 +99,31 @@ func api(ctx *fasthttp.RequestCtx) {
 			sec, _ := time.ParseDuration(*Wait)
 			msg, err := sub.NextMsg(sec)
 			if err != nil {
-				log.Print(err)
+				log.Printf("Error receiving message: %v", err)
 				ctx.SetStatusCode(fasthttp.StatusInternalServerError)
 				return
 			}
 								
 			// get result from data service
 			cached, err := CACHE.Get(string(msg.Data)).Result()
+			if err != nil {
+				log.Printf("Error retrieving from cache using message data: %v", err)
+				ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+				return
+			}
 			// decode cached reply
-			reply, _ = hex.DecodeString(cached)
-
+			reply, err = hex.DecodeString(cached)
+			if err != nil {
+				log.Printf("Failed to decode cached reply: %v", err)
+				ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+				return
+			}
 			ctx.Write(reply)
 
 		}
 
 	} else {
-		ctx.Write(append([]byte(""), Environment...))
-	}
+		// Fallback in case no text query parameter is provided
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.Write([]byte("Text parameter is required"))	}
 }
