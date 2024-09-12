@@ -13,12 +13,9 @@ import (
 func img(ctx *fasthttp.RequestCtx) {
 	switch string(ctx.Method()) {
 	case "GET":
-		if Environment == "" {
-			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
-			ctx.Write([]byte("Environment variable not set"))
-			return
-		}
-		ctx.Write(Environment)
+		var b []byte
+		b = append([]byte(""), Environment...)
+		ctx.Write(b)
 	case "POST":
 		var buf bytes.Buffer
 
