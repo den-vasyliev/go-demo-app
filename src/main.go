@@ -100,19 +100,17 @@ func main() {
 
 	// the corresponding fasthttp code
 	router := func(ctx *fasthttp.RequestCtx) {
-		switch string(ctx.Path()) {
-		case "/api":
+		switch *AppRole {
+		case "api":
 			api(ctx)
-		case "/":
-			api(ctx)
-		case "/version":
-			version(ctx)
-		case "/healthz":
-			//		healthz(ctx)
-		case "/readinez":
-			//		readinez.HandlerFunc(ctx)
-		case "/img":
+		case "ascii":
+			ascii(ctx)
+		case "img":
 			img(ctx)
+		case "ml5":
+			ml5(ctx)
+		case "data":
+			dataHandler(ctx)
 		default:
 			ctx.SetStatusCode(fasthttp.StatusNotFound)
 			ctx.Write([]byte("404 - Not Found"))
