@@ -104,7 +104,7 @@ func main() {
 		case "/api":
 			api(ctx)
 		case "/":
-			img(ctx)
+			api(ctx)
 		case "/version":
 			version(ctx)
 		case "/healthz":
