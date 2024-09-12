@@ -103,8 +103,6 @@ func main() {
 		switch string(ctx.Path()) {
 		case "/api":
 			api(ctx)
-		case "/ascii":
-			ascii(ctx)
 		case "/":
 			img(ctx)
 		case "/version":
