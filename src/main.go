@@ -103,14 +103,8 @@ func main() {
 		switch *AppRole {
 		case "api":
 			api(ctx)
-		case "ascii":
-			ascii(ctx)
 		case "img":
 			img(ctx)
-		case "ml5":
-			ml5(ctx)
-		case "data":
-			dataHandler(ctx)
 		default:
 			ctx.SetStatusCode(fasthttp.StatusNotFound)
 			ctx.Write([]byte("404 - Not Found"))
