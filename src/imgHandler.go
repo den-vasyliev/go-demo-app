@@ -11,31 +11,48 @@ import (
 )
 
 func img(ctx *fasthttp.RequestCtx) {
-
 	switch string(ctx.Method()) {
 	case "GET":
-		var b []byte
-		b = append([]byte(""), Environment...)
-		ctx.Write(b)
+		if Environment == nil {
+			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+			ctx.Write([]byte("Environment variable not set"))
+			return
+		}
+		ctx.Write(Environment)
 	case "POST":
-		var Buf bytes.Buffer
+		var buf bytes.Buffer
 
-		f, _ := ctx.FormFile("image")
-		ff, _ := f.Open()
-		//defer f.Close()
-		io.Copy(&Buf, ff)
-		b := Buf.Bytes()
+		// Attempt to retrieve the file from the form
+		file, err := ctx.FormFile("image")
+		if err != nil {
+			log.Printf("Error retrieving file: %v", err)
+			ctx.SetStatusCode(fasthttp.StatusBadRequest)
+			ctx.Write([]byte("Failed to retrieve file"))
+			return
+		}
 
-		Buf.Reset()
-		//ctx.Header().Set("Content-Type", "text/plain")
+		ff, err := file.Open()
+		if err != nil {
+			log.Printf("Error opening file: %v", err)
+			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+			return
+		}
+		defer ff.Close() // Ensure the file gets closed
+
+		// Copy the file data to the buffer
+		if _, err := io.Copy(&buf, ff); err != nil {
+			log.Printf("Error copying file: %v", err)
+			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+			return
+		}
 
 		if convertOptions, err := parseOptions(); err == nil {
 			converter := convert.NewImageConverter()
-
-			ctx.Write([]byte(converter.ImageBuf2ASCIIString(b, convertOptions)))
+			ctx.Write([]byte(converter.ImageBuf2ASCIIString(buf.Bytes(), convertOptions)))
 		} else {
-			log.Print("No opt")
+			log.Print("No options provided")
+			ctx.SetStatusCode(fasthttp.StatusBadRequest)
+			ctx.Write([]byte("No options provided"))
 		}
-
 	}
 }
