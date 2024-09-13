@@ -15,9 +15,9 @@ import (
 	"time"
 
 	"github.com/CrowdSurge/banner"
+	"github.com/den-vasyliev/image2ascii/convert"
 	"github.com/gorilla/mux"
 	"github.com/nats-io/nats.go"
-	"github.com/den-vasyliev/image2ascii/convert"
 )
 
 func initOptions() {

@@ -9,7 +9,7 @@ import (
 	//metrics "github.com/armon/go-metrics"
 )
 
-//DataHandler export broker msg func
+// DataHandler export broker msg func
 func DataHandler(r *Req, i int) {
 
 	REQ0 = REQ0 + 1

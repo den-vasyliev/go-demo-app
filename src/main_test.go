@@ -1,20 +1,16 @@
 package main
 
 import (
-    "testing"
+	"testing"
 )
 
-
 func TestGetEnv(t *testing.T) {
-    getEnv("Version", "demo")
+	getEnv("Version", "demo")
 
 }
 
+func TestInitOptions(t *testing.T) {
 
-func TestInitOptions(t *testing.T){
-
-    initOptions()
+	initOptions()
 
 }
-
-

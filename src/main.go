@@ -56,7 +56,7 @@ func main() {
 	var showTime = flag.Bool("timestamp", false, "Display timestamps")
 	//var queueName = flag.String("queGroupName", "K8S-NATS-Q", "Queue Group Name")
 	var showHelp = flag.Bool("help", false, "Show help message")
-	var err error
+	//var err error
 
 	log.SetFlags(0)
 	flag.Usage = usage
@@ -82,23 +82,57 @@ func main() {
 		for {
 			select {
 			case <-time.After(time.Second * 1):
-			//	ts := time.Since(t0)
-			//	log.Println("[", Role, "] time: ", ts, " requests: ", REQ0, " rps: ", (REQ0-REQ1)/1, " throughput:", float64(REQ0)/ts.Seconds())
+				//	ts := time.Since(t0)
+				//	log.Println("[", Role, "] time: ", ts, " requests: ", REQ0, " rps: ", (REQ0-REQ1)/1, " throughput:", float64(REQ0)/ts.Seconds())
 				REQ1 = REQ0
 			}
 		}
 	}()
 
 	Environment = fmt.Sprintf("%s-%s:%s", *AppName, Role, Version)
-	// Connect Options.
-
 	log.Printf("Listening on [%s]: %s port: %s", *AppRole, Environment, *AppPort)
 
-	if *showTime {
-		log.SetFlags(log.LstdFlags)
+	// Connect Options.
+
+	subj, subjJSON, i := Role+".*", Role+".json.*", 0
+	//opts := []nats.Option{nats.Name(*AppRole + " on " + subj)}
+	//opts = setupConnOptions(opts)
+
+	// Connect to NATS
+	var err error
+	NC, err = nats.Connect(nats.DefaultURL)
+	if err != nil {
+		log.Fatalf("Error connecting to NATS: %v", err)
 	}
 
-	// the corresponding fasthttp code
+	if err := NC.LastError(); err != nil {
+		log.Fatalf("Last error from NATS client: %v", err)
+	}
+	defer NC.Close()
+
+	EC, err = nats.NewEncodedConn(NC, nats.JSON_ENCODER)
+	defer EC.Close()
+
+	// Subscribe
+	if _, err = EC.Subscribe(subjJSON, func(r *Req) {
+
+		REQ0 = REQ0 + 1
+
+		i++
+		if *AppRole == "ascii" {
+
+			go AsciiHandler(r, i)
+
+		} else if *AppRole == "data" {
+
+			go DataHandler(r, i)
+		}
+	}); err != nil {
+		log.Fatalf("Last error from NATS client: %v", err)
+	}
+
+
+	cache()
 	router := func(ctx *fasthttp.RequestCtx) {
 		switch *AppRole {
 		case "api":
@@ -106,72 +140,19 @@ func main() {
 		case "img":
 			img(ctx)
 		default:
+			log.Print(subj)
 			ctx.SetStatusCode(fasthttp.StatusOK)
 			ctx.Write([]byte("200 - OK"))
 		}
 	}
-
-	/*
-		router := pat.New()
-		router.Get("/version", http.HandlerFunc(version))
-		router.Get("/healthz", http.HandlerFunc(healthz))
-		router.Get("/readinez", http.HandlerFunc(readinez))
-	*/
-	switch *AppRole {
-
-	/*	case "iot":
-		svr := &service.Server{
-			KeepAlive:        300,           // seconds
-			ConnectTimeout:   2,             // seconds
-			SessionsProvider: "mem",         // keeps sessions in memory
-			Authenticator:    "mockSuccess", // always succeed
-			TopicsProvider:   "mem",         // keeps topic subscriptions in memory
-		}
-		// Listen and serve connections at localhost:1883
-		err := svr.ListenAndServe("tcp://:1883")
-		fmt.Printf("%v", err)
-	*/
-	case "api":
-		//router.Get("/", http.HandlerFunc(api))
-
-		//router.HandleFunc("/", api)
-
-	case "ascii":
-		//router.Get("/", http.HandlerFunc(ascii))
-
-		//router.HandleFunc("/", ascii)
-
-	case "img":
-		//if err := NC.Publish("api."+Environment, []byte(API["img"])); err != nil {
-	//		log.Fatal(err)
-	//		}
-	//router.HandleFunc("/", img)
-	//router.Get("/", http.HandlerFunc(img))
-
-	case "ml5":
-
-		//router.PathPrefix(*AppPath).Handler(http.StripPrefix(*AppPath, http.FileServer(http.Dir(*AppDir))))
-		//router.PathPrefix(*ModelsPath).Handler(http.StripPrefix(*ModelsPath, http.FileServer(http.Dir(*ModelsDir))))
-
-		//router.HandleFunc("/", ml5)
-		//router.Get("/", http.HandlerFunc(ml5))
-
-	case "data":
-
-		//_, err = DB.Exec("CREATE TABLE IF NOT EXISTS demo (id INT NOT NULL AUTO_INCREMENT, token INT UNSIGNED NOT NULL, text TEXT, PRIMARY KEY(id, token))")
-
-		if err != nil {
-			log.Printf("CreateErr: %s", err) // proper error handling instead of panic in your app
-		}
-
-		//router.HandleFunc("/", dataHandler)
-		//router.Get("/", http.HandlerFunc(data))
-
-	}
-
 	log.Fatal(fasthttp.ListenAndServe(":"+*AppPort, router))
 
-	//log.Fatal(http.ListenAndServe(":"+*AppPort, router))
+	if *showTime {
+		log.SetFlags(log.LstdFlags)
+	}
+
+	// the corresponding fasthttp code
+	
 
 	// Setup the interrupt handler to drain so we don't miss
 	// requests when scaling down.
@@ -180,7 +161,7 @@ func main() {
 	<-c
 	log.Println()
 	log.Printf("Draining...")
-	NC.Drain()
+	//NC.Drain()
 	log.Fatalf("Exiting")
 
 }
@@ -196,6 +177,74 @@ func cache() {
 	if err != nil {
 		log.Print(err)
 	}
+}
+
+
+
+func mq() {
+	subj, subjJSON, i := Role+".*", Role+".json.*", 0
+	//opts := []nats.Option{nats.Name(*AppRole + " on " + subj)}
+	//opts = setupConnOptions(opts)
+
+	// Connect to NATS
+	var err error
+	NC, err = nats.Connect(nats.DefaultURL)
+	if err != nil {
+		log.Fatalf("Error connecting to NATS: %v", err)
+	}
+
+	if err := NC.LastError(); err != nil {
+		log.Fatalf("Last error from NATS client: %v", err)
+	}
+	defer NC.Close()
+
+	EC, err = nats.NewEncodedConn(NC, nats.JSON_ENCODER)
+	defer EC.Close()
+
+	// Subscribe
+	if _, err = EC.Subscribe(subjJSON, func(r *Req) {
+
+		REQ0 = REQ0 + 1
+
+		i++
+
+		router := func(ctx *fasthttp.RequestCtx) {
+			switch *AppRole {
+			case "api":
+				api(ctx)
+			case "img":
+				img(ctx)
+			default:
+				log.Print(subj)
+				ctx.SetStatusCode(fasthttp.StatusOK)
+				ctx.Write([]byte("200 - OK"))
+			}
+		}
+	
+		log.Fatal(fasthttp.ListenAndServe(":"+*AppPort, router))
+
+	}); err != nil {
+		log.Fatalf("Last error from NATS client: %v", err)
+	}
+
+
+	//`log.Printf("Listening on [%s]: %s port: %s", subj, Environment, *AppPort)
+
+}
+
+// subscribe sets up a subscriber that listens for messages on the specified subject.
+func subscribe(nc *nats.Conn, subject string) {
+	// Subscribe to subject
+	_, err := nc.Subscribe(subject, func(m *nats.Msg) {
+		log.Printf("Received a message: %s", string(m.Data))
+		// Optionally acknowledge the message (if needed)
+	})
+	if err != nil {
+		log.Fatalf("Error subscribing to NATS subject: %v", err)
+	}
+
+	// Keep the subscriber running
+	select {} // Block forever
 }
 
 func db() {
@@ -217,55 +266,4 @@ func db() {
 	STMTSel, err = DB.Prepare("SELECT text FROM demo WHERE token = ? limit 1")
 	defer STMTIns.Close()
 	defer STMTSel.Close()
-}
-
-func mq() {
-	subj, subjJSON, i := *AppRole+".*", *AppRole+".json.*", 0
-
-	opts := []nats.Option{nats.Name(Role + " on " + subj)}
-	opts = setupConnOptions(opts)
-
-	// Use UserCredentials
-	/*if *userCreds != "" {
-		opts = append(opts, nats.UserCredentials(*userCreds))
-	}
-	*/
-
-	// Connect to NATS
-	var err error
-	NC, err = nats.Connect(*Urls, opts...)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := NC.LastError(); err != nil {
-		log.Fatal(err)
-	}
-	defer NC.Close()
-
-	EC, err = nats.NewEncodedConn(NC, nats.JSON_ENCODER)
-	defer EC.Close()
-
-	// Subscribe
-	if _, err = EC.Subscribe(subjJSON, func(r *Req) {
-
-		REQ0 = REQ0 + 1
-
-		i++
-
-		if *AppRole == "ascii" {
-
-			go AsciiHandler(r, i)
-
-		} else if *AppRole == "data" {
-
-			go DataHandler(r, i)
-		}
-
-	}); err != nil {
-		log.Print(err)
-	}
-
-	log.Printf("Listening on [%s]: %s port: %s", subj, Environment, *AppPort)
-
 }
