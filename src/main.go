@@ -100,7 +100,7 @@ func main() {
 
 	// Connect to NATS
 	var err error
-	NC, err = nats.Connect(nats.DefaultURL)
+	NC, err = nats.Connect(*Urls)
 	if err != nil {
 		log.Fatalf("Error connecting to NATS: %v", err)
 	}
@@ -131,8 +131,10 @@ func main() {
 		log.Fatalf("Last error from NATS client: %v", err)
 	}
 
-
+	// Run caching
 	cache()
+
+
 	router := func(ctx *fasthttp.RequestCtx) {
 		switch *AppRole {
 		case "api":
@@ -177,74 +179,6 @@ func cache() {
 	if err != nil {
 		log.Print(err)
 	}
-}
-
-
-
-func mq() {
-	subj, subjJSON, i := Role+".*", Role+".json.*", 0
-	//opts := []nats.Option{nats.Name(*AppRole + " on " + subj)}
-	//opts = setupConnOptions(opts)
-
-	// Connect to NATS
-	var err error
-	NC, err = nats.Connect(nats.DefaultURL)
-	if err != nil {
-		log.Fatalf("Error connecting to NATS: %v", err)
-	}
-
-	if err := NC.LastError(); err != nil {
-		log.Fatalf("Last error from NATS client: %v", err)
-	}
-	defer NC.Close()
-
-	EC, err = nats.NewEncodedConn(NC, nats.JSON_ENCODER)
-	defer EC.Close()
-
-	// Subscribe
-	if _, err = EC.Subscribe(subjJSON, func(r *Req) {
-
-		REQ0 = REQ0 + 1
-
-		i++
-
-		router := func(ctx *fasthttp.RequestCtx) {
-			switch *AppRole {
-			case "api":
-				api(ctx)
-			case "img":
-				img(ctx)
-			default:
-				log.Print(subj)
-				ctx.SetStatusCode(fasthttp.StatusOK)
-				ctx.Write([]byte("200 - OK"))
-			}
-		}
-	
-		log.Fatal(fasthttp.ListenAndServe(":"+*AppPort, router))
-
-	}); err != nil {
-		log.Fatalf("Last error from NATS client: %v", err)
-	}
-
-
-	//`log.Printf("Listening on [%s]: %s port: %s", subj, Environment, *AppPort)
-
-}
-
-// subscribe sets up a subscriber that listens for messages on the specified subject.
-func subscribe(nc *nats.Conn, subject string) {
-	// Subscribe to subject
-	_, err := nc.Subscribe(subject, func(m *nats.Msg) {
-		log.Printf("Received a message: %s", string(m.Data))
-		// Optionally acknowledge the message (if needed)
-	})
-	if err != nil {
-		log.Fatalf("Error subscribing to NATS subject: %v", err)
-	}
-
-	// Keep the subscriber running
-	select {} // Block forever
 }
 
 func db() {
