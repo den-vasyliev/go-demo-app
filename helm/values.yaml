@@ -46,7 +46,7 @@ nats:
   enable: true
   size: 1
   service:
-    name: nats-cluster
+    name: demo-nats
     port: 4222
 ns:
   enable: false
