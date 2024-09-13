@@ -11,12 +11,11 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gorilla/mux v1.8.0
 	github.com/mattn/go-isatty v0.0.13 // indirect
-	github.com/nats-io/nats-server/v2 v2.7.4 // indirect
-	github.com/nats-io/nats.go v1.13.1-0.20220308171302-2f2f6968e98d
+	github.com/nats-io/nats.go v1.37.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/onsi/gomega v1.15.0 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
-	github.com/valyala/fasthttp v1.28.0
+	github.com/valyala/fasthttp v1.55.0
 	github.com/wayneashleyberry/terminal-dimensions v1.0.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 )
