@@ -1,6 +1,6 @@
 module go.mod
 
-go 1.22.2
+go 1.23.1
 
 require (
 	github.com/CrowdSurge/banner v0.0.0-20140923200336-8c0e79dc5ff7
