@@ -111,7 +111,7 @@ func main() {
 	if _, err = EC.Subscribe(subjJSON, func(r *Req) {
 
 		REQ0 = REQ0 + 1
-		log.Println("Received a message: ", subj, r.Token, r.Hextr, r.Reply, r.Db)
+		log.Println("Received a message: ", subj, r.Token, r.Reply, r.Db)
 
 		i++
 		if *AppRole == "ascii" {
@@ -128,6 +128,9 @@ func main() {
 
 	// Run caching
 	cache()
+	if Role == "data" {
+	db()
+	}
 
 
 	router := func(ctx *fasthttp.RequestCtx) {
@@ -189,7 +192,11 @@ func db() {
 	if err != nil {
 		log.Print(err) // proper error handling instead of panic in your app
 	}
+	_, err = DB.Exec("CREATE TABLE IF NOT EXISTS demo (id INT NOT NULL AUTO_INCREMENT, token INT UNSIGNED NOT NULL, text TEXT, PRIMARY KEY(id, token))")
 
+		if err != nil {
+			log.Printf("CreateErr: %s", err) // proper error handling instead of panic in your app
+		}
 	STMTIns, err = DB.Prepare("insert into demo values(null,?,?)")
 	STMTSel, err = DB.Prepare("SELECT text FROM demo WHERE token = ? limit 1")
 	defer STMTIns.Close()
