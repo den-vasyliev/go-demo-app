@@ -44,10 +44,6 @@ func main() {
 	AppName := flag.String("name", "k8sdiy", "application name")
 	AppRole := flag.String("role", "api", "app role: api data ascii img ml5 iot")
 	AppPort := flag.String("port", "8080", "application port")
-	//AppPath := flag.String("path", "/static/", "path to serve static files")
-	//AppDir := flag.String("dir", "./ml5", "the directory of static files to host")
-	//ModelsPath := flag.String("mpath", "/models/", "path to serve models files")
-	//ModelsDir := flag.String("mdir", "./ml5/models", "the directory of models files to host")
 	Cache = flag.String("cache", "true", "cache enable")
 	Wait = flag.String("wait", "2s", "wait timeout")
 
@@ -95,9 +91,7 @@ func main() {
 	// Connect Options.
 
 	subj, subjJSON, i := Role+".*", Role+".json.*", 0
-	//opts := []nats.Option{nats.Name(*AppRole + " on " + subj)}
-	//opts = setupConnOptions(opts)
-
+	
 	// Connect to NATS
 	var err error
 	NC, err = nats.Connect(*Urls)
@@ -117,6 +111,7 @@ func main() {
 	if _, err = EC.Subscribe(subjJSON, func(r *Req) {
 
 		REQ0 = REQ0 + 1
+		log.Println("Received a message: ", subj, r.Token, r.Hextr, r.Reply, r.Db)
 
 		i++
 		if *AppRole == "ascii" {
@@ -142,7 +137,6 @@ func main() {
 		case "img":
 			img(ctx)
 		default:
-			log.Print(subj)
 			ctx.SetStatusCode(fasthttp.StatusOK)
 			ctx.Write([]byte("200 - OK"))
 		}
