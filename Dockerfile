@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM} golang:1.16.6 as builder
+FROM --platform=${BUILDPLATFORM} golang:1.23.1 as builder
 ARG APP_BUILD_INFO=$APP_BUILD_INFO
 WORKDIR /go/src/app
 COPY src/ .
