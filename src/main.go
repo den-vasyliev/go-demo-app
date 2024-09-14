@@ -6,9 +6,6 @@ import (
 	"fmt"
 	"log"
 
-	//"net/http"
-	"os"
-	"os/signal"
 	"runtime"
 	"time"
 
@@ -48,11 +45,8 @@ func main() {
 	Wait = flag.String("wait", "2s", "wait timeout")
 
 	Urls = flag.String("server", nats.DefaultURL, "The nats server URLs (separated by comma)")
-	//var userCreds = flag.String("creds", "", "User Credentials File")
 	var showTime = flag.Bool("timestamp", false, "Display timestamps")
-	//var queueName = flag.String("queGroupName", "K8S-NATS-Q", "Queue Group Name")
 	var showHelp = flag.Bool("help", false, "Show help message")
-	//var err error
 
 	log.SetFlags(0)
 	flag.Usage = usage
@@ -68,22 +62,19 @@ func main() {
 
 	metrics.NewGlobal(metrics.DefaultConfig(Role), INM)
 
+	// Run caching
+	cache()
+	if Role == "data" {
+		db()
+	} else if Role == "ascii" || Role == "api" {
+		cache()
+	}
+
 	// Perf
 
 	REQ0 = 0.0
 	REQ1 = 0.0
 	//t0 := time.Now()
-
-	go func() { // Daniel told me to write this handler this way.
-		for {
-			select {
-			case <-time.After(time.Second * 1):
-				//	ts := time.Since(t0)
-				//	log.Println("[", Role, "] time: ", ts, " requests: ", REQ0, " rps: ", (REQ0-REQ1)/1, " throughput:", float64(REQ0)/ts.Seconds())
-				REQ1 = REQ0
-			}
-		}
-	}()
 
 	Environment = fmt.Sprintf("%s-%s:%s", *AppName, Role, Version)
 	log.Printf("Listening on [%s]: %s port: %s", *AppRole, Environment, *AppPort)
@@ -91,7 +82,7 @@ func main() {
 	// Connect Options.
 
 	subj, subjJSON, i := Role+".*", Role+".json.*", 0
-	
+
 	// Connect to NATS
 	var err error
 	NC, err = nats.Connect(*Urls)
@@ -110,9 +101,7 @@ func main() {
 	// Subscribe
 	if _, err = EC.Subscribe(subjJSON, func(r *Req) {
 
-		REQ0 = REQ0 + 1
 		log.Println("Received a message: ", subj, r.Token, r.Reply, r.Db)
-
 		i++
 		if *AppRole == "ascii" {
 
@@ -125,13 +114,6 @@ func main() {
 	}); err != nil {
 		log.Fatalf("Last error from NATS client: %v", err)
 	}
-
-	// Run caching
-	cache()
-	if Role == "data" {
-	db()
-	}
-
 
 	router := func(ctx *fasthttp.RequestCtx) {
 		switch *AppRole {
@@ -150,19 +132,6 @@ func main() {
 		log.SetFlags(log.LstdFlags)
 	}
 
-	// the corresponding fasthttp code
-	
-
-	// Setup the interrupt handler to drain so we don't miss
-	// requests when scaling down.
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	<-c
-	log.Println()
-	log.Printf("Draining...")
-	//NC.Drain()
-	log.Fatalf("Exiting")
-
 }
 
 func cache() {
@@ -180,25 +149,22 @@ func cache() {
 
 func db() {
 	// Connect to db
-
 	DB, err := sql.Open("mysql", AppDb)
-	//	DB.SetMaxIdleConns(10000)
 	if err != nil {
 		log.Print(err)
 	}
-	defer DB.Close()
+	//defer DB.Close()
 
 	err = DB.Ping()
 	if err != nil {
 		log.Print(err) // proper error handling instead of panic in your app
 	}
 	_, err = DB.Exec("CREATE TABLE IF NOT EXISTS demo (id INT NOT NULL AUTO_INCREMENT, token INT UNSIGNED NOT NULL, text TEXT, PRIMARY KEY(id, token))")
-
-		if err != nil {
-			log.Printf("CreateErr: %s", err) // proper error handling instead of panic in your app
-		}
-	STMTIns, err = DB.Prepare("insert into demo values(null,?,?)")
 	STMTSel, err = DB.Prepare("SELECT text FROM demo WHERE token = ? limit 1")
-	defer STMTIns.Close()
-	defer STMTSel.Close()
+	STMTIns, err = DB.Prepare("insert into demo values(null,?,?)")
+
+	if err != nil {
+		log.Printf("CreateErr: %s", err) // proper error handling instead of panic in your app
+	}
+
 }

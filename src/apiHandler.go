@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/hex"
-	"errors"
 	"hash/fnv"
 	_ "image/jpeg"
 	"log"
@@ -37,30 +36,12 @@ func api(ctx *fasthttp.RequestCtx) {
 	q := u.Query()
 
 	if len(q.Get("text")) > 0 {
-		// we won't cache
-		if *Cache == "false" {
-			// create bin hash from text+request_siq
-			h.Write([]byte(q.Get("text") + strconv.FormatFloat(REQ0, 'f', 0, 32)))
-			// we need token as a string
-			tokenStr := strconv.FormatUint(uint64(h.Sum32()), 10)
-			// bin token
-			token = h.Sum32()
-			// encode text to hex
-			hexEncodedStr = hex.EncodeToString([]byte(q.Get("text") + strconv.FormatFloat(REQ0, 'f', 0, 32)))
-			// need this for the next check
-			err = errors.New("NoCache")
-			// define reply
-			cached = tokenStr
-			// default cache check first
-		} else {
-			h.Write([]byte(q.Get("text")))
-			tokenStr := strconv.FormatUint(uint64(h.Sum32()), 10)
-			token = h.Sum32()
-			hexEncodedStr = hex.EncodeToString([]byte(q.Get("text")))
-			cached, err = CACHE.Get(tokenStr).Result()
+		h.Write([]byte(q.Get("text")))
+		tokenStr := strconv.FormatUint(uint64(h.Sum32()), 10)
+		token = h.Sum32()
+		hexEncodedStr = hex.EncodeToString([]byte(q.Get("text")))
+		cached, err = CACHE.Get(tokenStr).Result()
 
-		}
-		// if cache found - reply
 		if err == nil {
 			reply, err = hex.DecodeString(cached)
 			ctx.Write(reply)
@@ -72,7 +53,7 @@ func api(ctx *fasthttp.RequestCtx) {
 			// Listen for a single response
 			sub, err := NC.SubscribeSync(uniqueReplyTo)
 			if err != nil {
-				log.Print(err)
+				log.Print("Error subscribing to uniqueReplyTo: " + uniqueReplyTo)
 			}
 			// Send the request.
 			// If processing is synchronous, use Request() which returns the response message.

@@ -11,23 +11,22 @@ import (
 
 // DataHandler export broker msg func
 func DataHandler(r *Req, i int) {
-
-	REQ0 = REQ0 + 1
 	var err error
+	REQ0 = REQ0 + 1
 	var Payload string = r.Hextr
 
 	tokenStr := strconv.FormatUint(uint64(r.Token), 10)
 
-	if r.Db == "write" || r.Db == "rw" {
+	if r.Db == "rw" {
 
 		_, err = STMTIns.Exec(r.Token, r.Hextr)
-
 		if err != nil {
-			log.Print(err)
+			log.Print("InsertErr: %s", err)
 		}
+
 	}
 
-	if r.Db == "read" || r.Db == "rw" {
+	if r.Db == "ro" {
 		// additional iteration
 		err = STMTSel.QueryRow(r.Token).Scan(&Payload) // WHERE number = 13
 
