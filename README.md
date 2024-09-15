@@ -1,111 +1,189 @@
-![Kubecolor logo](./assets/img/Kubecolor_Logo_large.png)
+# Go Demo App
 
-# kubecolor
+## Overview
 
-Kubecolor is a `kubectl` wrapper used to add colors to your kubectl output.
+Go Demo App is a sample application written in Go. This application demonstrates basic command-line argument parsing and provides usage information. It is structured to showcase functionality such as managing application configurations and handling various roles and ports.
 
-[![test](https://github.com/kubecolor/kubecolor/actions/workflows/test.yml/badge.svg)](https://github.com/kubecolor/kubecolor/actions/workflows/test.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/kubecolor/kubecolor)](https://goreportcard.com/report/github.com/kubecolor/kubecolor)
-[![codecov](https://codecov.io/gh/kubecolor/kubecolor/graph/badge.svg)](https://codecov.io/gh/kubecolor/kubecolor)
+## Table of Contents
 
-![screenshot](./docs/kubectl-get-pods.svg)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Command-Line Arguments](#command-line-arguments)
+- [Logging](#logging)
+- [Changelog](#changelog)
+- [Contributing](#contributing)
 
-![screenshot](./docs/kubectl-apply.svg)
+## Prerequisites
 
-![screenshot](./docs/kubectl-describe-pod.svg)
+- Go (version 1.14 or higher)
+- Make sure you have a working Go environment set up on your machine.
 
-<details>
-<summary>You can also change color theme for light-background environment (click to expand)</summary>
+## Installation
 
-> ![screenshot](./docs/kubectl-get-pods-light.svg)
->
-> ![screenshot](./docs/kubectl-apply-light.svg)
->
-> ![screenshot](./docs/kubectl-describe-pod-light.svg)
+Clone the repository:
 
-</details>
-
-<details>
-<summary><code>[New!]</code> We also have colorblind-adjusted color themes (click to expand)</summary>
-
-> ![screenshot](./docs/kubectl-get-pods-protanopia.svg)
->
-> ![screenshot](./docs/kubectl-get-pods-deuteranopia.svg)
->
-> ![screenshot](./docs/kubectl-get-pods-tritanopia.svg)
->
-> **Note:**
-> As of version `v0.3.0`, both `deuteranopia` and `tritanopia` themes are the same as `protanopia`. They may differ in future versions when we better tune them. Set your configuration to match your color-blindness type so you will benefit of the future changes. We gladly accept suggestions on how to improve them.
-
-</details>
-
-## What's this?
-
-kubecolor is a wrapper that colorizes your `kubectl` command output and does nothing else.
-It internally calls `kubectl` command and try to colorizes the output so
-you can alias kubecolor as a substitute for when you want to run kubectl,
-meaning you can write this in your `.bash_profile`:
-
-```sh
-alias kubectl="kubecolor"
-
-# Also works for OpenShift CLI
-alias oc="env KUBECTL_COMMAND=oc kubecolor"
+```bash
+git clone https://github.com/den-vasyliev/go-demo-app.git
+cd go-demo-app
 ```
 
-## Features
+Install the required dependencies:
 
-- Does not tamper with the output. It only adds colors to the `kubectl` output.
-- Dynamic TTY detection to send plaintext when called programatically
-- Supports autocompletion
-- [Custom color themes](https://kubecolor.github.io/customizing/themes/)
+```bash
+go mod tidy
+```
 
-## Getting started
+## Usage
 
-Head over to our documentation:
+To run the application, you need to provide the necessary command-line arguments. You can view the usage instructions by executing:
 
-- [Usage / **Getting started**](https://kubecolor.github.io/usage/getting-started/)
-- [Usage / **How it works**](https://kubecolor.github.io/usage/how-it-works/)
-- [Setup / **Installation**](https://kubecolor.github.io/setup/install/)
+```bash
+go run src/main.go -h
+```
 
-## Contributing
+This will print the following usage information:
 
-Always welcome. There are multiple ways to contribute:
+```
+Usage: app [-name name] [-role role] [-port port]
+```
 
-- Starring the repository and spreading the word ❤️
+## Command-Line Arguments
 
-- Creating issues of [bug reports](https://github.com/kubecolor/kubecolor/issues/new?template=bug.yml)
-  or [feature requets](https://github.com/kubecolor/kubecolor/issues/new?template=feature.yml)
+The application accepts the following command-line arguments:
 
-- Updating documentation, either in this repo or in the [documentation repo (kubecolor.github.io)](https://github.com/kubecolor/kubecolor.github.io)
+- `-name name`: Specify the name of the application or user.
+- `-role role`: Define the role assigned to the application or user.
+- `-port port`: Indicate the port on which the application should run.
 
-- Submitting patches
-  (look for ["good first issue"](https://github.com/kubecolor/kubecolor/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
-  if you want something small to get started)
+To represent an application components diagram that includes components like NATS, Redis, MySQL, and various application roles (ASCII, Data, IMG, API), you can structure it as follows. Below is a textual description of the diagram, and I'll suggest how you might visualize it.
 
-For code contributions, please see: [CONTRIBUTING.md](./CONTRIBUTING.md)
+### Application Components Diagram Description
 
-## Versioning
+#### Components:
+1. **API Layer**
+   - Service that handles incoming HTTP requests.
+   - Connects to various application roles and services.
 
-This project tries to follow [SemVer 2.0.0](https://semver.org/)
-on the command-line interface (CLI), i.e which flags and environment variables
-it accepts.
+2. **Application Roles**
+   - **ASCII Role**
+     - Responsible for handling ASCII-related functionality. Communicates with the API and possibly interacts with NATS and Redis.
+   - **Data Role**
+     - Manages data processing and storage, likely interacting with MySQL for persistent storage.
+   - **IMG Role**
+     - Handles image processing. May communicate with both the API and Redis for caching images and may also involve NATS for notifications/events.
 
-**We do not** however promise compatibility on the Go source code.
-If you import kubecolor's Go module and use it as a library, then things may
-unexpectedly break within minor or patch version changes.
+3. **Message Broker**
+   - **NATS**
+     - Used for communication between different application roles (ASCII, Data, IMG). Facilitates asynchronous messaging and event handling.
 
-> [!WARNING]
-> As we have not yet reached v1.0.0, we may have some breaking changes
-> in cases where it is deemed necessary.
+4. **Caching System**
+   - **Redis**
+     - Provides caching for frequently accessed data. Used by roles for quick data retrieval to improve performance.
 
-## LICENSE
+5. **Database**
+   - **MySQL**
+     - Relational database for persistent data storage. Used primarily by the Data role for CRUD operations.
 
-MIT
 
-## Author
+### Example Diagram Representation (Textual)
 
-This project is a heavily modified version of the original kubecolor,
-archived at [https://github.com/hidetatz/kubecolor](https://github.com/hidetatz/kubecolor)
+```
++------------------------+
+|        API Layer       |<----------------------------+
+|    (Handles requests)  |                             |
++-----------+------------+                             |
+            |                                          |
+            |                                          |
+            v                                          |
++-----------+------------+                             |
+|      ASCII Role       |                             |
+|  (Handles ASCII data) |                             |
++-----------+------------+                             |
+            |                                          |
+            |                                          |
+            |                                          |
++-----------v------------+  +-----------------+  +-----------------+
+|      NATS              |  |   Data Role     |  |    IMG Role     |
+| (Message Broker)       |  |  (Data storage) |  | (Image handling)|
++-----------+------------+  +-----------------+  +-----------------+
+            |                                          |
+            |                                          |
+            |                                          |
++-----------v------------+                             |
+|       Redis            |                             |
+| (Caching System)       |                             |
++-----------+------------+                             |
+            |                                          |
+            |                                          |
+            v                                          |
++-----------v------------+                             |
+|       MySQL            |<---------------------------+
+|  (Persistent Storage)  |
++------------------------+
+```
 
-[@kubecolor](https://github.com/kubecolor)
+Based on the provided code snippets, here's a textual diagram illustrating the process of handling a user request for image conversion to ASCII through the NATS messaging system. This diagram focuses on the interaction between the `subscribeAndPublish` function and the `ImgHandler` function.
+
+### Textual Diagram of NATS Message Interconnection for Image Conversion
+
+```
++---------------------------+
+|       User Request        |
+|      (API Layer)         |
+|     (HTTP Post Request)  |
++------------+--------------+
+             |
+             v
++------------+--------------+
+|    subscribeAndPublish    |<------------------------------------------------+
+| (src/apiHandler.go)      |                                                 |
++------------+--------------+                                                 |
+             |                                                                |
+             | Publish Request to NATS                                        |
+             |                                                                |
+             v                                                                |
++------------+--------------+                                                 |
+|          NATS            |                                                 |
+| (Message Broker)         |                                                 |
++------------+--------------+                                                 |
+             |                                                                |
+             | Receive Message (Reply)                                        |
+             |                                                                |
+             v                                                                |
++------------+--------------+                                                 |
+|        ImgHandler        |                                                 |
+| (src/imgHandler.go)     |                                                 |
++------------+--------------+                                                 |
+             |                                                                |
+             | Convert Image to ASCII                                        |
+             |                                                                |
+             v                                                                |
++------------+--------------+                                                 |
+|   Convert Library         |                                                 |
+| (image2ascii/convert)    |                                                 |
++------------+--------------+                                                 |
+             |                                                                |
+             | Return ASCII String                                           |
+             |                                                                |
+             v                                                                |
++------------+--------------+                                                 |
+|       NATS Publish        |                                                 |
+|   Send Reply back to API  |                                                 |
++---------------------------+                                                 |
+```
+
+### Explanation:
+
+1. **User Request:**
+   - The process starts with the user sending an HTTP POST request to the API layer.
+2. **subscribeAndPublish:**
+   - The `subscribeAndPublish` function subscribes to a unique reply-to channel and publishes the image processing request (along with necessary parameters) to the NATS subject.
+3. **NATS:**
+   - The NATS message broker facilitates communication between the API layer and the ImgHandler.
+4. **ImgHandler:**
+   - The `ImgHandler` handles the message received, retrieves any relevant options, and performs the image conversion using the `image2ascii` library.
+5. **Convert Library:**
+   - The image is converted to an ASCII string.
+6. **Return ASCII String:**
+   - The final ASCII string is sent back through NATS, which is then relayed to the API layer.
