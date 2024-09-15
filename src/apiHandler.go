@@ -1,81 +1,141 @@
 package main
 
 import (
+	"bytes"
 	"encoding/hex"
+	"encoding/json"
+	"fmt"
 	"hash/fnv"
-	_ "image/jpeg"
+	"io"
 	"log"
-	"net/url"
+	"math/rand"
+	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/nats-io/nats.go"
 	"github.com/valyala/fasthttp"
-	//metrics "github.com/armon/go-metrics"
 )
 
+// Define a struct for the incoming JSON request
+type RequestBody struct {
+	Text string `json:"text"`
+}
+
+// Helper function to handle errors
+func handleError(ctx *fasthttp.RequestCtx, statusCode int, message string) {
+	ctx.SetStatusCode(statusCode)
+	ctx.Write([]byte(message))
+	log.Print(message)
+}
+
+// API handler processing POST requests
 func api(ctx *fasthttp.RequestCtx) {
-	//	fmt.Fprintf(ctx, "Hi there! RequestURI is %q", ctx.RequestURI())
-	//}
+	if string(ctx.Method()) != http.MethodPost {
+		handleError(ctx, http.StatusMethodNotAllowed, "Method Not Allowed")
+		return
+	}
 
-	//func api(w http.ResponseWriter, r *http.Request) {
-	// increment counter
-	REQ0 = REQ0 + 1
-	var reply []byte
-	var hexEncodedStr, cached string
-	var token uint32
+	contentType := string(ctx.Request.Header.Peek("Content-Type"))
+
+	switch {
+	case contentType == "application/json":
+		handleJSONRequest(ctx)
+	case strings.Contains(contentType, "multipart/form-data"):
+		handleMultipartRequest(ctx)
+	default:
+		handleError(ctx, http.StatusUnsupportedMediaType, "Unsupported Media Type: "+contentType)
+	}
+}
+
+func handleJSONRequest(ctx *fasthttp.RequestCtx) {
+	var reqBody RequestBody
+	if err := json.Unmarshal(ctx.PostBody(), &reqBody); err != nil {
+		handleError(ctx, http.StatusBadRequest, "Error parsing JSON: "+err.Error())
+		return
+	}
+
 	h := fnv.New32a()
-
-	// parse uri
-	u, err := url.Parse(string(ctx.RequestURI()))
-	if err != nil {
-		log.Print(err)
-	}
-
-	// get uri parameters
-	q := u.Query()
-
-	if len(q.Get("text")) > 0 {
-		h.Write([]byte(q.Get("text")))
-		tokenStr := strconv.FormatUint(uint64(h.Sum32()), 10)
-		token = h.Sum32()
-		hexEncodedStr = hex.EncodeToString([]byte(q.Get("text")))
-		cached, err = CACHE.Get(tokenStr).Result()
-
-		if err == nil {
-			reply, err = hex.DecodeString(cached)
+	h.Write([]byte(reqBody.Text))
+	token := h.Sum32()
+	tokenStr := strconv.FormatUint(uint64(token), 10)
+	cached, err := CACHE.Get(tokenStr).Result()
+	if err == nil {
+		if reply, err := hex.DecodeString(cached); err == nil {
 			ctx.Write(reply)
-			// if cache not found - processing
-		} else {
-			// Create a unique subject name for replies.
-			uniqueReplyTo := nats.NewInbox()
-
-			// Listen for a single response
-			sub, err := NC.SubscribeSync(uniqueReplyTo)
-			if err != nil {
-				log.Print("Error subscribing to uniqueReplyTo: " + uniqueReplyTo)
-			}
-			// Send the request.
-			// If processing is synchronous, use Request() which returns the response message.
-			if err := EC.Publish("ascii.json.banner", &Req{Token: token, Hextr: hexEncodedStr, Reply: uniqueReplyTo, Db: q.Get("db")}); err != nil {
-				log.Print(err)
-			}
-			// Read the reply for Wait seconds
-			sec, _ := time.ParseDuration(*Wait)
-			msg, err := sub.NextMsg(sec)
-			if err != nil {
-				log.Print(err)
-			}
-			// get result from data service
-			cached, err := CACHE.Get(string(msg.Data)).Result()
-			// decode cached reply
-			reply, _ = hex.DecodeString(cached)
-
-			ctx.Write(reply)
-
+			return
 		}
-
-	} else {
-		ctx.Write(append([]byte(""), Environment...))
 	}
+
+	uniqueReplyTo := nats.NewInbox()
+	subscribeAndPublish(ctx, uniqueReplyTo, "ascii.json.banner", &Req{Token: token, Hextr: hex.EncodeToString([]byte(reqBody.Text)), Reply: uniqueReplyTo}, tokenStr)
+}
+
+func handleMultipartRequest(ctx *fasthttp.RequestCtx) {
+	file, err := ctx.FormFile("image")
+	if err != nil {
+		handleError(ctx, http.StatusBadRequest, "Failed to retrieve file")
+		return
+	}
+
+	ff, err := file.Open()
+	if err != nil {
+		handleError(ctx, http.StatusInternalServerError, "Error opening file")
+		return
+	}
+	defer ff.Close()
+
+	var buf bytes.Buffer
+	if _, err := io.Copy(&buf, ff); err != nil {
+		handleError(ctx, http.StatusInternalServerError, "Error copying file")
+		return
+	}
+
+	token := rand.Uint32()
+	if err := CACHE.Set(fmt.Sprintf("%d", token), buf.Bytes(), 10*time.Second).Err(); err != nil {
+		handleError(ctx, http.StatusInternalServerError, "Error saving image to Redis: "+err.Error())
+		return
+	}
+
+	uniqueReplyTo := nats.NewInbox()
+	subscribeAndPublish(ctx, uniqueReplyTo, "img.json.image", &Req{Token: token, Hextr: "", Reply: uniqueReplyTo}, fmt.Sprintf("%d", token))
+}
+
+func subscribeAndPublish(ctx *fasthttp.RequestCtx, uniqueReplyTo, subject string, req *Req, tokenStr string) {
+	sub, err := NC.SubscribeSync(uniqueReplyTo)
+	if err != nil {
+		handleError(ctx, http.StatusInternalServerError, "Error subscribing to uniqueReplyTo: "+uniqueReplyTo)
+		return
+	}
+
+	if err := EC.Publish(subject, req); err != nil {
+		handleError(ctx, http.StatusInternalServerError, "Error publishing to subject: "+subject)
+		return
+	}
+
+	sec, _ := time.ParseDuration(*Wait)
+	msg, err := sub.NextMsg(sec)
+	if err != nil {
+		handleError(ctx, http.StatusInternalServerError, "Error receiving message from uniqueReplyTo: "+uniqueReplyTo)
+		return
+	}
+
+	reply, err := CACHE.Get(string(msg.Data)).Result()
+
+	if err != nil {
+		handleError(ctx, http.StatusInternalServerError, "Error retrieving cache")
+		return
+	}
+
+	if strings.Contains(subject, "ascii") {
+		if decodedStr, err := hex.DecodeString(reply); err == nil {
+			reply = string(decodedStr)
+		} else {
+			handleError(ctx, http.StatusInternalServerError, "Error decoding hex string")
+			return
+		}
+	}
+
+	ctx.Write([]byte(reply))
 }

@@ -17,24 +17,9 @@ func DataHandler(r *Req, i int) {
 
 	tokenStr := strconv.FormatUint(uint64(r.Token), 10)
 
-	if r.Db == "rw" {
-
-		_, err = STMTIns.Exec(r.Token, r.Hextr)
-		if err != nil {
-			log.Print("InsertErr: %s", err)
-		}
-
-	}
-
-	if r.Db == "ro" {
-		// additional iteration
-		err = STMTSel.QueryRow(r.Token).Scan(&Payload) // WHERE number = 13
-
-		if err != nil {
-			Payload = r.Hextr
-			log.Printf("QueryRowErr: %s", err) // proper error handling instead of panic in your app
-		}
-
+	_, err = STMTIns.Exec(r.Token, r.Hextr)
+	if err != nil {
+		log.Print("InsertErr: %s", err)
 	}
 
 	sec, _ := time.ParseDuration(AppCacheExpire)

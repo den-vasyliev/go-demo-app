@@ -8,6 +8,7 @@ require (
 	github.com/den-vasyliev/image2ascii v2.0.1+incompatible
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-sql-driver/mysql v1.8.1
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/nats-io/nats.go v1.37.0
 	github.com/valyala/fasthttp v1.55.0

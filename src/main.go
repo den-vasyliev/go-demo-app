@@ -21,7 +21,6 @@ type Req struct {
 	Token uint32
 	Hextr string
 	Reply string
-	Db    string
 }
 
 func main() {
@@ -101,11 +100,13 @@ func main() {
 	// Subscribe
 	if _, err = EC.Subscribe(subjJSON, func(r *Req) {
 
-		log.Println("Received a message: ", subj, r.Token, r.Reply, r.Db)
+		log.Println("Received a message: ", subj, r.Token, r.Reply)
 		i++
 		if *AppRole == "ascii" {
 
 			go AsciiHandler(r, i)
+		} else if *AppRole == "img" {
+			go ImgHandler(r, i)
 
 		} else if *AppRole == "data" {
 
@@ -119,8 +120,6 @@ func main() {
 		switch *AppRole {
 		case "api":
 			api(ctx)
-		case "img":
-			img(ctx)
 		default:
 			ctx.SetStatusCode(fasthttp.StatusOK)
 			ctx.Write([]byte("200 - OK"))

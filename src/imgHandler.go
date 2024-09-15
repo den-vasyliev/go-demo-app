@@ -1,55 +1,36 @@
 package main
 
 import (
-	"bytes"
+	"fmt"
 	_ "image/jpeg"
-	"io"
 	"log"
+	"strconv"
+	"time"
 
 	"github.com/den-vasyliev/image2ascii/convert"
-	"github.com/valyala/fasthttp"
 )
 
-func img(ctx *fasthttp.RequestCtx) {
-	switch string(ctx.Method()) {
-	case "GET":
-		var b []byte
-		b = append([]byte(""), Environment...)
-		ctx.Write(b)
-	case "POST":
-		var buf bytes.Buffer
+func ImgHandler(r *Req, i int) {
+	sec, _ := time.ParseDuration(AppCacheExpire)
 
-		// Attempt to retrieve the file from the form
-		file, err := ctx.FormFile("image")
-		if err != nil {
-			log.Printf("Error retrieving file: %v", err)
-			ctx.SetStatusCode(fasthttp.StatusBadRequest)
-			ctx.Write([]byte("Failed to retrieve file"))
-			return
-		}
+	img, err := CACHE.Get(fmt.Sprintf("%d", r.Token)).Result()
 
-		ff, err := file.Open()
-		if err != nil {
-			log.Printf("Error opening file: %v", err)
-			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
-			return
-		}
-		defer ff.Close() // Ensure the file gets closed
+	if err != nil {
+		log.Print("No image in cache", err)
+	}
 
-		// Copy the file data to the buffer
-		if _, err := io.Copy(&buf, ff); err != nil {
-			log.Printf("Error copying file: %v", err)
-			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
-			return
-		}
+	if convertOptions, err := parseOptions(); err == nil {
+		converter := convert.NewImageConverter()
+		CACHE.Set(fmt.Sprintf("%d", r.Token), converter.ImageBuf2ASCIIString([]byte(img), convertOptions), sec)
+		log.Print("Image converted")
+	} else {
+		log.Print("No options provided")
+	}
+	tokenStr := strconv.FormatUint(uint64(r.Token), 10)
 
-		if convertOptions, err := parseOptions(); err == nil {
-			converter := convert.NewImageConverter()
-			ctx.Write([]byte(converter.ImageBuf2ASCIIString(buf.Bytes(), convertOptions)))
-		} else {
-			log.Print("No options provided")
-			ctx.SetStatusCode(fasthttp.StatusBadRequest)
-			ctx.Write([]byte("No options provided"))
-		}
+	err = NC.Publish(r.Reply, []byte(tokenStr))
+
+	if err != nil {
+		log.Print(err)
 	}
 }
