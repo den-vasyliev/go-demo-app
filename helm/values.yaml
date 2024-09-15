@@ -27,11 +27,6 @@ img:
   canary: 0
   header: ""
   port: 8080
-ml5:
-  replicas: 1
-  canary: 0
-  header: ""
-  port: 8080
 data:
   replicas: 1
   port: 8080
