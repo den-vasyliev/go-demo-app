@@ -33,7 +33,7 @@ func handleError(ctx *fasthttp.RequestCtx, statusCode int, message string) {
 // API handler processing POST requests
 func api(ctx *fasthttp.RequestCtx) {
 	if string(ctx.Method()) != http.MethodPost {
-		handleError(ctx, http.StatusMethodNotAllowed, "Method Not Allowed")
+		handleGetRequest(ctx)
 		return
 	}
 
@@ -47,6 +47,10 @@ func api(ctx *fasthttp.RequestCtx) {
 	default:
 		handleError(ctx, http.StatusUnsupportedMediaType, "Unsupported Media Type: "+contentType)
 	}
+}
+
+func handleGetRequest(ctx *fasthttp.RequestCtx) {
+	ctx.Write([]byte(Version))
 }
 
 func handleJSONRequest(ctx *fasthttp.RequestCtx) {
