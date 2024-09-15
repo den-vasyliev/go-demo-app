@@ -41,9 +41,6 @@ spec:
               secretKeyRef:
                 name: {{ .Release.Name }}-secret
                 key: license
-        volumeMounts:
-        - name: data
-          mountPath: /data
         resources:
           requests:
             cpu: 100m
@@ -64,8 +61,5 @@ spec:
             port: {{ .Values.api.port }}
           initialDelaySeconds: 0
           periodSeconds: 3
-      volumes:
-        - name: data
-          configMap:
-            name: {{ .Release.Name }}-configmap
+
 
