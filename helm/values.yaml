@@ -4,7 +4,7 @@ app:
   port: 80
 image:
   name: denvasyliev/k8sdiy
-  tag: build-599e1af
+  tag: build-04848b8
 front:
   version: 3.0.1
   replicas: 1
@@ -27,11 +27,6 @@ img:
   canary: 0
   header: ""
   port: 8080
-ml5:
-  replicas: 1
-  canary: 0
-  header: ""
-  port: 8080
 data:
   replicas: 1
   port: 8080
@@ -46,7 +41,7 @@ nats:
   enable: true
   size: 1
   service:
-    name: nats-cluster
+    name: demo-nats
     port: 4222
 ns:
   enable: false
