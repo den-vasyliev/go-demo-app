@@ -2,19 +2,19 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: {{ .Values.env }}-data
-  namespace: {{ .Values.env }}
+  name: {{ .Release.Namespace }}-data
+  namespace: {{ .Release.Namespace }}
   labels:
     version: {{ .Values.app.version }}
 spec:
   selector:
     matchLabels:
-      app: {{ .Values.env }}-data
+      app: {{ .Release.Namespace }}-data
   replicas: {{ .Values.data.replicas }}
   template:
     metadata:
       labels:
-        app: {{ .Values.env }}-data
+        app: {{ .Release.Namespace }}-data
         version: {{ .Values.app.version }}
     spec:
       containers:
