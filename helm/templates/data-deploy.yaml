@@ -25,12 +25,12 @@ spec:
           - "-role"
           - "data"
           - "-server"
-          - {{ .Values.env }}-{{ .Values.nats.service.name }}
+          - {{ .Release.Name }}-{{ .Values.nats.service.name }}
         env:
           - name: APP_DB
-            value: "root@tcp({{ .Values.env }}-{{ .Values.mysql.service.name }}:3306)/demo"
+            value: "root@tcp({{ .Release.Name }}-{{ .Values.mysql.service.name }}:3306)/demo"
           - name: APP_CACHE
-            value: "{{ .Values.env }}-{{ .Values.redis.service.name }}"
+            value: "{{ .Release.Name }}-{{ .Values.redis.service.name }}"
         resources:
           requests:
             cpu: 100m
