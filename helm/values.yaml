@@ -4,7 +4,7 @@ app:
   port: 80
 image:
   name: denvasyliev/k8sdiy
-  tag: build-eecf746
+  tag: build-17c6142
 api:
   replicas: 1
   canary: 0
