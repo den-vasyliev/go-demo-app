@@ -4,7 +4,7 @@ app:
   port: 80
 image:
   name: denvasyliev/k8sdiy
-  tag: build-c8cd46c
+  tag: build-b1ee187
 api:
   replicas: 1
   canary: 0
@@ -40,16 +40,12 @@ api-gateway:
     tag: 0.51.2
   service:
     type: NodePort
-
 redis:
   architecture: standalone
   auth:
     enabled: false
   service:
     name: redis-master
-
 mysql:
   service:
     name: mysql
-
-  
