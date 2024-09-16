@@ -25,7 +25,7 @@ spec:
           - "-role"
           - "api"
           - "-server"
-          - {{ .Values.env }}-{{ .Values.nats.service.name }}
+          - {{ .Release.Name }}-{{ .Values.nats.service.name }}
         imagePullPolicy: Always
         env:
           - name: APP_BACKEND
@@ -39,7 +39,7 @@ spec:
           - name: APP_LICENSE
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.env }}-secret
+                name: {{ .Release.Name }}-secret
                 key: license
         resources:
           requests:
