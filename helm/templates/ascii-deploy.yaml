@@ -2,7 +2,7 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: {{ .Release.Namespace }}-ascii
+  name: {{ .Release.Name }}-ascii
   namespace: {{ .Release.Namespace }}
   labels:
     version: {{ .Values.app.version }}
