@@ -33,13 +33,13 @@ spec:
           - name: APP_DB
             value: "root@tcp(db:3306)/demo"
           - name: APP_CACHE
-            value: "{{ .Values.cache.svc }}"
+            value: "{{ .Release.Name }}-{{ .Values.redis.service.name }}"
         resources:
           requests:
             cpu: 100m
             memory: 100Mi
         ports:
-        - containerPort: 80
+        - containerPort: {{ .Values.img.port }}
         securityContext:
         livenessProbe:
           httpGet:
