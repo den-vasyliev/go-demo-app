@@ -1,22 +1,22 @@
-apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: db
+  name: {{ .Release.Name }}-mysql
   namespace: {{ .Release.Namespace }}
   labels:
-    service: db
+    service: {{ .Release.Name }}-mysql
 spec:
   selector:
     matchLabels:
-      app: db
+      app: {{ .Release.Name }}-mysql
   replicas: 1
   template:
     metadata:
       labels:
-        app: db
+        app: {{ .Release.Name }}-mysql
     spec:
       containers:
-      - name: db
+      - name: mysql
         image: mysql  # or just image: percona
         env:
         - name: MYSQL_ALLOW_EMPTY_PASSWORD

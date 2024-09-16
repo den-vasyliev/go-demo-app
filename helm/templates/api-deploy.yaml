@@ -35,7 +35,7 @@ spec:
           - name: APP_DB
             value: "root@tcp(db:3306)/demo"
           - name: APP_CACHE
-            value: "{{ .Values.cache.svc }}"
+            value: "{{ .Release.Name }}-{{ .Values.redis.service.name }}"
           - name: APP_LICENSE
             valueFrom:
               secretKeyRef:
@@ -46,7 +46,7 @@ spec:
             cpu: 100m
             memory: 100Mi
         ports:
-        - containerPort: 8080
+        - containerPort: {{ .Values.api.port }}
           name: http
         securityContext:
         livenessProbe:

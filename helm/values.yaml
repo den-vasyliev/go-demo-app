@@ -4,14 +4,7 @@ app:
   port: 80
 image:
   name: denvasyliev/k8sdiy
-  tag: build-c8cd46c
-front:
-  version: 3.0.1
-  replicas: 1
-  canary: 0
-  header: ""
-  port: 8080
-  tag: front-v3.0.2
+  tag: build-b1ee187
 api:
   replicas: 1
   canary: 0
@@ -34,9 +27,6 @@ data:
 db:
   svc: db
   port: 3306
-cache:
-  svc: cache
-  port: 6379
 nats:
   enable: true
   size: 1
@@ -50,3 +40,12 @@ api-gateway:
     tag: 0.51.2
   service:
     type: NodePort
+redis:
+  architecture: standalone
+  auth:
+    enabled: false
+  service:
+    name: redis-master
+mysql:
+  service:
+    name: mysql
