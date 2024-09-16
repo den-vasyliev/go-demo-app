@@ -34,7 +34,7 @@ nats:
     name: demo-nats
     port: 4222
 ns:
-  enable: true
+  enable: false
 api-gateway:
   image:
     tag: 0.51.2
