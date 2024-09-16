@@ -2,19 +2,19 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-img
-  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.env }}-img
+  namespace: {{ .Values.env }}
   labels:
     version: {{ .Values.app.version }}
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-img
+      app: {{ .Values.env }}-img
   replicas: {{ .Values.img.replicas }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-img
+        app: {{ .Values.env }}-img
         version: {{ .Values.app.version }}
     spec:
       containers:
@@ -27,13 +27,11 @@ spec:
           - "-r"
           - "0.2"
           - "-server"
-          - {{ .Values.nats.service.name }}
+          - {{ .Values.env }}-{{ .Values.nats.service.name }}
         imagePullPolicy: Always
         env:
-          - name: APP_DB
-            value: "root@tcp(db:3306)/demo"
           - name: APP_CACHE
-            value: "{{ .Release.Name }}-{{ .Values.redis.service.name }}"
+            value: "{{ .Values.env }}-{{ .Values.redis.service.name }}"
         resources:
           requests:
             cpu: 100m

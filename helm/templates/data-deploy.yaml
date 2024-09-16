@@ -2,19 +2,19 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-data
-  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.env }}-data
+  namespace: {{ .Values.env }}
   labels:
     version: {{ .Values.app.version }}
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-data
+      app: {{ .Values.env }}-data
   replicas: {{ .Values.data.replicas }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-data
+        app: {{ .Values.env }}-data
         version: {{ .Values.app.version }}
     spec:
       containers:
@@ -25,12 +25,12 @@ spec:
           - "-role"
           - "data"
           - "-server"
-          - {{ .Values.nats.service.name }}
+          - {{ .Values.env }}-{{ .Values.nats.service.name }}
         env:
           - name: APP_DB
-            value: "root@tcp({{ .Release.Name }}-{{ .Values.mysql.service.name }}:3306)/demo"
+            value: "root@tcp({{ .Values.env }}-{{ .Values.mysql.service.name }}:3306)/demo"
           - name: APP_CACHE
-            value: "{{ .Release.Name }}-{{ .Values.redis.service.name }}"
+            value: "{{ .Values.env }}-{{ .Values.redis.service.name }}"
         resources:
           requests:
             cpu: 100m

@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   creationTimestamp: null
-  name: {{ .Release.Namespace | default "demo" }}
+  name: {{ .Values.env }}
 spec:
   finalizers:
   - kubernetes

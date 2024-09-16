@@ -6,8 +6,8 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-ascii
-  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.env }}-ascii
+  namespace: {{ .Values.env }}
   labels:
     app: ascii
     version: {{ .Values.app.version }}
@@ -28,4 +28,4 @@ spec:
     port: 80
     targetPort: {{ .Values.ascii.port }}
   selector:
-    app: {{ .Release.Name }}-ascii
+    app: {{ .Values.env }}-ascii

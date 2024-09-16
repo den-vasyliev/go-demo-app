@@ -1,3 +1,4 @@
+env: demo
 app:
   name: k8sdiy
   version: v4
@@ -31,9 +32,12 @@ nats:
   enable: true
   size: 1
   service:
-    name: demo-nats
+    name: nats
     port: 4222
 ns:
+  name: demo
+  create: true
+ingress:
   enable: true
 api-gateway:
   image:

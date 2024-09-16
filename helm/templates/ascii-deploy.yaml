@@ -2,19 +2,19 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-ascii
+  name: {{ .Values.env }}-ascii
   namespace: {{ .Release.Namespace }}
   labels:
     version: {{ .Values.app.version }}
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-ascii
+      app: {{ .Values.env }}-ascii
   replicas: {{ .Values.ascii.replicas }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-ascii
+        app: {{ .Values.env }}-ascii
         version: {{ .Values.app.version }}
     spec:
       containers:
@@ -25,7 +25,7 @@ spec:
           - "-role"
           - "ascii"
           - "-server"
-          - {{ .Values.nats.service.name }}
+          - {{ .Values.env }}-{{ .Values.nats.service.name }}
         imagePullPolicy: Always
         resources:
           requests:

@@ -5,8 +5,8 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-img
-  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.env }}-img
+  namespace: {{ .Values.env }}
   labels:
     app: img
     version: {{ .Values.app.version }}
@@ -27,4 +27,4 @@ spec:
     port: 80
     targetPort: {{ .Values.img.port }}
   selector:
-    app: {{ .Release.Name }}-img
+    app: {{ .Values.env }}-img
