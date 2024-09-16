@@ -32,10 +32,8 @@ spec:
             value: "iscii"
           - name: APP_DATASTORE
             value: "data"
-          - name: APP_DB
-            value: "root@tcp(db:3306)/demo"
           - name: APP_CACHE
-            value: "{{ .Values.env }}-{{ .Values.redis.service.name }}"
+            value: "{{ .Release.Name }}-{{ .Values.redis.service.name }}"
           - name: APP_LICENSE
             valueFrom:
               secretKeyRef:

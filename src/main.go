@@ -65,7 +65,7 @@ func main() {
 	cache()
 	if Role == "data" {
 		db()
-	} else if Role == "ascii" || Role == "api" {
+	} else if Role == "api" {
 		cache()
 	}
 
