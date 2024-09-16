@@ -25,7 +25,7 @@ spec:
           - "-role"
           - "ascii"
           - "-server"
-          - {{ .Values.env }}-{{ .Values.nats.service.name }}
+          - {{ .Release.Name }}-{{ .Values.nats.service.name }}
         imagePullPolicy: Always
         resources:
           requests:
