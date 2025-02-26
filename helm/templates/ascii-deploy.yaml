@@ -9,12 +9,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-ascii
+      app: {{ .Release.Namespace }}-ascii
   replicas: {{ .Values.ascii.replicas }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-ascii
+        app: {{ .Release.Namespace }}-ascii
         version: {{ .Values.app.version }}
     spec:
       containers:
@@ -25,21 +25,14 @@ spec:
           - "-role"
           - "ascii"
           - "-server"
-          - {{ .Values.nats.service.name }}
+          - {{ .Release.Name }}-{{ .Values.nats.service.name }}
         imagePullPolicy: Always
-        env:
-          - name: APP_DATASTORE
-            value: "{{ .Values.data.svc }}"
-          - name: APP_DB
-            value: "root@tcp(db:3306)/demo"
-          - name: APP_CACHE
-            value: "{{ .Values.cache.svc }}"
         resources:
           requests:
             cpu: 100m
             memory: 100Mi
         ports:
-        - containerPort: 8080
+        - containerPort: {{ .Values.ascii.port }}
           name: http
         securityContext:
         livenessProbe:

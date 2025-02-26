@@ -4,14 +4,7 @@ app:
   port: 80
 image:
   name: denvasyliev/k8sdiy
-  tag: build-599e1af
-front:
-  version: 3.0.1
-  replicas: 1
-  canary: 0
-  header: ""
-  port: 8080
-  tag: front-v3.0.2
+  tag: build-2c413d2
 api:
   replicas: 1
   canary: 0
@@ -27,11 +20,6 @@ img:
   canary: 0
   header: ""
   port: 8080
-ml5:
-  replicas: 1
-  canary: 0
-  header: ""
-  port: 8080
 data:
   replicas: 1
   port: 8080
@@ -39,19 +27,31 @@ data:
 db:
   svc: db
   port: 3306
-cache:
-  svc: cache
-  port: 6379
 nats:
   enable: true
   size: 1
   service:
-    name: nats-cluster
+    name: nats
     port: 4222
-ns:
-  enable: false
+ingress:
+  enable: true
 api-gateway:
   image:
-    tag: 0.51.2
+    tag: 0.53.0
   service:
     type: NodePort
+redis:
+  architecture: standalone
+  auth:
+    enabled: false
+  service:
+    name: redis-headless
+mysql:
+  service:
+    name: mysql
+
+gateway:
+  hostname: "demo.example.com"
+  parentGateway: "eg"
+  weight: 1
+  path: /

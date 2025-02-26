@@ -1,41 +1,36 @@
 package main
 
 import (
-	"bytes"
+	"fmt"
 	_ "image/jpeg"
-	"io"
 	"log"
+	"strconv"
+	"time"
 
 	"github.com/den-vasyliev/image2ascii/convert"
-	"github.com/valyala/fasthttp"
 )
 
-func img(ctx *fasthttp.RequestCtx) {
+func ImgHandler(r *Req, i int) {
+	sec, _ := time.ParseDuration(AppCacheExpire)
 
-	switch string(ctx.Method()) {
-	case "GET":
-		var b []byte
-		b = append([]byte(""), Environment...)
-		ctx.Write(b)
-	case "POST":
-		var Buf bytes.Buffer
+	img, err := CACHE.Get(fmt.Sprintf("%d", r.Token)).Result()
 
-		f, _ := ctx.FormFile("image")
-		ff, _ := f.Open()
-		//defer f.Close()
-		io.Copy(&Buf, ff)
-		b := Buf.Bytes()
+	if err != nil {
+		log.Print("No image in cache", err)
+	}
 
-		Buf.Reset()
-		//ctx.Header().Set("Content-Type", "text/plain")
+	if convertOptions, err := parseOptions(); err == nil {
+		converter := convert.NewImageConverter()
+		CACHE.Set(fmt.Sprintf("%d", r.Token), converter.ImageBuf2ASCIIString([]byte(img), convertOptions), sec)
+		log.Print("Image converted")
+	} else {
+		log.Print("No options provided")
+	}
+	tokenStr := strconv.FormatUint(uint64(r.Token), 10)
 
-		if convertOptions, err := parseOptions(); err == nil {
-			converter := convert.NewImageConverter()
+	err = NC.Publish(r.Reply, []byte(tokenStr))
 
-			ctx.Write([]byte(converter.ImageBuf2ASCIIString(b, convertOptions)))
-		} else {
-			log.Print("No opt")
-		}
-
+	if err != nil {
+		log.Print(err)
 	}
 }

@@ -9,12 +9,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-data
+      app: {{ .Release.Namespace }}-data
   replicas: {{ .Values.data.replicas }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-data
+        app: {{ .Release.Namespace }}-data
         version: {{ .Values.app.version }}
     spec:
       containers:
@@ -25,21 +25,18 @@ spec:
           - "-role"
           - "data"
           - "-server"
-          - {{ .Values.nats.service.name }}
+          - {{ .Release.Name }}-{{ .Values.nats.service.name }}
         env:
           - name: APP_DB
-            value: "root@tcp(db:3306)/demo"
+            value: "root@tcp({{ .Release.Name }}-{{ .Values.mysql.service.name }}:3306)/demo"
           - name: APP_CACHE
-            value: "{{ .Values.cache.svc }}"
-          - name: APP_CACHE_PORT
-            value: "{{ .Values.cache.port }}"
+            value: "{{ .Release.Name }}-{{ .Values.redis.service.name }}"
         resources:
           requests:
             cpu: 100m
             memory: 100Mi
         ports:
-        - containerPort: 8080
-        name: data
+        - containerPort: {{ .Values.data.port }}
         securityContext:
         livenessProbe:
           httpGet:

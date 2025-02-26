@@ -5,7 +5,7 @@ metadata:
   namespace: demo
 spec:
   containers:
-    - image: gcr.io/smartcity-gl/demo:v1.0.1
+    - image: gcr.io/k8s-k3s/demo:v1.0.0
       name: app
 
       livenessProbe:

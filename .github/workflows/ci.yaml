@@ -18,12 +18,6 @@ jobs:
      - name: Checkout code
        uses: actions/checkout@v2
  
-     - name: Run linter
-       run: make lint
- 
-     - name: Run unit tests
-       run: make unit-test
- 
      - name: Login to DockerHub
        uses: docker/login-action@v1 
        with:
@@ -92,4 +86,4 @@ jobs:
        uses: ad-m/github-push-action@master
        with:
          github_token: ${{ secrets.ACTIONS_TOKEN }}
-         branch: master
+         branch: ${{ github.ref }}

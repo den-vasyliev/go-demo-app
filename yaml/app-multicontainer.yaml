@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: app-two-containers
+  name: app-multi-containers
 spec:
   volumes:
   - name: html

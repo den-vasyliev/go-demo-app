@@ -11,17 +11,6 @@ metadata:
   labels:
     app: ascii
     version: {{ .Values.app.version }}
-  annotations:
-   getambassador.io/config: |
-      ---
-      apiVersion: ambassador/v1
-      kind:  Mapping
-      name:  {{ .Release.Name }}-ascii
-      prefix: /ascii/
-      service: {{ .Release.Name }}-ascii
-      {{include "canary-header" .}}
-        {{include "canary-header-mode" .}}
-      {{include "canary-weight" .}}
 spec:
   ports:
   - name: http
@@ -29,3 +18,29 @@ spec:
     targetPort: {{ .Values.ascii.port }}
   selector:
     app: {{ .Release.Name }}-ascii
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ template "helm.fullname" . }}-ascii
+  labels:
+    {{- include "helm.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+    - name: {{ .Values.gateway.parentGateway }}
+  hostnames:
+    - {{ .Values.gateway.hostname | quote }}
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Release.Name }}-ascii
+      port: {{ .Values.app.port }}
+      weight: 1
+    {{- with .Values.filters }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    matches:
+    - path:
+        type: PathPrefix
+        value: {{ .Values.gateway.path }}ascii

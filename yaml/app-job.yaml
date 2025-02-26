@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: app-job
+  name: app-job-rsync
 spec:
   template:
     spec:
@@ -10,9 +10,7 @@ spec:
         gcePersistentDisk:
           pdName: glow-data-disk-200
           fsType: ext4
-      - name: data-output
-        emptyDir: {}
-      initContainers:
+      containers:
       - name: init
         image: google/cloud-sdk:275.0.0-alpine
         command:
@@ -22,22 +20,5 @@ spec:
         volumeMounts:
         - name: data-input
           mountPath: /data/input
-      containers:
-      - name: processor
-        image: glowtools/soccer:latest-4e4254a 
-#        command: ["python soccer.py",  "-debug --writer=hdd --test_path=testing_directory"]
-        command: ["/bin/sh", "-c", "ls -l /data/input"]
-        lifecycle:
-           postStart:
-             exec:
-               command: ["/bin/sh", "-c", "echo Start from the postStart handler > /data/input/message"]
-           preStop:
-             exec:
-               command: ["/bin/sh", "-c", "echo Stop from the postStop handler > /data/output/message"]
-        volumeMounts:
-        - name: data-input
-          mountPath: /data/input
-        - name: data-output
-          mountPath: /data/output
       restartPolicy: Never
   backoffLimit: 0

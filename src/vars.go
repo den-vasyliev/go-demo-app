@@ -5,9 +5,9 @@ import (
 	"os"
 
 	"github.com/armon/go-metrics"
+	"github.com/den-vasyliev/image2ascii/convert"
 	"github.com/go-redis/redis"
 	"github.com/nats-io/nats.go"
-	"github.com/den-vasyliev/image2ascii/convert"
 )
 
 var (
