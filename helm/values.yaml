@@ -4,7 +4,7 @@ app:
   port: 80
 image:
   name: denvasyliev/k8sdiy
-  tag: build-2c413d2
+  tag: build-73d7c92
 api:
   replicas: 1
   canary: 0
@@ -49,7 +49,6 @@ redis:
 mysql:
   service:
     name: mysql
-
 gateway:
   hostname: "demo.example.com"
   parentGateway: "eg"
