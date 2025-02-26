@@ -4,7 +4,7 @@ app:
   port: 80
 image:
   name: denvasyliev/k8sdiy
-  tag: build-2c413d2
+  tag: build-73d7c92
 api:
   replicas: 1
   canary: 0
@@ -37,7 +37,7 @@ ingress:
   enable: true
 api-gateway:
   image:
-    tag: 0.51.2
+    tag: 0.53.0
   service:
     type: NodePort
 redis:
@@ -49,3 +49,8 @@ redis:
 mysql:
   service:
     name: mysql
+gateway:
+  hostname: "demo.example.com"
+  parentGateway: "eg"
+  weight: 1
+  path: /

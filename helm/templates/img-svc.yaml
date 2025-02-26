@@ -10,17 +10,6 @@ metadata:
   labels:
     app: img
     version: {{ .Values.app.version }}
-  annotations:
-   getambassador.io/config: |
-      ---
-      apiVersion: ambassador/v1
-      kind:  Mapping
-      name:  {{ .Release.Name }}-img
-      prefix: /img/
-      service: {{ .Release.Name }}-img
-      {{include "img-canary-header" .}}
-        {{include "img-canary-header-mode" .}}
-      {{include "img-canary-weight" .}}
 spec:      
   ports:
   - name: http
@@ -28,3 +17,29 @@ spec:
     targetPort: {{ .Values.img.port }}
   selector:
     app: {{ .Release.Name }}-img
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ template "helm.fullname" . }}-img
+  labels:
+    {{- include "helm.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+    - name: {{ .Values.gateway.parentGateway }}
+  hostnames:
+    - {{ .Values.gateway.hostname | quote }}
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Release.Name }}-img
+      port: {{ .Values.app.port }}
+      weight: 1
+    {{- with .Values.filters }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    matches:
+    - path:
+        type: PathPrefix
+        value: {{ .Values.gateway.path }}img
