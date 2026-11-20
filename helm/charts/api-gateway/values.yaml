@@ -9,12 +9,13 @@ app:
 
 image:
   repository: quay.io/datawire
-  tag: 0.40.0
+  tag: 1.14.4
   pullPolicy: IfNotPresent
 
 service:
   type: NodePort
   port: 80
+  targetPort: 8080
 
 ingress:
   enabled: false

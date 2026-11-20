@@ -52,6 +52,8 @@ ns:
   enable: false
 api-gateway:
   image:
-    tag: 0.51.2
+    tag: 1.14.4
   service:
     type: NodePort
+    port: 80
+    targetPort: 8080
