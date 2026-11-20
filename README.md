@@ -80,6 +80,9 @@ vim Container
 
 
 # API-GATEWAY
+
+The chart uses the Schema 2 Ambassador image `1.14.4`, which can be pulled by containerd 2.1. The Kubernetes Service keeps port `80` and forwards to Ambassador's HTTP listener on `8080`, so port-forward with `kubectl -n demo port-forward svc/ambassador 8080:80`.
+
 	git clone https://github.com/den-vasyliev/go-demo-app.git
 	cd go-demo-app
 	helm template ./helm --namespace demo --name demo |k apply -f -
@@ -106,6 +109,12 @@ vim Container
 
 	watch -t -d -n 0.5 curl -s $DEMOLB/api/ -Hx-mode:canary
 	watch -t -d -n 0.5 curl -s $DEMOLB/api/ 
+
+For the API upgrade exercise, deploy the new image as a QA canary and send `x-mode: qa` to reach it:
+
+	 helm template qa-version ./helm --namespace demo --set image.tag=build-802e329 --set app.version=qa --set api.header=qa | kubectl apply -f -
+	 curl http://localhost:8080/api/
+	 curl -H 'x-mode: qa' http://localhost:8080/api/
 
 	helm template ./helm --namespace demo --name demo3 --set image.tag=v3 --set app.version=v3 --set api.canary=100 |k apply -f -
 	helm template ./helm --namespace demo --name demo2 --set ns.enable=false --set api-gateway.enable=false|k delete -f -
